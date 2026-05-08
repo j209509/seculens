@@ -332,8 +332,8 @@ export default function LandingPage() {
       {/* 4. Trust Stats */}
       <section className="stats">
         <div className="container">
-          <div className="stat"><div className="num">22<span className="unit">チェック</span></div><div className="lbl">チェックカテゴリ数</div></div>
-          <div className="stat"><div className="num">110<span className="plus">+</span></div><div className="lbl">検査項目数</div></div>
+          <div className="stat"><div className="num">23<span className="unit">カテゴリ</span></div><div className="lbl">診断カテゴリ数</div></div>
+          <div className="stat"><div className="num">174</div><div className="lbl">検査項目数</div></div>
           <div className="stat"><div className="num">3〜8<span className="unit">分</span></div><div className="lbl">診断所要時間</div></div>
           <div className="stat"><div className="num" style={{ fontSize: 24 }}>OWASP Top10</div><div className="lbl">完全準拠</div></div>
         </div>
