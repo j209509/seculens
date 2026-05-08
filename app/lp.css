@@ -107,17 +107,20 @@
 .scs-seal-ipa span { font-size: 11px; color: var(--gray-500); font-weight: 500; }
 
 /* ---------- Dashboard Mockup ---------- */
-.hero-right { display: flex; align-items: center; justify-content: center; position: relative; }
+.hero-right { display: flex; align-items: center; justify-content: flex-end; position: relative; }
 .hero-woman {
-  width: 100%;
-  max-width: 520px;
-  height: auto;
-  max-height: 600px;
-  object-fit: contain;
-  object-position: center;
-  display: block;
-  filter: drop-shadow(0 16px 40px rgba(15,23,42,.18)) drop-shadow(0 4px 12px rgba(37,99,235,.08));
+  position: absolute;
+  /* ダッシュボードの後ろ・左寄り（テキストカラム側）に配置 */
+  left: -120px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 520px;
+  width: auto;
+  z-index: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 16px 40px rgba(15,23,42,.15));
 }
+.hero-right .dash-mock { position: relative; z-index: 1; }
 .dash-mock { background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgba(15,23,42,.16), 0 4px 16px rgba(15,23,42,.06); border: 1px solid var(--gray-200); overflow: hidden; width: 100%; max-width: 500px; animation: mock-enter .6s ease both; }
 @keyframes mock-enter { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
