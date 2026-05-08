@@ -24,6 +24,10 @@ export async function checkScanQuota(
   user: User
 ): Promise<{ allowed: boolean; remaining: number; limit: number; used: number }> {
   const u = await ensureUsageWindow(user);
+  // 管理者は無制限（テスト・運用のため）
+  if (u.role === "admin") {
+    return { allowed: true, remaining: -1, limit: -1, used: u.scansThisMonth };
+  }
   const plan = getPlan(u.plan);
   const limit = plan.limits.scansPerMonth;
   const used = u.scansThisMonth;

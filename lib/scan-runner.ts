@@ -25,6 +25,7 @@ import { runXssSafeProbe } from "@/lib/checks/xss-safe";
 import { runSqliSafeProbe } from "@/lib/checks/sqli-safe";
 import { runSsrfSafeProbe } from "@/lib/checks/ssrf-ssti-safe";
 import { runAnonymousApiExposureCheck } from "@/lib/checks/anonymous-api-exposure";
+import { runBestPracticesCheck } from "@/lib/checks/best-practices";
 
 type CheckDef = {
   name: string;
@@ -77,6 +78,7 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
   // Tier 順 ( hit 率高い → 低い ) に並び替え
   const CHECKS: CheckDef[] = [
     // Tier 1
+    { name: "ベストプラクティス基本検査", fn: () => runBestPracticesCheck(scanId, targetUrl) },
     { name: "セキュリティヘッダー検査", fn: () => runExternalMiscChecks(scanId, targetUrl) },
     { name: "サイト構造・隠しパス検出", fn: () => runWellKnownAndRobotsCheck(scanId, targetUrl) },
     { name: "古いソフトウェア・既知脆弱性検出", fn: () => runOutdatedSoftwareCheck(scanId, targetUrl) },
@@ -105,14 +107,60 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
   ];
 
   try {
-    // 2. 各チェックをシーケンシャルに実行
-    for (let i = 0; i < CHECKS.length; i++) {
-      await updateScanProgress(scanId, CHECKS[i].name, i, CHECKS.length);
-      try {
-        await scanContext.run({ scanId }, () => CHECKS[i].fn());
-      } catch (e) {
-        console.warn(`[scan] ${CHECKS[i].name} failed:`, e);
+    // 2. サーバスペックに応じて並列度を決定
+    //    Fly.io の shared-cpu-1x (1 CPU / 1GB RAM) では 3 並列が安全
+    //    高スペック環境（ローカル等）ではコア数に応じて拡大
+    const os = await import("node:os");
+    const cpuCount = os.cpus().length;
+    const totalMemMB = Math.round(os.totalmem() / (1024 * 1024));
+    // メモリ < 1GB は控えめ、< 2GB は中程度、それ以上は CPU の 1.5 倍まで
+    const baseConcurrency =
+      totalMemMB < 768 ? 2 :
+      totalMemMB < 1500 ? 3 :
+      Math.min(8, Math.max(4, Math.floor(cpuCount * 1.5)));
+    // Playwright を多用する Tier 4 はメモリを食うので控えめに
+    const HEAVY_CONCURRENCY = totalMemMB < 1500 ? 1 : 2;
+    console.log(`[scan-runner] cpus=${cpuCount} mem=${totalMemMB}MB concurrency=${baseConcurrency} heavy=${HEAVY_CONCURRENCY}`);
+
+    // Tier 境界 (CHECKS の順番に対応, 計23モジュール)
+    // Tier 1: 0-4 (5 modules) — quick wins
+    // Tier 2: 5-11 (7 modules) — medium passive
+    // Tier 3: 12-18 (7 modules) — lower passive
+    // Tier 4: 19-22 (4 modules) — heavy active probes
+    const tiers = [
+      { range: [0, 4], concurrency: baseConcurrency, label: "Tier1" },
+      { range: [5, 11], concurrency: baseConcurrency, label: "Tier2" },
+      { range: [12, 18], concurrency: baseConcurrency, label: "Tier3" },
+      { range: [19, 22], concurrency: HEAVY_CONCURRENCY, label: "Tier4" },
+    ];
+
+    let completed = 0;
+    for (const tier of tiers) {
+      const [start, end] = tier.range;
+      const slice = CHECKS.slice(start, end + 1);
+      // 同 Tier 内を limited-concurrency で並列実行
+      let cursor = 0;
+      const workers: Promise<void>[] = [];
+      for (let w = 0; w < tier.concurrency; w++) {
+        workers.push((async () => {
+          while (true) {
+            const idx = cursor++;
+            if (idx >= slice.length) return;
+            const check = slice[idx];
+            // 開始時に進捗表示（このチェックを「実行中」として表示）
+            await updateScanProgress(scanId, check.name, completed, CHECKS.length);
+            try {
+              await scanContext.run({ scanId }, () => check.fn());
+            } catch (e) {
+              console.warn(`[scan] ${check.name} failed:`, e);
+            }
+            completed++;
+            // 完了時に進捗を更新
+            await updateScanProgress(scanId, check.name, completed, CHECKS.length);
+          }
+        })());
       }
+      await Promise.all(workers);
     }
 
     // 最終進捗を100%にセット

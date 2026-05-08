@@ -12,11 +12,12 @@ import {
 } from "recharts";
 import {
   Shield, AlertTriangle, Search, TrendingUp, CheckCircle, XCircle,
-  Clock, Award, FlaskConical, Database, RefreshCw, CreditCard, Zap,
+  Clock, Award, FlaskConical, Database, RefreshCw, CreditCard, Zap, BarChart2,
 } from "lucide-react";
 import { DASHBOARD_KPI, MOCK_SCAN_HISTORY, RISK_DISTRIBUTION, SCAN_TREND } from "@/lib/mock-data";
 import { RiskScoreBadge } from "@/components/risk-badge";
 import Link from "next/link";
+import { SecurityNewsTicker } from "@/components/dashboard/SecurityNewsTicker";
 
 // ─── 本番APIから取得するスキャンの型 ──────────────────────────────────────
 type LiveScan = {
@@ -77,6 +78,7 @@ export default function DashboardPage() {
   const [liveError, setLiveError] = useState<string | null>(null);
   const [me, setMe] = useState<Me>(null);
   const [usage, setUsage] = useState<Usage>(null);
+  const [liveTrend, setLiveTrend] = useState<{ month: string; scans: number; vulnerabilities: number }[]>([]);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -109,7 +111,13 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!demoMode) fetchLive();
+    if (!demoMode) {
+      fetchLive();
+      fetch("/api/dashboard/trend")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (Array.isArray(d?.trend)) setLiveTrend(d.trend); })
+        .catch(() => {});
+    }
   }, [demoMode, fetchLive]);
 
   // ─── データソースを選択 ─────────────────────────────────────────────────
@@ -131,16 +139,19 @@ export default function DashboardPage() {
     vulnerabilities: [],
   }));
   const riskDist = demoMode ? RISK_DISTRIBUTION : calcLiveRiskDist(liveScans);
-  const trendData = demoMode ? SCAN_TREND : [];
+  const trendData = demoMode ? SCAN_TREND : liveTrend;
 
   return (
     <div className="p-6 space-y-6">
+
+      {/* ─── セキュリティ最新情報ティッカー ──────────────────────────────── */}
+      <SecurityNewsTicker />
 
       {/* ─── ヘッダー + モード切り替え ──────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {me ? <>こんにちは、<span className="text-blue-600">{me.name || me.email}</span>さん</> : "ダッシュボード"}
+            {me ? <>こんにちは、<span className="text-blue-600">{me.name?.trim() || me.email.split("@")[0]}</span>さん</> : "ダッシュボード"}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             {demoMode ? "デモデータを表示中" : "本番データを表示中（実際のスキャン結果）"}
@@ -395,7 +406,7 @@ export default function DashboardPage() {
                 <CardTitle className="text-base font-semibold">スキャン数 / 脆弱性検出数の推移</CardTitle>
               </CardHeader>
               <CardContent>
-                {demoMode ? (
+                {trendData.length > 0 && trendData.some((d) => d.scans > 0 || d.vulnerabilities > 0) ? (
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart data={trendData} barGap={4}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -408,8 +419,10 @@ export default function DashboardPage() {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex items-center justify-center h-[220px] text-sm text-slate-400">
-                    本番モードでの月次推移グラフは今後実装予定です
+                  <div className="flex flex-col items-center justify-center h-[220px] text-sm text-slate-400 gap-2">
+                    <BarChart2 className="w-10 h-10 opacity-40" />
+                    <p>過去6ヶ月のスキャン履歴がありません</p>
+                    <Link href="/scan" className="text-blue-600 hover:underline text-xs">最初のスキャンを開始 →</Link>
                   </div>
                 )}
               </CardContent>

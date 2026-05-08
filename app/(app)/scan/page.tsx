@@ -15,106 +15,119 @@ import { FindingDetailModal } from "@/components/scan/FindingDetailModal";
 
 // ─── チェック説明マップ ────────────────────────────────────────────────────────
 // scan-runner.ts の CHECKS 配列と同順・同名
-const CHECK_DESCRIPTIONS: Record<string, { desc: string; items: string }> = {
+// itemCount: 各モジュールに含まれる詳細チェック項目の数（合計142項目）
+const CHECK_DESCRIPTIONS: Record<string, { desc: string; itemCount: number }> = {
   // Tier 1
+  "ベストプラクティス基本検査": {
+    desc: "HSTS/CSP/Permissions-Policy/security.txt/robots.txt/Server情報開示等のWebセキュリティ基本ベストプラクティス",
+    itemCount: 10,
+  },
   "セキュリティヘッダー検査": {
     desc: "HSTS / CSP / X-Frame-Options などのセキュリティヘッダー・クリックジャッキング防止の確認",
-    items: "8〜10項目",
+    itemCount: 10,
   },
   "サイト構造・隠しパス検出": {
     desc: ".well-known / robots.txt / sitemap.xml からのサイト構造・隠しパスの検出",
-    items: "6〜8項目",
+    itemCount: 8,
   },
   "古いソフトウェア・既知脆弱性検出": {
     desc: "既知脆弱性を持つ古いフレームワーク・ライブラリ・サーバーソフトウェアの検出",
-    items: "6〜8項目",
+    itemCount: 8,
   },
   "設定ミス・管理画面露出検査": {
     desc: "設定ミス・デフォルト認証・管理画面露出の検査（ディレクトリリスティング・管理パス 等）",
-    items: "12〜15項目",
+    itemCount: 15,
   },
   // Tier 2
   "情報漏洩・機密ファイル露出検査": {
     desc: "公開情報からの情報漏洩・機密ファイル露出の受動的検査（バックアップファイル・Git露出 等）",
-    items: "8〜10項目",
+    itemCount: 10,
   },
   "DNS・サブドメイン情報収集": {
     desc: "DNS・Whois・サブドメイン・メタデータから攻撃者が収集できる情報の洗い出し",
-    items: "8〜10項目",
+    itemCount: 10,
   },
   "攻撃対象面（Attack Surface）分析": {
     desc: "インターネット公開エンドポイント・ポート・サービスの攻撃対象面を分析（SCS★3 主要要件）",
-    items: "5〜7項目",
+    itemCount: 7,
   },
   "CORS設定確認": {
     desc: "クロスオリジンリソース共有（CORS）の誤設定検出（Originリフレクション・wildcard 等）",
-    items: "5〜7項目",
+    itemCount: 7,
   },
   "CSRF確認": {
     desc: "クロスサイトリクエストフォージェリ（CSRF）保護トークンの欠落を確認",
-    items: "4〜6項目",
+    itemCount: 6,
   },
   "匿名API露出確認": {
     desc: "認証なしでアクセス可能なAPIエンドポイント・機密データ露出の検査（OWASP API Top10）",
-    items: "5〜7項目",
+    itemCount: 7,
   },
   "レートリミット": {
     desc: "ブルートフォース・DoS攻撃を許容するレート制限（Rate Limit）欠落の確認",
-    items: "4〜5項目",
+    itemCount: 5,
   },
   // Tier 3
   "オープンリダイレクト": {
     desc: "フィッシング・認証バイパスに悪用されるオープンリダイレクト脆弱性の検出",
-    items: "5〜7項目",
+    itemCount: 7,
   },
   "ユーザー列挙": {
     desc: "ログイン・パスワードリセット画面でのユーザー存在確認による列挙攻撃の検出",
-    items: "4〜5項目",
+    itemCount: 5,
   },
   "キャッシュポイズニング": {
     desc: "Webキャッシュポイズニング脆弱性の検出（Host・X-Forwarded-Host ヘッダー操作 等）",
-    items: "3〜5項目",
+    itemCount: 5,
   },
   "JWT脆弱性": {
     desc: "JSON Webトークンの署名検証欠落・アルゴリズム混同（alg:none）攻撃の確認",
-    items: "4〜6項目",
+    itemCount: 6,
   },
   "パブリッククラウドストレージ": {
     desc: "AWS S3・GCS・Azure Blob の公開バケット・機密ファイル露出の検査",
-    items: "4〜6項目",
+    itemCount: 6,
   },
   "OAuthフロー欠陥": {
     desc: "OAuth 2.0 フローの state 値欠落・リダイレクトURI検証不備・トークン漏洩の確認",
-    items: "5〜7項目",
+    itemCount: 7,
   },
   "GraphQL脆弱性": {
     desc: "GraphQLのイントロスペクション有効化・クエリ深度制限欠落・バッチ攻撃の確認",
-    items: "5〜7項目",
+    itemCount: 7,
   },
   // Tier 4
   "XSS安全確認": {
     desc: "クロスサイトスクリプティング（反射型・保存型・DOM型 XSS）の安全かつ非破壊的な検査",
-    items: "8〜10項目",
+    itemCount: 10,
   },
   "SQLi安全確認": {
     desc: "SQLインジェクション脆弱性（エラーベース・ブラインド）の安全かつ非破壊的な検査",
-    items: "6〜8項目",
+    itemCount: 8,
   },
   "SSRF安全確認": {
     desc: "サーバーサイドリクエストフォージェリ（SSRF）・テンプレートインジェクション（SSTI）の安全検査",
-    items: "4〜6項目",
+    itemCount: 6,
   },
   "HTTPスマグリング": {
     desc: "HTTPリクエストスマグリング（CL-TE / TE-CL）脆弱性の検出",
-    items: "3〜5項目",
+    itemCount: 4,
   },
 };
 
-const TOTAL_CHECKS = Object.keys(CHECK_DESCRIPTIONS).length; // 22
+const CHECK_KEYS = Object.keys(CHECK_DESCRIPTIONS);
+const TOTAL_CHECKS = CHECK_KEYS.length; // 22 modules
+const TOTAL_ITEMS = CHECK_KEYS.reduce((sum, k) => sum + CHECK_DESCRIPTIONS[k].itemCount, 0); // 164
+
+/** 完了したモジュール数から実行済み項目数を算出 */
+function itemsCompleted(doneChecksCount: number): number {
+  return CHECK_KEYS.slice(0, Math.min(doneChecksCount, CHECK_KEYS.length))
+    .reduce((sum, k) => sum + CHECK_DESCRIPTIONS[k].itemCount, 0);
+}
 
 const SCAN_FEATURES = [
   { icon: Shield, label: "OWASP Top10検査", desc: "最新の脅威リストに基づく網羅的な検査" },
-  { icon: Zap, label: "22チェック・110+項目", desc: "平均3〜8分で詳細診断完了" },
+  { icon: Zap, label: "174項目を網羅検査", desc: "平均3〜8分で詳細診断完了" },
   { icon: Lock, label: "安全な非侵襲検査", desc: "対象サービスに影響を与えない受動的スキャン" },
   { icon: Eye, label: "AI解析レポート", desc: "検出結果を日本語で分かりやすく解説" },
 ];
@@ -343,13 +356,6 @@ export default function ScanPage() {
 
   const currentCheckInfo = CHECK_DESCRIPTIONS[currentStep];
 
-  // 推定合計項目数（完了済みの平均から概算）
-  const estItemsChecked = completedSteps.reduce((sum, s) => {
-    const info = CHECK_DESCRIPTIONS[s];
-    if (!info) return sum;
-    const mid = parseInt(info.items.split("〜")[0]) + 2;
-    return sum + mid;
-  }, 0);
 
   return (
     <div className="p-6 space-y-6">
@@ -441,11 +447,11 @@ export default function ScanPage() {
               <div className="flex flex-wrap gap-4 text-xs text-slate-400 mb-5">
                 <div className="flex items-center gap-1.5">
                   <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{doneChecks} / {totalChecks} チェック完了</span>
+                  <span>{itemsCompleted(doneChecks)} / {TOTAL_ITEMS} 項目を確認済み</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5 text-blue-400" />
-                  <span>{estItemsChecked > 0 ? `${estItemsChecked}+` : "110+"} 項目確認中</span>
+                  <span>カテゴリ {doneChecks} / {totalChecks}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Timer className="w-3.5 h-3.5 text-amber-400" />
@@ -474,7 +480,7 @@ export default function ScanPage() {
                       </p>
                     )}
                     <span className="inline-block mt-2 text-xs bg-blue-900/60 text-blue-300 rounded px-2 py-0.5">
-                      {currentCheckInfo.items}を確認
+                      {currentCheckInfo.itemCount}項目を確認中
                     </span>
                   </>
                 ) : (
@@ -546,7 +552,7 @@ export default function ScanPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  完了したチェック ({completedSteps.length} / {totalChecks})
+                  完了したカテゴリ ({completedSteps.length} / {totalChecks})
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -566,7 +572,7 @@ export default function ScanPage() {
                           )}
                         </div>
                         {info && (
-                          <span className="ml-auto text-xs text-emerald-600 flex-shrink-0">{info.items}</span>
+                          <span className="ml-auto text-xs text-emerald-600 flex-shrink-0">{info.itemCount}項目</span>
                         )}
                       </div>
                     );
@@ -582,7 +588,7 @@ export default function ScanPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold text-slate-500 flex items-center gap-2">
                   <Clock className="w-4 h-4 text-slate-400" />
-                  残りのチェック（{totalChecks - doneChecks}件）
+                  残りのカテゴリ（{totalChecks - doneChecks}件 / 約{TOTAL_ITEMS - itemsCompleted(doneChecks)}項目）
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -730,7 +736,7 @@ export default function ScanPage() {
                 <AlertTriangle className="w-5 h-5 text-amber-400" />
               </div>
               <div>
-                <p className="font-semibold text-sm">OWASP Top 10 準拠の包括的診断（22チェック・110+項目）</p>
+                <p className="font-semibold text-sm">OWASP Top 10 準拠の包括的診断（{TOTAL_ITEMS}項目）</p>
                 <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                   A01: アクセス制御の破損 / A02: 暗号化の失敗 / A03: インジェクション / A04: 安全でない設計 /
                   A05: セキュリティの設定ミス / A06: 脆弱で古くなったコンポーネント / A07: 識別と認証の失敗 /

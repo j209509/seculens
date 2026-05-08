@@ -25,6 +25,7 @@ export async function GET() {
       limit: quota.limit,
       remaining: quota.remaining,
       resetAt: refreshed.usageResetAt,
+      isAdmin: refreshed.role === "admin",
     });
   } catch (e) {
     console.error("[api/usage GET]", e);

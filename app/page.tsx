@@ -24,7 +24,7 @@ const SEV_LABEL: Record<string, string> = {
 const MAX_RECONNECT = 5;
 
 const FAQ_ITEMS = [
-  { q: "診断は本当に無料ですか？", a: "はい、ゲスト診断（10項目）はクレジットカード登録不要で完全無料です。無料アカウントを作成いただくと、全110+項目の診断を月3回まで実行可能です。有料プランへの自動切替もありません。" },
+  { q: "診断は本当に無料ですか？", a: "はい、ゲスト診断（10項目）はクレジットカード登録不要で完全無料です。無料アカウントを作成いただくと、全174項目の診断を月3回まで実行可能です。有料プランへの自動切替もありません。" },
   { q: "診断中に対象サイトに影響は出ませんか？", a: "Sequliaは「受動的スキャン」を採用しており、対象サービスへの不正なリクエストや負荷試験のような攻撃的な検査は行いません。本番環境でも安全に診断可能で、平均HTTPリクエスト数は数百件程度に抑えられます。" },
   { q: "競合他社のサイトを診断できますか？", a: "利用規約により、ご自身が運営するサイト・正当な権限を持つサイトのみ診断対象とさせていただいております。第三者サイトへの無断診断は不正アクセス禁止法違反に該当する可能性があります。" },
   { q: "ログイン後のページも診断できますか？", a: "プロプラン以上で対応しています。テスト用アカウント情報を安全に登録いただくことで、認証後の管理画面・会員専用ページも診断対象に含めることが可能です。" },
@@ -240,7 +240,7 @@ export default function LandingPage() {
             <h1>見つける、守れる、<br /><span className="accent">Webのリスクを可視化</span></h1>
             <p className="hero-sub">自動化された診断で、脆弱性を早期に発見。<br />安全なWebサービス運用をサポートします。</p>
             <div className="hero-feats">
-              <div className="hfeat"><span className="hfeat-ico">🎯</span><div><strong>高精度スキャン</strong><span>110+項目を自動診断</span></div></div>
+              <div className="hfeat"><span className="hfeat-ico">🎯</span><div><strong>高精度スキャン</strong><span>174項目を自動診断</span></div></div>
               <div className="hfeat"><span className="hfeat-ico">⚡</span><div><strong>スピード診断</strong><span>最短3分で結果を確認</span></div></div>
               <div className="hfeat"><span className="hfeat-ico">🛡️</span><div><strong>安心のサポート</strong><span>専門チームが徹底支援</span></div></div>
             </div>
@@ -543,7 +543,7 @@ export default function LandingPage() {
               <div style={{ textAlign: "center", marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
                 {!me && (
                   <Link href="/signup" className="btn btn-primary btn-lg">
-                    全110+項目で診断するには無料登録 →
+                    全174項目で診断するには無料登録 →
                   </Link>
                 )}
                 <button onClick={() => { setScanPhase("idle"); setUrl(""); }} className="btn btn-soft">別のURLを診断する</button>
@@ -908,7 +908,7 @@ export default function LandingPage() {
               },
               {
                 ico: "🌱", name: "フリー", price: "¥0", per: "", tag: "無料アカウント", featured: false,
-                feats: ["全110+項目チェック","月3回まで診断可能","SCSテンプレート対応","PDFレポートDL"],
+                feats: ["全174項目チェック","月3回まで診断可能","SCSテンプレート対応","PDFレポートDL"],
                 cta: { label: "無料登録で始める", href: "/signup", cls: "btn-outline-plan" },
               },
               {
