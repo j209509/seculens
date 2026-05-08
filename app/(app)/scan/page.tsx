@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -158,6 +158,8 @@ export default function ScanPage() {
   // 残り時間は「減るだけ」にする（伸びると体験最悪）
   const lastRemainRef = useRef<number>(25 * 60);
   const lastTickAtRef = useRef<number>(Date.now());
+  // 経過時間の起点（クライアント側のtickでカウントアップ）
+  const scanStartedAtRef = useRef<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
@@ -169,6 +171,15 @@ export default function ScanPage() {
   const reconnectCount = useRef(0);
   const scanIdRef = useRef<string | null>(null);
   const scanStateRef = useRef<ScanState>("idle");
+
+  /** URLにscanIdを保存（リロード時に続きから再開できるように） */
+  function persistScanIdToUrl(id: string | null) {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (id) url.searchParams.set("id", id);
+    else url.searchParams.delete("id");
+    window.history.replaceState(null, "", url.toString());
+  }
 
   function isValidUrl(s: string) {
     try {
@@ -215,7 +226,12 @@ export default function ScanPage() {
         if (typeof data.currentSubStep === "string") setCurrentSubStep(data.currentSubStep);
         setDoneChecks(data.doneChecks ?? 0);
         setTotalChecks(data.totalChecks ?? TOTAL_CHECKS);
-        setElapsedSec(data.elapsedSec ?? 0);
+        // サーバ報告の経過時間を「最大値」として採用（クライアントtickの方が進んでる場合は無視）
+        const serverElapsed = data.elapsedSec ?? 0;
+        if (scanStartedAtRef.current === null) {
+          scanStartedAtRef.current = Date.now() - serverElapsed * 1000;
+        }
+        setElapsedSec((cur) => Math.max(cur, serverElapsed));
         // 残り時間は「減るだけ」: サーバ推定が伸びても無視し、ティック分だけ減らす
         const serverRemain = typeof data.estRemainSec === "number" ? data.estRemainSec : null;
         const now = Date.now();
@@ -308,6 +324,7 @@ export default function ScanPage() {
     setDoneChecks(0);
     setTotalChecks(TOTAL_CHECKS);
     setElapsedSec(0);
+    scanStartedAtRef.current = Date.now();
     setEstRemainSec(25 * 60);
     lastRemainRef.current = 25 * 60;
     lastTickAtRef.current = Date.now();
@@ -336,6 +353,7 @@ export default function ScanPage() {
 
     setScanId(id);
     scanIdRef.current = id;
+    persistScanIdToUrl(id);
     connectStream(id);
   }
 
@@ -349,6 +367,7 @@ export default function ScanPage() {
     setDoneChecks(0);
     setTotalChecks(TOTAL_CHECKS);
     setElapsedSec(0);
+    scanStartedAtRef.current = Date.now();
     setEstRemainSec(25 * 60);
     lastRemainRef.current = 25 * 60;
     lastTickAtRef.current = Date.now();
@@ -359,7 +378,79 @@ export default function ScanPage() {
     setUrl("");
     setError("");
     reconnectCount.current = 0;
+    persistScanIdToUrl(null);
   }
+
+  // ─── 経過時間の自動カウントアップ（SSE切れても止まらない） ───────────
+  useEffect(() => {
+    if (scanState !== "scanning") return;
+    if (scanStartedAtRef.current === null) {
+      // SSE初回が来てない場合は now を起点に
+      scanStartedAtRef.current = Date.now() - (elapsedSec * 1000);
+    }
+    const intv = setInterval(() => {
+      if (scanStartedAtRef.current === null) return;
+      const sec = Math.floor((Date.now() - scanStartedAtRef.current) / 1000);
+      setElapsedSec((cur) => Math.max(cur, sec));
+    }, 1000);
+    return () => clearInterval(intv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanState]);
+
+  // ─── リロード復元: URLに?id=xxxがあれば再接続 ─────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const resumeId = params.get("id");
+    if (!resumeId) return;
+    // スキャン情報を取得して状態を復元
+    fetch(`/api/scans/${resumeId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) {
+          // Not found / forbidden — URLからクリア
+          persistScanIdToUrl(null);
+          return;
+        }
+        setUrl(data.url ?? "");
+        setScanId(resumeId);
+        scanIdRef.current = resumeId;
+
+        if (data.status === "completed") {
+          // 完了済み: findings 表示
+          setScanState("done");
+          scanStateRef.current = "done";
+          setProgress(100);
+          setDoneChecks(data.totalChecks ?? TOTAL_CHECKS);
+          setTotalChecks(data.totalChecks ?? TOTAL_CHECKS);
+          if (Array.isArray(data.findings)) setFindings(data.findings);
+        } else if (data.status === "failed") {
+          setScanState("error");
+          scanStateRef.current = "error";
+          setError(data.error || "スキャンが失敗しました");
+        } else {
+          // running / queued: SSEで再接続
+          setScanState("scanning");
+          scanStateRef.current = "scanning";
+          setProgress(data.progress ?? 0);
+          setCurrentStep(data.currentStep ?? "再接続中...");
+          setDoneChecks(data.doneChecks ?? 0);
+          setTotalChecks(data.totalChecks ?? TOTAL_CHECKS);
+          // 経過時間の起点をDBの startedAt から推定
+          if (data.startedAt) {
+            const t0 = new Date(data.startedAt).getTime();
+            scanStartedAtRef.current = t0;
+            setElapsedSec(Math.floor((Date.now() - t0) / 1000));
+          } else {
+            scanStartedAtRef.current = Date.now();
+          }
+          if (Array.isArray(data.findings)) setFindings(data.findings);
+          // SSE接続を開始
+          connectStream(resumeId);
+        }
+      })
+      .catch(() => persistScanIdToUrl(null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function viewDetails() {
     if (scanId) router.push(`/results/${scanId}`);

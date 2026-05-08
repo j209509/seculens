@@ -18,10 +18,18 @@ primary_region = "nrt"
   min_machines_running = 0
   processes = ["app"]
 
+  # ヘルスチェック: HTTP応答が返らない場合に自動再起動
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "10s"
+    grace_period = "60s"
+    method = "GET"
+    path = "/api/health"
+
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "1gb"
-  cpus = 1
+  size = "shared-cpu-2x"
+  memory = "2gb"
+  cpus = 2
 
 [deploy]
   release_command = "node node_modules/prisma/build/index.js db push --accept-data-loss --skip-generate"
