@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { RiskBadge } from "@/components/risk-badge";
 import { FindingDetailModal } from "@/components/scan/FindingDetailModal";
+import { CertificateDownload } from "@/components/scan/CertificateDownload";
 
 type Finding = {
   id: string;
@@ -214,6 +215,11 @@ export default function ResultDetailPage() {
           </Button>
         </div>
       </div>
+
+      {/* 公式証明書ダウンロード */}
+      {scan.status === "completed" && (
+        <CertificateDownload scanId={scan.id} />
+      )}
 
       {/* Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

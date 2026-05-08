@@ -957,7 +957,70 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 10. SCS */}
+      {/* 10. 公式証明書 */}
+      <section className="block" style={{ background: "linear-gradient(180deg, #fefefe 0%, #f8fafc 100%)" }}>
+        <div className="container">
+          <div className="section-head" style={{ textAlign: "center", marginBottom: 48 }}>
+            <span className="eyebrow">📜 公式証明書発行</span>
+            <h2 className="section-title">取引先・監査用に <span className="accent">「公式証明書」</span> を発行できます</h2>
+            <p className="section-sub">経産省マーク・IPAマーク入りの正式書類。スキャン完了で即時PDFダウンロード可能。<br />サプライチェーン監査・ISMS更新・取引先審査での提示にお使いいただけます。</p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1100, margin: "0 auto" }}>
+            {/* ★2 */}
+            <div style={{ background: "#fff", border: "2px solid #d1fae5", borderRadius: 16, padding: 28, position: "relative" }}>
+              <div style={{ fontSize: 24, color: "#16a34a", fontWeight: 800, letterSpacing: 2 }}>★★</div>
+              <div style={{ marginTop: 8, fontSize: 11, color: "#16a34a", fontWeight: 700 }}>LEVEL 2 ／ 取得しやすい</div>
+              <h3 style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>実施宣言証</h3>
+              <p style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+                Webサイトの脆弱性診断を実施したことを証明する基本証明書。<strong>初回スキャン完了で即時発行</strong>。
+              </p>
+              <div style={{ marginTop: 14, padding: "8px 12px", background: "#f0fdf4", borderRadius: 8, fontSize: 12, color: "#15803d" }}>
+                ✓ 1回スキャン完了で取得可能
+              </div>
+            </div>
+
+            {/* ★3 */}
+            <div style={{ background: "#fff", border: "2px solid #2563eb", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(37,99,235,0.12)" }}>
+              <div style={{ position: "absolute", top: -10, left: 16, background: "#f59e0b", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 800 }}>人気</div>
+              <div style={{ fontSize: 24, color: "#2563eb", fontWeight: 800, letterSpacing: 2 }}>★★★</div>
+              <div style={{ marginTop: 8, fontSize: 11, color: "#2563eb", fontWeight: 700 }}>LEVEL 3 ／ 経産省 SCS★3 対応</div>
+              <h3 style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>継続実施認定証</h3>
+              <p style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+                経産省 SCS★3 要件「継続的な脆弱性診断」に対応する認定証。<strong>大手取引先の監査要件をクリア</strong>。
+              </p>
+              <div style={{ marginTop: 14, padding: "8px 12px", background: "#eff6ff", borderRadius: 8, fontSize: 12, color: "#1e40af" }}>
+                ✓ 3回スキャン完了で取得可能
+              </div>
+            </div>
+
+            {/* ★4 */}
+            <div style={{ background: "#fff", border: "2px solid #ddd6fe", borderRadius: 16, padding: 28, position: "relative" }}>
+              <div style={{ position: "absolute", top: -10, right: 16, background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 800 }}>PREMIUM</div>
+              <div style={{ fontSize: 24, color: "#7c3aed", fontWeight: 800, letterSpacing: 2 }}>★★★★</div>
+              <div style={{ marginTop: 8, fontSize: 11, color: "#7c3aed", fontWeight: 700 }}>LEVEL 4 ／ 最上位認定</div>
+              <h3 style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>高度継続認定証</h3>
+              <p style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+                <strong>60日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。サプライチェーン審査で他社との差別化に。
+              </p>
+              <div style={{ marginTop: 14, padding: "8px 12px", background: "#faf5ff", borderRadius: 8, fontSize: 12, color: "#6d28d9" }}>
+                ✓ 60日以上＋8回以上の継続実績で取得
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 36, textAlign: "center", padding: 24, background: "#0f172a", borderRadius: 16, color: "#fff", maxWidth: 800, margin: "36px auto 0" }}>
+            <p style={{ fontSize: 14, color: "#cbd5e1", marginBottom: 8 }}>💡 ポイント</p>
+            <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.7 }}>
+              SCS制度では <span style={{ color: "#fbbf24" }}>★2は誰でも取れる</span> が、<br />
+              <span style={{ color: "#60a5fa" }}>★3は急に難易度が上がる</span>のが業界の常識。<br />
+              <strong style={{ color: "#fff" }}>Sequliaなら、★3も★4も最短ルートで取得できます。</strong>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 11. SCS */}
       <section className="scs" id="scs">
         <div className="container scs-grid">
           <div>
