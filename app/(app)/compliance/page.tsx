@@ -42,14 +42,14 @@ import {
   SCS_CATEGORY_LABELS,
   calcScsCoverage,
   type ScsCategory,
-  type SecuLensCoverage,
+  type SequliaCoverage,
   type ScsRequirement,
 } from "@/lib/scs-mapping";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 const COVERAGE_META: Record<
-  SecuLensCoverage,
+  SequliaCoverage,
   { label: string; icon: React.ReactNode; badgeClass: string }
 > = {
   full: {
@@ -74,7 +74,7 @@ const COVERAGE_META: Record<
   },
 };
 
-function CoverageBadge({ coverage }: { coverage: SecuLensCoverage }) {
+function CoverageBadge({ coverage }: { coverage: SequliaCoverage }) {
   const meta = COVERAGE_META[coverage];
   return (
     <span
@@ -242,7 +242,7 @@ const TEMPLATES = [
     badge: "✅ 事実ベースで安全",
     badgeClass: "bg-blue-100 text-blue-800",
     description: "SCS制度への「取り組み」を表明する表現。「認定」「取得済」は使いません。",
-    text: `当社は、経産省・IPAが推進するサプライチェーンセキュリティ評価制度（SCS）への対応を進めています。SecuLensを活用したOWASP Top10準拠の定期的な脆弱性診断により、SCS★3の「インターネット公開機器・サービスの脆弱性診断要件」への継続的な取り組みを実施しています。
+    text: `当社は、経産省・IPAが推進するサプライチェーンセキュリティ評価制度（SCS）への対応を進めています。Sequliaを活用したOWASP Top10準拠の定期的な脆弱性診断により、SCS★3の「インターネット公開機器・サービスの脆弱性診断要件」への継続的な取り組みを実施しています。
 
 診断実施頻度：月次
 対象：インターネット公開全サービス
@@ -400,7 +400,7 @@ function DownloadButton({ template }: { template: typeof TEMPLATES[0] }) {
     </div>
     <div class="title-block">
       <h1>セキュリティ対応宣言テンプレート</h1>
-      <p>経産省 SCS評価制度 脆弱性診断要件対応 ／ SecuLens 生成</p>
+      <p>経産省 SCS評価制度 脆弱性診断要件対応 ／ Sequlia 生成</p>
     </div>
   </div>
 
@@ -426,7 +426,7 @@ function DownloadButton({ template }: { template: typeof TEMPLATES[0] }) {
     <p>※ SCS評価制度の最新情報は <a href="https://www.ipa.go.jp/security/scs/" target="_blank">IPA（ipa.go.jp/security/scs/）</a> をご確認ください。</p>
   </div>
 
-  <div class="generated">SecuLens にて ${today} 生成｜OWASP Top10準拠 脆弱性診断ツール</div>
+  <div class="generated">Sequlia にて ${today} 生成｜OWASP Top10準拠 脆弱性診断ツール</div>
 </body>
 </html>`;
 
@@ -514,10 +514,10 @@ function TemplateSection() {
                 💡 SDGsのように自己宣言したいなら → IPA「SECURITY ACTION ★2」がオススメ
               </p>
               <p className="text-xs text-blue-800 leading-relaxed mb-3">
-                IPAの<strong>SECURITY ACTION</strong>は、SecuLensのような脆弱性診断ツールを活用していれば
+                IPAの<strong>SECURITY ACTION</strong>は、Sequliaのような脆弱性診断ツールを活用していれば
                 <strong>★2（2つ星）</strong>を自己宣言でき、<strong>IPAの公式ロゴを自社サイトに掲載</strong>できます。
                 SCS★3の前身プログラムであり、取引先への信頼性アピールにも有効です。
-                SecuLensのご利用は★2宣言の実施根拠として十分に活用できます。
+                Sequliaのご利用は★2宣言の実施根拠として十分に活用できます。
               </p>
               <div className="flex flex-wrap gap-2 items-center">
                 <a
@@ -679,7 +679,7 @@ export default function CompliancePage() {
 
           <p className="mb-8 max-w-2xl text-base leading-relaxed text-slate-300">
             SCS評価制度は、サプライチェーン全体のセキュリティ強化を目的に経産省・IPAが主管する
-            日本初の国家サイバーセキュリティ認定制度です。SecuLensは
+            日本初の国家サイバーセキュリティ認定制度です。Sequliaは
             <span className="font-semibold text-white">
               脆弱性診断要件（★3・★4）に直接対応
             </span>
@@ -732,7 +732,7 @@ export default function CompliancePage() {
                   {allStats.full}
                 </p>
                 <p className="mt-1 text-xs font-medium text-slate-600">
-                  SecuLensが直接対応
+                  Sequliaが直接対応
                 </p>
                 <p className="mt-0.5 text-[11px] text-slate-400">
                   完全カバー要件数
@@ -793,7 +793,7 @@ export default function CompliancePage() {
             <div className="mb-4 flex items-center gap-2">
               <CheckCircle className="size-5 text-emerald-600" />
               <h2 className="text-base font-semibold text-emerald-800">
-                SecuLensが直接対応する★3要件
+                Sequliaが直接対応する★3要件
               </h2>
               <span className="ml-auto rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
                 完全対応 {star3Stats.full}件
@@ -851,7 +851,7 @@ export default function CompliancePage() {
 
           {/* Legend */}
           <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-            {(Object.entries(COVERAGE_META) as [SecuLensCoverage, typeof COVERAGE_META[SecuLensCoverage]][]).map(
+            {(Object.entries(COVERAGE_META) as [SequliaCoverage, typeof COVERAGE_META[SequliaCoverage]][]).map(
               ([key, meta]) => (
                 <span key={key} className="flex items-center gap-1">
                   {meta.icon}
@@ -883,7 +883,7 @@ export default function CompliancePage() {
                 </CardTitle>
               </div>
               <CardDescription className="mt-1 text-sm text-slate-500">
-                SecuLensは評価機関への提出に対応した証跡ドキュメントを自動生成します
+                Sequliaは評価機関への提出に対応した証跡ドキュメントを自動生成します
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 py-5">
@@ -976,20 +976,20 @@ export default function CompliancePage() {
           <Card>
             <CardContent className="px-6 py-2">
               <FaqItem
-                q="SecuLensだけでSCS★3取得できますか？"
-                a="SCS★3の脆弱性診断要件（インターネット公開機器・サービスの定期的な脆弱性診断実施）には完全対応しています。MFA設定・バックアップ・従業員教育等の要件は別途対応が必要ですが、SecuLensはそれらの実施状況を可視化する根拠資料の生成を支援します。"
+                q="SequliaだけでSCS★3取得できますか？"
+                a="SCS★3の脆弱性診断要件（インターネット公開機器・サービスの定期的な脆弱性診断実施）には完全対応しています。MFA設定・バックアップ・従業員教育等の要件は別途対応が必要ですが、Sequliaはそれらの実施状況を可視化する根拠資料の生成を支援します。"
               />
               <FaqItem
                 q="★4評価にも使えますか？"
-                a="★4が要求する「第三者機関レベルの脆弱性診断」要件に対応しています。SecuLensの診断レポートは評価機関への提出書類として活用できます。★4では取引先管理・継続的な脆弱性管理プログラムへの対応も強化されており、SecuLensはサプライチェーン全体の診断・管理を支援します。"
+                a="★4が要求する「第三者機関レベルの脆弱性診断」要件に対応しています。Sequliaの診断レポートは評価機関への提出書類として活用できます。★4では取引先管理・継続的な脆弱性管理プログラムへの対応も強化されており、Sequliaはサプライチェーン全体の診断・管理を支援します。"
               />
               <FaqItem
                 q="経産省の注意喚起について教えてください。"
-                a="経産省は2026年4月に「SCS制度に関する誤解を招く広告表現」への注意喚起を発出しています。SecuLensは「脆弱性診断要件への対応」に特化した正確な表現を使用しており、制度への完全準拠を単独で保証するものではありません。評価取得にはIPA指定の評価機関による審査が別途必要です。"
+                a="経産省は2026年4月に「SCS制度に関する誤解を招く広告表現」への注意喚起を発出しています。Sequliaは「脆弱性診断要件への対応」に特化した正確な表現を使用しており、制度への完全準拠を単独で保証するものではありません。評価取得にはIPA指定の評価機関による審査が別途必要です。"
               />
               <FaqItem
                 q="SCS評価制度はいつから始まりますか？"
-                a="2027年2月〜3月より★3・★4の本格運用が開始予定です（IPA主管）。現在は制度準備期間であり、SecuLensで今から脆弱性診断を実施・記録することで、評価開始時に診断実績の証跡を提示できます。定期的な診断履歴が評価において重要な根拠となります。"
+                a="2027年2月〜3月より★3・★4の本格運用が開始予定です（IPA主管）。現在は制度準備期間であり、Sequliaで今から脆弱性診断を実施・記録することで、評価開始時に診断実績の証跡を提示できます。定期的な診断履歴が評価において重要な根拠となります。"
               />
             </CardContent>
           </Card>
@@ -1000,7 +1000,7 @@ export default function CompliancePage() {
           <div className="mb-4 flex items-center gap-2">
             <ChevronRight className="size-5 text-slate-600" />
             <h2 className="text-lg font-semibold text-slate-800">
-              SecuLensの対応要件一覧
+              Sequliaの対応要件一覧
             </h2>
           </div>
 
@@ -1061,7 +1061,7 @@ export default function CompliancePage() {
         <footer className="mt-10 flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-100/60 px-4 py-4 text-xs leading-relaxed text-slate-500">
           <Info className="mt-0.5 size-4 shrink-0 text-slate-400" />
           <p>
-            ※ 本ページはSecuLensが対応するSCS要件の範囲を説明するものです。
+            ※ 本ページはSequliaが対応するSCS要件の範囲を説明するものです。
             SCS認定の取得にはIPA指定の評価機関による審査が必要です。
             最新情報は
             <a

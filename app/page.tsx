@@ -1,7 +1,7 @@
 "use client";
 
 import "./lp.css";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 
 // ─── リアルfindingsの型 ─────────────────────────────────────────────────
@@ -25,7 +25,7 @@ const MAX_RECONNECT = 5;
 
 const FAQ_ITEMS = [
   { q: "診断は本当に無料ですか？", a: "はい、ゲスト診断（10項目）はクレジットカード登録不要で完全無料です。無料アカウントを作成いただくと、全110+項目の診断を月3回まで実行可能です。有料プランへの自動切替もありません。" },
-  { q: "診断中に対象サイトに影響は出ませんか？", a: "SecuLensは「受動的スキャン」を採用しており、対象サービスへの不正なリクエストや負荷試験のような攻撃的な検査は行いません。本番環境でも安全に診断可能で、平均HTTPリクエスト数は数百件程度に抑えられます。" },
+  { q: "診断中に対象サイトに影響は出ませんか？", a: "Sequliaは「受動的スキャン」を採用しており、対象サービスへの不正なリクエストや負荷試験のような攻撃的な検査は行いません。本番環境でも安全に診断可能で、平均HTTPリクエスト数は数百件程度に抑えられます。" },
   { q: "競合他社のサイトを診断できますか？", a: "利用規約により、ご自身が運営するサイト・正当な権限を持つサイトのみ診断対象とさせていただいております。第三者サイトへの無断診断は不正アクセス禁止法違反に該当する可能性があります。" },
   { q: "ログイン後のページも診断できますか？", a: "プロプラン以上で対応しています。テスト用アカウント情報を安全に登録いただくことで、認証後の管理画面・会員専用ページも診断対象に含めることが可能です。" },
 ];
@@ -37,6 +37,24 @@ export default function LandingPage() {
   const [currentStep, setCurrentStep] = useState("");
   const [realFindings, setRealFindings] = useState<LiveFinding[]>([]);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [me, setMe] = useState<{ email: string; plan: string } | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user) setMe({ email: d.user.email, plan: d.user.plan ?? "free" });
+      })
+      .catch(() => {});
+  }, []);
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    window.location.reload();
+  }
 
   const esRef = useRef<EventSource | null>(null);
   const reconnectRef = useRef(0);
@@ -128,8 +146,8 @@ export default function LandingPage() {
       <nav className="lp-nav">
         <div className="container">
           <Link href="/" className="logo">
-            <img src="/seculens-icon.png" alt="SecuLens icon" className="logo-icon" />
-            SecuLens
+            <img src="/sequlia-icon.png" alt="Sequlia icon" className="logo-icon" />
+            Sequlia
           </Link>
           <div className="nav-links">
             <a href="#scan">無料診断</a>
@@ -139,8 +157,55 @@ export default function LandingPage() {
             <a href="#scs">SCS対応</a>
           </div>
           <div className="nav-cta">
-            <Link href="/dashboard" className="btn btn-ghost">ログイン</Link>
-            <a href="#scan" className="btn btn-primary">無料診断をはじめる</a>
+            {me ? (
+              <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
+                <Link href="/dashboard" className="btn btn-ghost">ダッシュボード</Link>
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  className="btn btn-primary"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+                  aria-label="ユーザーメニュー"
+                >
+                  <span style={{
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    width: 22, height: 22, borderRadius: "50%", background: "#fff",
+                    color: "#2563eb", fontSize: 12, fontWeight: 700,
+                  }}>{me.email.charAt(0).toUpperCase()}</span>
+                  <span style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{me.email}</span>
+                  <span style={{ fontSize: 10 }}>▾</span>
+                </button>
+                {userMenuOpen && (
+                  <div
+                    style={{
+                      position: "absolute", top: "calc(100% + 8px)", right: 0,
+                      background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12,
+                      boxShadow: "0 12px 30px rgba(15,23,42,0.12)", minWidth: 220, zIndex: 50,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div style={{ padding: "12px 14px", borderBottom: "1px solid #f1f5f9" }}>
+                      <div style={{ fontSize: 12, color: "#64748b" }}>ログイン中</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis" }}>{me.email}</div>
+                      <div style={{ marginTop: 4, fontSize: 11, color: "#2563eb", fontWeight: 600, textTransform: "uppercase" }}>Plan: {me.plan}</div>
+                    </div>
+                    <Link href="/dashboard" className="user-menu-item" style={menuItemStyle} onClick={() => setUserMenuOpen(false)}>ダッシュボード</Link>
+                    <Link href="/billing" className="user-menu-item" style={menuItemStyle} onClick={() => setUserMenuOpen(false)}>課金・プラン</Link>
+                    <Link href="/settings" className="user-menu-item" style={menuItemStyle} onClick={() => setUserMenuOpen(false)}>設定</Link>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      style={{ ...menuItemStyle, width: "100%", textAlign: "left", background: "none", border: "none", borderTop: "1px solid #f1f5f9", color: "#dc2626", cursor: "pointer" }}
+                    >ログアウト</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link href="/login" className="btn btn-ghost">ログイン</Link>
+                <Link href="/signup" className="btn btn-primary">無料登録</Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -221,7 +286,7 @@ export default function LandingPage() {
             <div className="dash-mock">
               <div className="dash-topbar">
                 <div className="dash-dots"><span /><span /><span /></div>
-                <div className="dash-url">🔒 app.seculens.jp/dashboard</div>
+                <div className="dash-url">🔒 app.sequlia.jp/dashboard</div>
               </div>
               <div className="dash-kpis">
                 <div className="dash-kpi"><span className="dk-num">47</span><span className="dk-lbl">スキャン数</span></div>
@@ -351,7 +416,7 @@ export default function LandingPage() {
           <div className="prob-cta-bar">
             <div className="prob-cta-icon">🛡</div>
             <div className="prob-cta-text">
-              <em>SecuLens</em>なら、手軽・高精度・低コストで<br />継続的なセキュリティ診断を実現します。
+              <em>Sequlia</em>なら、手軽・高精度・低コストで<br />継続的なセキュリティ診断を実現します。
             </div>
             <div className="prob-cta-feats">
               {[
@@ -387,7 +452,7 @@ export default function LandingPage() {
                   <div className="browser-dots"><span /><span /><span /></div>
                   <div className="browser-url">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3"><path d="M5 12l5 5L20 7" /></svg>
-                    app.seculens.jp/scan/example-com
+                    app.sequlia.jp/scan/example-com
                   </div>
                 </div>
                 <div className="scan-head">
@@ -417,7 +482,7 @@ export default function LandingPage() {
                   <div className="lock-ico">🔒</div>
                   <h5>残り 100+ 項目を見るには無料アカウント登録が必要です</h5>
                   <p>SQLi詳細・XSS・CSRF・認証バイパス・SSRF など全カテゴリのチェック結果をご覧いただけます</p>
-                  <Link href="/dashboard" className="btn btn-primary btn-lg">無料アカウントで全結果を見る →</Link>
+                  <Link href="/signup" className="btn btn-primary btn-lg">無料アカウントで全結果を見る →</Link>
                 </div>
               </div>
             </>
@@ -468,13 +533,18 @@ export default function LandingPage() {
                         <div className="lock-ico">🔒</div>
                         <h5>残り {locked.length} 件を確認するには</h5>
                         <p>無料アカウントを作成すると全結果を閲覧できます</p>
-                        <Link href="/dashboard" className="btn btn-primary btn-lg">無料で全項目を見る →</Link>
+                        <Link href="/signup" className="btn btn-primary btn-lg">無料で全項目を見る →</Link>
                       </div>
                     )}
                   </>
                 )}
               </div>
-              <div style={{ textAlign: "center", marginTop: 20 }}>
+              <div style={{ textAlign: "center", marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                {!me && (
+                  <Link href="/signup" className="btn btn-primary btn-lg">
+                    全110+項目で診断するには無料登録 →
+                  </Link>
+                )}
                 <button onClick={() => { setScanPhase("idle"); setUrl(""); }} className="btn btn-soft">別のURLを診断する</button>
               </div>
             </>
@@ -498,14 +568,14 @@ export default function LandingPage() {
         <div className="container">
           <div className="section-head why-head">
             <span className="eyebrow">🛡 選ばれる理由</span>
-            <h2 className="section-title why-title"><span className="accent">SecuLens</span>が選ばれる、5つの理由</h2>
+            <h2 className="section-title why-title"><span className="accent">Sequlia</span>が選ばれる、5つの理由</h2>
             <p className="section-sub">URLを入れるだけ。専門知識ゼロでも本格的なセキュリティ診断が3分で完結します。</p>
           </div>
 
           <div className="why-split">
             {/* モバイル専用: why-bannerを画像表示 */}
             <div className="why-mobile-img">
-              <img src="/why-banner.png" alt="SecuLens導入事例" />
+              <img src="/why-banner.png" alt="Sequlia導入事例" />
             </div>
 
             {/* 左: ダッシュボードモックアップ */}
@@ -514,12 +584,12 @@ export default function LandingPage() {
                 {/* ブラウザバー */}
                 <div className="wm-bar">
                   <div className="wm-dots"><span/><span/><span/></div>
-                  <div className="wm-url">app.seculens.jp/dashboard</div>
+                  <div className="wm-url">app.sequlia.jp/dashboard</div>
                 </div>
                 <div className="wm-body">
                   {/* サイドバー */}
                   <div className="wm-side">
-                    <div className="wm-logo"><span className="wm-logo-ico">🛡</span>SecuLens</div>
+                    <div className="wm-logo"><span className="wm-logo-ico">🛡</span>Sequlia</div>
                     {["ダッシュボード","診断履歴","レポート","プロジェクト","設定"].map((m,i)=>(
                       <div key={i} className={`wm-menu${i===0?" active":""}`}>{m}</div>
                     ))}
@@ -838,17 +908,17 @@ export default function LandingPage() {
               {
                 ico: "🌱", name: "フリー", price: "¥0", per: "", tag: "無料アカウント", featured: false,
                 feats: ["全110+項目チェック","月3回まで診断可能","SCSテンプレート対応","PDFレポートDL"],
-                cta: { label: "このプランで始める", href: "/dashboard", cls: "btn-outline-plan" },
+                cta: { label: "無料登録で始める", href: "/signup", cls: "btn-outline-plan" },
               },
               {
                 ico: "🛡", name: "スタンダード", price: "¥3,980", per: "/月", tag: "中小企業に最適", featured: true,
                 feats: ["月20回まで診断","レポートDL（PDF / CSV）","SCS証跡対応","診断履歴の自動保存","メールサポート"],
-                cta: { label: "このプランで始める", href: "/dashboard", cls: "btn-primary" },
+                cta: { label: "このプランで始める", href: "/signup?plan=standard", cls: "btn-primary" },
               },
               {
                 ico: "🏢", name: "プロ", price: "¥12,800", per: "/月", tag: "エンタープライズ", featured: false,
                 feats: ["月100回まで診断","ログイン後ページ診断","API連携","専任サポート","カスタムレポート"],
-                cta: { label: "このプランで始める", href: "/dashboard", cls: "btn-outline-plan" },
+                cta: { label: "このプランで始める", href: "/signup?plan=pro", cls: "btn-outline-plan" },
               },
             ].map((plan) => (
               <div key={plan.name} className={`price-card${plan.featured ? " featured" : ""}`}>
@@ -892,7 +962,7 @@ export default function LandingPage() {
           <div>
             <span className="scs-eyebrow">2027年 本格運用開始</span>
             <h2>経産省 SCS評価制度に今から対応。<br />取引先からの証明要求に備える。</h2>
-            <p className="body">2027年に本格運用が予定される経産省「セキュリティ・チェックシート（SCS）評価制度」。★3要件の脆弱性診断、★4要件の継続的診断管理に対応したテンプレートを標準提供。SecuLensの診断レポートはそのまま証跡として提出できます。</p>
+            <p className="body">2027年に本格運用が予定される経産省「セキュリティ・チェックシート（SCS）評価制度」。★3要件の脆弱性診断、★4要件の継続的診断管理に対応したテンプレートを標準提供。Sequliaの診断レポートはそのまま証跡として提出できます。</p>
             <div className="scs-actions">
               <Link href="/compliance" className="btn btn-white btn-lg">SCS対応ページを見る</Link>
               <a href="https://www.ipa.go.jp/security/security-action/" target="_blank" rel="noopener noreferrer" className="btn btn-outline-white btn-lg">IPA SECURITY ACTION ★2 ↗</a>
@@ -966,7 +1036,7 @@ export default function LandingPage() {
               <div className="fic">💬</div>
               <h3>お問い合わせ</h3>
               <p>デモ・見積もり・導入相談など、お気軽にご相談ください。担当者から1営業日以内にご連絡します。</p>
-              <Link href="/dashboard" className="btn btn-soft btn-lg">問い合わせフォームへ</Link>
+              <Link href="/pricing" className="btn btn-soft btn-lg">料金プランを見る</Link>
             </div>
             <div className="fcard feat">
               <div className="fic">🚀</div>
@@ -990,10 +1060,10 @@ export default function LandingPage() {
                   <circle cx="16" cy="14" r="3.5" fill="none" stroke="#3b82f6" strokeWidth="2" />
                   <line x1="18.5" y1="16.5" x2="21" y2="19" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
                 </svg>
-                SecuLens
+                Sequlia
               </div>
               <p>あなたのWebサイト、今すぐ無料で脆弱性診断。</p>
-              <div className="copy">© 2026 SecuLens, Inc.</div>
+              <div className="copy">© 2026 Sequlia, Inc.</div>
             </div>
             <div className="foot-links">
               <Link href="/">サービス</Link>
@@ -1011,7 +1081,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="foot-bottom">
-            <span>SecuLens は経産省 SCS評価制度 ★3 / IPA SECURITY ACTION ★2 に対応しています。</span>
+            <span>Sequlia は経産省 SCS評価制度 ★3 / IPA SECURITY ACTION ★2 に対応しています。</span>
             <span>v1.0 — 2026.05</span>
           </div>
         </div>
@@ -1020,3 +1090,12 @@ export default function LandingPage() {
     </div>
   );
 }
+
+const menuItemStyle: React.CSSProperties = {
+  display: "block",
+  padding: "10px 14px",
+  fontSize: 13,
+  color: "#0f172a",
+  textDecoration: "none",
+  fontWeight: 500,
+};

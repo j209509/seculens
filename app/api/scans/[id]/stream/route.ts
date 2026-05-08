@@ -1,14 +1,36 @@
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/scans/[id]/stream — SSEでスキャン進捗をリアルタイム配信
 // タイムアウト: 720秒（12分）。20秒ごとにkeep-aliveピングを送信。
+// 認可: scan.userId が設定されている場合、所有者または admin のみ。
+//       ゲストスキャン (userId == null) は誰でも閲覧可（LPデモ互換）。
 export async function GET(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
   const scanId = params.id;
+
+  // ─── 開始前に認可チェック ───────────────────────────────────
+  const existing = await prisma.scan.findUnique({
+    where: { id: scanId },
+    select: { id: true, userId: true },
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Scan not found" }, { status: 404 });
+  }
+  if (existing.userId) {
+    const user = await getCurrentUser();
+    const isOwner = user?.id === existing.userId;
+    const isAdmin = user?.role === "admin";
+    if (!isOwner && !isAdmin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  }
+
   const MAX_DURATION_MS  = 720_000; // 12分（重いサイトでも完走できる余裕）
   const POLL_INTERVAL_MS = 1_500;   // 1.5秒ごとにポーリング
   const PING_INTERVAL_MS = 20_000;  // 20秒ごとにkeep-alive（プロキシ・LBのタイムアウト対策）

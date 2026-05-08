@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { maskText } from "@/lib/mask";
+import { requireUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -20,9 +21,23 @@ function maskSettingValue(key: string, value: string): string {
   return value;
 }
 
-// GET /api/settings — AppSetting一覧
+function unauthorized() {
+  return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+}
+
+function adminOnly() {
+  return NextResponse.json({ error: "管理者権限が必要です" }, { status: 403 });
+}
+
+// GET /api/settings — AppSetting一覧（要ログイン）
 export async function GET() {
   try {
+    try {
+      await requireUser();
+    } catch {
+      return unauthorized();
+    }
+
     const settings = await prisma.appSetting.findMany({
       where: { key: { in: [...SETTING_KEYS] } },
     });
@@ -47,9 +62,17 @@ export async function GET() {
   }
 }
 
-// POST /api/settings — AppSetting更新（upsert）
+// POST /api/settings — AppSetting更新（管理者のみ）
 export async function POST(request: Request) {
   try {
+    let user;
+    try {
+      user = await requireUser();
+    } catch {
+      return unauthorized();
+    }
+    if (user.role !== "admin") return adminOnly();
+
     const body = await request.json();
     const { key, value } = body as { key?: string; value?: string };
 

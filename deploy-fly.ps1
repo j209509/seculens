@@ -1,4 +1,4 @@
-# SecuLens Fly.io deploy script
+# Sequlia Fly.io deploy script
 $env:Path += ";C:\Users\81908\AppData\Local\Microsoft\WinGet\Links"
 # Treat stderr warnings as info, not errors
 $ErrorActionPreference = "Continue"

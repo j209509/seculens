@@ -1,7 +1,7 @@
 /**
  * scan-adapter.ts
  * bug-security の programId ベースのチェックモジュールを
- * SecuLens の scanId + targetUrl ベースに橋渡しするアダプター
+ * Sequlia の scanId + targetUrl ベースに橋渡しするアダプター
  */
 import { prisma } from "./prisma";
 import { maskBody } from "./mask";

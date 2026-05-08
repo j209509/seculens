@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import {
   Shield, AlertTriangle, Search, TrendingUp, CheckCircle, XCircle,
-  Clock, Award, FlaskConical, Database, RefreshCw,
+  Clock, Award, FlaskConical, Database, RefreshCw, CreditCard, Zap,
 } from "lucide-react";
 import { DASHBOARD_KPI, MOCK_SCAN_HISTORY, RISK_DISTRIBUTION, SCAN_TREND } from "@/lib/mock-data";
 import { RiskScoreBadge } from "@/components/risk-badge";
@@ -60,11 +60,38 @@ function calcLiveRiskDist(scans: LiveScan[]) {
   ].filter(d => d.value > 0);
 }
 
+type Me = { email: string; name?: string | null; plan: string } | null;
+type Usage = { plan: string; used: number; limit: number; remaining: number } | null;
+
+const PLAN_LABEL: Record<string, string> = {
+  free: "Free",
+  standard: "Standard",
+  pro: "Pro",
+  enterprise: "Enterprise",
+};
+
 export default function DashboardPage() {
   const [demoMode, setDemoMode] = useState(true);
   const [liveScans, setLiveScans] = useState<LiveScan[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveError, setLiveError] = useState<string | null>(null);
+  const [me, setMe] = useState<Me>(null);
+  const [usage, setUsage] = useState<Usage>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user) setMe({ email: d.user.email, name: d.user.name, plan: d.user.plan ?? "free" });
+      })
+      .catch(() => {});
+    fetch("/api/usage")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d && typeof d.used === "number") setUsage(d);
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchLive = useCallback(async () => {
     setLiveLoading(true);
@@ -112,7 +139,9 @@ export default function DashboardPage() {
       {/* ─── ヘッダー + モード切り替え ──────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">ダッシュボード</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {me ? <>こんにちは、<span className="text-blue-600">{me.name || me.email}</span>さん</> : "ダッシュボード"}
+          </h1>
           <p className="text-sm text-slate-500 mt-1">
             {demoMode ? "デモデータを表示中" : "本番データを表示中（実際のスキャン結果）"}
           </p>
@@ -158,6 +187,76 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* User info row: usage / plan / new scan */}
+      {me && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-0 shadow-sm">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">今月のスキャン</p>
+                  <p className="text-2xl font-bold text-slate-900 mt-1">
+                    {usage ? usage.used : "—"}
+                    <span className="text-sm font-medium text-slate-400 ml-1">
+                      / {usage ? (usage.limit < 0 ? "∞" : usage.limit) : "—"}
+                    </span>
+                  </p>
+                  {usage && usage.limit > 0 && (
+                    <div className="mt-2 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-600 rounded-full"
+                        style={{ width: `${Math.min(100, Math.round((usage.used / usage.limit) * 100))}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 ml-3">
+                  <Search className="w-5 h-5 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">現在のプラン</p>
+                  <p className="text-2xl font-bold text-slate-900 mt-1">{PLAN_LABEL[me.plan] ?? me.plan}</p>
+                  <Link href="/billing" className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-blue-600 hover:underline">
+                    プラン管理へ →
+                  </Link>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 ml-3">
+                  <CreditCard className="w-5 h-5 text-emerald-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-600 to-blue-700 text-white">
+            <CardContent className="pt-5 pb-5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-blue-100 uppercase tracking-wide">クイックアクション</p>
+                  <p className="text-base font-bold mt-1">新しいサイトを診断</p>
+                  <Link
+                    href="/scan"
+                    className="inline-flex items-center gap-1 mt-2 bg-white text-blue-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    新規スキャン →
+                  </Link>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0 ml-3">
+                  <Zap className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* デモバナー */}
       {demoMode && (

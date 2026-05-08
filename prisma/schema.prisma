@@ -7,8 +7,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Authentication / Multi-tenant ───────────────────────────────
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String?
+  name            String?
+  emailVerified   DateTime?
+  image           String?
+  // Stripe
+  stripeCustomerId       String?  @unique
+  stripeSubscriptionId   String?  @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+  plan            String    @default("free") // free | standard | pro | enterprise
+  // Usage tracking
+  scansThisMonth  Int       @default(0)
+  usageResetAt    DateTime  @default(now())
+  // Auth
+  role            String    @default("user") // user | admin
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  scans           Scan[]
+  testAccounts    TestAccount[]
+  sessions        Session[]
+  passwordResets  PasswordReset[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([token])
+}
+
+// ─── Application Models ──────────────────────────────────────────
 model Scan {
   id          String   @id @default(cuid())
+  userId      String?  // null for anonymous/guest scans
   url         String
   status      String   @default("queued") // queued | running | completed | failed
   progress    Int      @default(0)
@@ -22,9 +73,11 @@ model Scan {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  findings    ScanFinding[]
-  diffResults DiffResult[]
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  findings     ScanFinding[]
+  diffResults  DiffResult[]
   reportDrafts ReportDraft[]
+  @@index([userId])
 }
 
 model ScanFinding {
@@ -63,6 +116,7 @@ model ScanFinding {
 
 model TestAccount {
   id                String   @id @default(cuid())
+  userId            String?  // owner
   name              String
   roleName          String   @default("user")
   email             String
@@ -73,7 +127,9 @@ model TestAccount {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
+  user        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   diffResults DiffResult[]
+  @@index([userId])
 }
 
 model DiffResult {

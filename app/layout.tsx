@@ -5,15 +5,15 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SecuLens（セキュレンズ）- Webセキュリティ診断",
+  title: "Sequlia（セキュリア）- Webセキュリティ診断",
   description: "AIによるWebアプリケーション脆弱性診断サービス",
   icons: {
     icon: [
-      { url: "/seculens-icon.png", sizes: "any", type: "image/png" },
+      { url: "/sequlia-icon.png", sizes: "any", type: "image/png" },
       { url: "/icon.png", sizes: "any", type: "image/png" },
     ],
-    apple: { url: "/seculens-icon.png", sizes: "180x180", type: "image/png" },
-    shortcut: "/seculens-icon.png",
+    apple: { url: "/sequlia-icon.png", sizes: "180x180", type: "image/png" },
+    shortcut: "/sequlia-icon.png",
   },
 };
 

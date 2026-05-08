@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { runFullScan } from "@/lib/scan-runner";
+import { getCurrentUser } from "@/lib/auth";
+import { checkScanQuota, incrementScanUsage } from "@/lib/usage";
 
 export const runtime = "nodejs";
 
 // POST /api/scans — URLを受け取り、Scanを作成してバックグラウンドでスキャン開始
+// - 認証ユーザー: userIdスコープ + プラン上限チェック + 使用量カウント
+// - ゲスト (LPデモ): 従来通り作成可（互換性維持）
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -21,9 +25,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid URL format" }, { status: 400 });
     }
 
+    const user = await getCurrentUser();
+
+    // 認証ユーザーの場合は事前にプラン上限をチェック
+    if (user) {
+      const quota = await checkScanQuota(user);
+      if (!quota.allowed) {
+        return NextResponse.json(
+          {
+            error: "利用上限に達しました。プランをアップグレードしてください。",
+            quota,
+          },
+          { status: 402 }
+        );
+      }
+    }
+
     const scan = await prisma.scan.create({
       data: {
         url,
+        userId: user?.id ?? null,
         status: "queued",
         progress: 0,
         currentStep: "",
@@ -34,7 +55,18 @@ export async function POST(request: Request) {
       },
     });
 
-    // バックグラウンドでスキャン実行（awaitしない）
+    // 認証ユーザーの場合は使用量を加算（楽観的にインクリメント）
+    if (user) {
+      try {
+        await incrementScanUsage(user.id);
+      } catch (e) {
+        console.error("[api/scans POST] incrementScanUsage error:", e);
+      }
+    }
+
+    // TODO: ゲストモードの追加制約 (LPデモ用に最大10チェックなど) を
+    // runFullScan(scanId, url, { guestMode: true }) として実装する。
+    // 現状は scan-runner が options を受け取らないため通常実行。
     runFullScan(scan.id, url).catch((e) =>
       console.error("[api/scans] runFullScan error:", e)
     );
@@ -46,10 +78,17 @@ export async function POST(request: Request) {
   }
 }
 
-// GET /api/scans — 全スキャン一覧（最新50件）
+// GET /api/scans — 現在ログイン中ユーザーのスキャン一覧（最新50件）
+// 未ログインの場合は 401。
 export async function GET() {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
     const scans = await prisma.scan.findMany({
+      where: { userId: user.id },
       orderBy: { createdAt: "desc" },
       take: 50,
       include: {
