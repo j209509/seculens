@@ -33,18 +33,22 @@ type CheckDef = {
   fn: () => Promise<any>;
 };
 
-/** severity の重み付け */
+/** severity の重み付け（高重大度ほど大幅に重く） */
 const SEVERITY_WEIGHT: Record<string, number> = {
-  critical: 10,
-  high: 7,
-  medium: 4,
-  low: 1,
-  info: 0,
+  critical: 25,
+  high: 15,
+  medium: 7,
+  low: 2,
+  info: 0.5,
 };
 
 /**
  * findings の severity から riskScore を計算（0-100に正規化）
- * 最大スコア = critical * 10 で、仮に20件のcriticalで上限100とする
+ *
+ * 設計方針:
+ * - critical 4件 or high 7件 で 100 に到達する設計
+ * - low が大量にあっても適度にスコアが上がる（10件で~20点）
+ * - 最低でも検出があれば 5 点以上は確保（"検出あり"の体感を出す）
  */
 async function calcRiskScore(scanId: string): Promise<number> {
   const findings = await prisma.scanFinding.findMany({
@@ -58,8 +62,8 @@ async function calcRiskScore(scanId: string): Promise<number> {
     return sum + (SEVERITY_WEIGHT[f.severity] ?? 0);
   }, 0);
 
-  // 上限200点（20件のcritical想定）を100に正規化
-  const normalized = Math.min(100, Math.round((raw / 200) * 100));
+  // 上限100点に正規化、最小5点（findings ≥ 1）
+  const normalized = Math.max(5, Math.min(100, Math.round(raw)));
   return normalized;
 }
 

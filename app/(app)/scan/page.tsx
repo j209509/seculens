@@ -232,21 +232,10 @@ export default function ScanPage() {
           scanStartedAtRef.current = Date.now() - serverElapsed * 1000;
         }
         setElapsedSec((cur) => Math.max(cur, serverElapsed));
-        // 残り時間は「減るだけ」: サーバ推定が伸びても無視し、ティック分だけ減らす
-        const serverRemain = typeof data.estRemainSec === "number" ? data.estRemainSec : null;
-        const now = Date.now();
-        const dt = Math.floor((now - lastTickAtRef.current) / 1000);
-        lastTickAtRef.current = now;
-        let next = lastRemainRef.current;
-        if (serverRemain !== null && serverRemain < next) {
-          // サーバ推定の方が小さい時のみ採用
-          next = serverRemain;
-        } else {
-          // 経過分を引いて自然に減らす（最低0）
-          next = Math.max(0, next - Math.max(1, dt));
-        }
-        lastRemainRef.current = next;
-        setEstRemainSec(next);
+        // 残り時間: 単純な「最大25分のカウントダウン」（サーバ推定は無視・伸びると体験最悪）
+        const TOTAL_SCAN_BUDGET_SEC = 25 * 60;
+        const remain = Math.max(0, TOTAL_SCAN_BUDGET_SEC - serverElapsed);
+        setEstRemainSec(remain);
         if (Array.isArray(data.findings)) setFindings(data.findings);
 
         // 完了済みチェックリストを更新
@@ -392,6 +381,9 @@ export default function ScanPage() {
       if (scanStartedAtRef.current === null) return;
       const sec = Math.floor((Date.now() - scanStartedAtRef.current) / 1000);
       setElapsedSec((cur) => Math.max(cur, sec));
+      // 残り時間も同期して減らす（25分カウントダウン）
+      const remain = Math.max(0, 25 * 60 - sec);
+      setEstRemainSec(remain);
     }, 1000);
     return () => clearInterval(intv);
     // eslint-disable-next-line react-hooks/exhaustive-deps

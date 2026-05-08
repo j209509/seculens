@@ -109,14 +109,27 @@ export async function createScanFinding(scanId: string, data: FindingData) {
   const existing = await findExistingScanFinding(scanId, data.type, data.target);
   if (existing) return null;
 
-  const priority = data.priority ?? (data.severity === "critical" || data.severity === "high" ? "高" : data.severity === "medium" ? "中" : "低");
+  // severity と priority を一貫したルールで正規化
+  // type名に [High] [Medium-High] 等が含まれていれば severity を引き上げる
+  const typeUpper = data.type.toUpperCase();
+  let normalizedSeverity = data.severity;
+  if (/\[CRITICAL\]/.test(typeUpper)) normalizedSeverity = "critical";
+  else if (/\[HIGH\]/.test(typeUpper) && data.severity === "low") normalizedSeverity = "medium";
+  else if (/\[MEDIUM-HIGH\]/.test(typeUpper) && data.severity === "low") normalizedSeverity = "medium";
+  else if (/\[MEDIUM\]/.test(typeUpper) && data.severity === "low") normalizedSeverity = "low";
+
+  // priority は severity から自動決定（一貫性確保）
+  const priority =
+    normalizedSeverity === "critical" || normalizedSeverity === "high" ? "高" :
+    normalizedSeverity === "medium" ? "中" :
+    "低";
 
   const f = await prisma.scanFinding.create({
     data: {
       scanId,
       type: data.type,
       target: data.target,
-      severity: data.severity,
+      severity: normalizedSeverity,
       priority,
       impact: data.impact,
       inScopeReason: data.inScopeReason ?? "対象URLのホスト/サブドメイン",

@@ -87,6 +87,23 @@ export async function GET() {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    // ─── オーファン掃除: 5分以上更新がない running/queued は failed に ───
+    // マシン再起動・デプロイ等で残ったゾンビスキャンを自動クリーンアップ
+    const STALE_MS = 5 * 60 * 1000;
+    const cutoff = new Date(Date.now() - STALE_MS);
+    await prisma.scan.updateMany({
+      where: {
+        userId: user.id,
+        status: { in: ["running", "queued"] },
+        updatedAt: { lt: cutoff },
+      },
+      data: {
+        status: "failed",
+        error: "サーバー再起動により中断されました",
+        completedAt: new Date(),
+      },
+    }).catch(() => {});
+
     const scans = await prisma.scan.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
