@@ -9,9 +9,10 @@ export const metadata: Metadata = {
   description: "AIによるWebアプリケーション脆弱性診断サービス",
   icons: {
     icon: [
-      { url: "/seculens-icon.png", type: "image/png" },
+      { url: "/seculens-icon.png", sizes: "any", type: "image/png" },
+      { url: "/icon.png", sizes: "any", type: "image/png" },
     ],
-    apple: "/seculens-icon.png",
+    apple: { url: "/seculens-icon.png", sizes: "180x180", type: "image/png" },
     shortcut: "/seculens-icon.png",
   },
 };

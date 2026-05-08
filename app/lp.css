@@ -41,7 +41,7 @@
 
 /* ---------- 2. Sticky Nav ---------- */
 .lp-nav { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: saturate(140%) blur(12px); border-bottom: 1px solid var(--gray-200); }
-.lp-nav .container { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.lp-nav .container { display: flex; align-items: center; justify-content: space-between; height: 56px; }
 .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--blue); font-size: 20px; letter-spacing: .01em; }
 .logo svg { width: 28px; height: 28px; }
 .logo-icon { width: 30px; height: 30px; border-radius: 7px; object-fit: cover; flex-shrink: 0; }
@@ -69,15 +69,15 @@
 
 /* ---------- 3. Hero ---------- */
 .hero { background: linear-gradient(160deg, #eff6ff 0%, #dbeafe 55%, #eff6ff 100%); }
-.hero-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding-top: 48px; padding-bottom: 56px; }
+.hero-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center; padding-top: 28px; padding-bottom: 32px; }
 .hero-left { position: relative; }
-.hero-content-photo { width: 100%; height: 480px; object-fit: cover; object-position: center 12%; border-radius: 20px; box-shadow: 0 20px 56px rgba(15,23,42,.16), 0 4px 16px rgba(37,99,235,.10); display: block; }
+.hero-content-photo { width: 100%; height: 400px; object-fit: cover; object-position: center 12%; border-radius: 16px; box-shadow: 0 16px 40px rgba(15,23,42,.14), 0 4px 12px rgba(37,99,235,.08); display: block; }
 
 /* Hero Left */
-.hero-left h1 { font-size: 36px; line-height: 1.3; font-weight: 900; letter-spacing: -.01em; margin: 0 0 12px; color: var(--ink); word-break: keep-all; }
+.hero-left h1 { font-size: 28px; line-height: 1.35; font-weight: 900; letter-spacing: -.01em; margin: 0 0 10px; color: var(--ink); word-break: keep-all; }
 .hero-left h1 .accent { color: var(--blue); }
-.hero-sub { font-size: 15px; color: var(--gray-700); margin: 0 0 16px; line-height: 1.8; }
-.hero-feats { display: flex; gap: 14px; margin-bottom: 18px; }
+.hero-sub { font-size: 14px; color: var(--gray-700); margin: 0 0 12px; line-height: 1.75; }
+.hero-feats { display: flex; gap: 12px; margin-bottom: 14px; }
 .hfeat { display: flex; align-items: flex-start; gap: 8px; }
 .hfeat-ico { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
 .hfeat div { display: flex; flex-direction: column; gap: 1px; }
@@ -89,9 +89,9 @@
 .pill-green { background: var(--green-50); color: #047857; border-color: #a7f3d0; }
 
 /* SCS Hero Seal */
-.scs-hero-seal { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; background: linear-gradient(135deg, rgba(37,99,235,.06) 0%, rgba(37,99,235,.02) 100%); border: 1.5px solid rgba(37,99,235,.2); border-radius: 14px; padding: 12px 16px; }
+.scs-hero-seal { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(37,99,235,.06) 0%, rgba(37,99,235,.02) 100%); border: 1.5px solid rgba(37,99,235,.2); border-radius: 12px; padding: 10px 14px; }
 .scs-seal-badge { flex-shrink: 0; }
-.scs-seal-ring { width: 68px; height: 68px; border-radius: 50%; background: conic-gradient(from 0deg, #1d4ed8 0%, #2563eb 30%, #1e40af 60%, #1d4ed8 100%); padding: 3px; box-shadow: 0 4px 16px rgba(37,99,235,.35), inset 0 1px 0 rgba(255,255,255,.2); position: relative; }
+.scs-seal-ring { width: 52px; height: 52px; border-radius: 50%; background: conic-gradient(from 0deg, #1d4ed8 0%, #2563eb 30%, #1e40af 60%, #1d4ed8 100%); padding: 3px; box-shadow: 0 4px 12px rgba(37,99,235,.30), inset 0 1px 0 rgba(255,255,255,.2); position: relative; }
 .scs-seal-ring::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(255,255,255,.4); z-index: 1; }
 .scs-seal-core { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(145deg, #1e40af, #1d4ed8); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; position: relative; z-index: 2; }
 .scs-seal-gov { font-size: 7px; color: rgba(255,255,255,.75); font-weight: 700; letter-spacing: .05em; line-height: 1; }
@@ -268,7 +268,7 @@
 .stat .lbl { font-size: 13px; color: var(--gray-600); margin-top: 4px; }
 
 /* ---------- Section Common ---------- */
-section.block { padding: 88px 0; }
+section.block { padding: 64px 0; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--blue); background: var(--blue-50); padding: 6px 14px; border-radius: 999px; margin-bottom: 18px; }
 .eyebrow.warn { color: #9a3412; background: #ffedd5; }
 h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; line-height: 1.35; margin: 0 0 12px; color: var(--ink); }
@@ -626,7 +626,13 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
 
 /* ── タブレット (≤1024px) ── */
 @media (max-width: 1024px) {
-  .hero-layout { grid-template-columns: 1fr; gap: 32px; padding-top: 40px; padding-bottom: 48px; }
+  .hero-layout { gap: 24px; padding-top: 24px; padding-bottom: 28px; }
+  .hero-content-photo { height: 340px; }
+}
+
+/* ── ナロータブレット (≤800px) ── */
+@media (max-width: 800px) {
+  .hero-layout { grid-template-columns: 1fr; gap: 24px; padding-top: 28px; padding-bottom: 32px; }
   .hero-right { display: none; }
   .why-split { grid-template-columns: 1fr; gap: 32px; }
   .why-left { position: static; }
