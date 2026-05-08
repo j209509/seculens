@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { chromium } from "playwright";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { getPlan } from "@/lib/plans";
+import { isAdminEmail } from "@/lib/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,6 +42,24 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     // Tier別の発行条件チェック
     if (scan.userId) {
+      const ownerUser = await prisma.user.findUnique({ where: { id: scan.userId } });
+      if (!ownerUser) {
+        return NextResponse.json({ error: "Owner not found" }, { status: 404 });
+      }
+      const isAdmin = ownerUser.role === "admin" || isAdminEmail(ownerUser.email);
+
+      // プラン別ティア制限（管理者は無制限）
+      const planCfg = getPlan(ownerUser.plan);
+      const maxCertTier = isAdmin ? 4 : planCfg.limits.maxCertTier;
+      if (tier > maxCertTier) {
+        return NextResponse.json({
+          error: maxCertTier === 0
+            ? "証明書発行は有料プランでご利用いただけます"
+            : `現在のプランでは★${maxCertTier}までの証明書のみ発行可能です`,
+          required: { tier, maxCertTier, plan: ownerUser.plan },
+        }, { status: 402 });
+      }
+
       const userScans = await prisma.scan.findMany({
         where: { userId: scan.userId, status: "completed" },
         select: { id: true, completedAt: true, createdAt: true },
@@ -51,16 +71,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         : null;
       const daysSpan = oldestScanAt ? (Date.now() - oldestScanAt) / (1000 * 60 * 60 * 24) : 0;
 
-      if (tier === 3 && completedCount < 1) {
+      if (!isAdmin && tier === 3 && completedCount < 1) {
         return NextResponse.json({
           error: "★3証明書には1回以上のスキャン完了が必要です",
           required: { scans: 1, current: completedCount },
         }, { status: 403 });
       }
-      if (tier === 4 && (completedCount < 2 || daysSpan < 60)) {
+      if (!isAdmin && tier === 4 && (completedCount < 2 || daysSpan < 31)) {
         return NextResponse.json({
-          error: "★4証明書には60日間以上にわたる2回以上のスキャン完了が必要です",
-          required: { scans: 2, current: completedCount, daysRequired: 60, daysSpan: Math.floor(daysSpan) },
+          error: "★4証明書には31日間以上にわたる2回以上のスキャン完了が必要です",
+          required: { scans: 2, current: completedCount, daysRequired: 31, daysSpan: Math.floor(daysSpan) },
         }, { status: 403 });
       }
     }
@@ -150,8 +170,8 @@ function buildCertHtml(d: {
     4: {
       stars: "★★★★", title: "セキュリティ診断継続認定証", subtitle: "ADVANCED CONTINUOUS CERTIFICATE",
       mainColor: "#7c3aed", bgGradient: "linear-gradient(135deg, #faf5ff, #ede9fe)",
-      eyebrow: "LEVEL 4 — 60日以上の継続運用実績",
-      criteria: "60日間以上にわたり継続的に脆弱性診断を実施（2回以上完了）し、組織的なセキュリティ運用が確立",
+      eyebrow: "LEVEL 4 — 31日以上の継続運用実績",
+      criteria: "31日間以上にわたり継続的に脆弱性診断を実施（2回以上完了）し、組織的なセキュリティ運用が確立",
       stamps: ["gov", "ipa", "advanced"],
     },
   }[d.tier];

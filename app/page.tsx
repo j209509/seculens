@@ -902,24 +902,24 @@ export default function LandingPage() {
           <div className="pricing-grid">
             {[
               {
-                ico: "👤", name: "ゲスト", price: "¥0", per: "", tag: "登録不要", featured: false,
-                feats: ["URLで10項目のみ","AI解析なし","結果保存なし","レポートDL不可"],
-                cta: { label: "このプランで始める", href: "#scan", cls: "btn-outline-plan" },
-              },
-              {
-                ico: "🌱", name: "フリー", price: "¥0", per: "", tag: "無料アカウント", featured: false,
-                feats: ["全174項目チェック","月3回まで診断可能","SCSテンプレート対応","PDFレポートDL"],
+                ico: "🌱", name: "フリー", price: "¥0", per: "", tag: "無料登録", featured: false,
+                feats: ["1ドメインまで","月10回までスキャン","全174項目チェック","結果はWeb上で閲覧","証明書発行 ❌"],
                 cta: { label: "無料登録で始める", href: "/signup", cls: "btn-outline-plan" },
               },
               {
-                ico: "🛡", name: "スタンダード", price: "¥3,980", per: "/月", tag: "中小企業に最適", featured: true,
-                feats: ["月20回まで診断","レポートDL（PDF / CSV）","SCS証跡対応","診断履歴の自動保存","メールサポート"],
+                ico: "🛡", name: "スタンダード", price: "¥4,980", per: "/月", tag: "中小企業に最適", featured: true,
+                feats: ["3ドメインまで","月30回までスキャン","公式証明書 ★2★3 発行可能","PDF/CSVレポート出力","Slack/Discord通知","メールサポート"],
                 cta: { label: "このプランで始める", href: "/signup?plan=standard", cls: "btn-primary" },
               },
               {
-                ico: "🏢", name: "プロ", price: "¥12,800", per: "/月", tag: "エンタープライズ", featured: false,
-                feats: ["月100回まで診断","ログイン後ページ診断","API連携","専任サポート","カスタムレポート"],
+                ico: "🏢", name: "プロ", price: "¥19,800", per: "/月", tag: "エンタープライズ向け", featured: false,
+                feats: ["10ドメインまで","月100回までスキャン","公式証明書 ★2★3★4 発行可能","ログイン後ページ診断","API連携","優先サポート","SCS★3対応レポート"],
                 cta: { label: "このプランで始める", href: "/signup?plan=pro", cls: "btn-outline-plan" },
+              },
+              {
+                ico: "🏛", name: "エンタープライズ", price: "個別", per: "見積", tag: "大規模/政府/SI", featured: false,
+                feats: ["無制限ドメイン・無制限スキャン","全証明書（カスタム含む）","SAML SSO","オンプレ対応","SLA保証","専任CS"],
+                cta: { label: "お問い合わせ", href: "mailto:nugeirba@gmail.com?subject=Enterprise%20Plan", cls: "btn-outline-plan" },
               },
             ].map((plan) => (
               <div key={plan.name} className={`price-card${plan.featured ? " featured" : ""}`}>
@@ -990,7 +990,7 @@ export default function LandingPage() {
                 経産省 SCS★3 要件「継続的な脆弱性診断」に対応する認定証。<strong>大手取引先の監査要件をクリア</strong>。
               </p>
               <div style={{ marginTop: 14, padding: "8px 12px", background: "#eff6ff", borderRadius: 8, fontSize: 12, color: "#1e40af" }}>
-                ✓ 1回スキャン完了で取得可能
+                ✓ 1回スキャン完了で取得可能（Standard以上）
               </div>
             </div>
 
@@ -1001,10 +1001,10 @@ export default function LandingPage() {
               <div style={{ marginTop: 8, fontSize: 11, color: "#7c3aed", fontWeight: 700 }}>LEVEL 4 ／ 最上位認定</div>
               <h3 style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>高度継続認定証</h3>
               <p style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                <strong>60日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。サプライチェーン審査で他社との差別化に。
+                <strong>31日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。サプライチェーン審査で他社との差別化に。
               </p>
               <div style={{ marginTop: 14, padding: "8px 12px", background: "#faf5ff", borderRadius: 8, fontSize: 12, color: "#6d28d9" }}>
-                ✓ 60日以上＋2回以上の継続実績で取得
+                ✓ 31日以上＋2回以上の継続実績で取得（Pro限定）
               </div>
             </div>
           </div>

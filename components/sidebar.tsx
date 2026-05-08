@@ -42,6 +42,7 @@ export function Sidebar() {
   const router = useRouter();
   const [me, setMe] = useState<Me>(null);
   const [usage, setUsage] = useState<{ used: number; limit: number } | null>(null);
+  const [domainUsage, setDomainUsage] = useState<{ used: number; limit: number } | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -55,6 +56,9 @@ export function Sidebar() {
       .then((d) => {
         if (d && typeof d.used === "number" && typeof d.limit === "number") {
           setUsage({ used: d.used, limit: d.limit });
+        }
+        if (d?.domains && typeof d.domains.used === "number" && typeof d.domains.limit === "number") {
+          setDomainUsage({ used: d.domains.used, limit: d.domains.limit });
         }
       })
       .catch(() => {});
@@ -165,6 +169,25 @@ export function Sidebar() {
           </div>
           {remaining !== null && (
             <div className="mt-1.5 text-[10px] text-slate-400">残り {remaining} 回</div>
+          )}
+
+          {/* ドメイン使用状況 */}
+          {domainUsage && (
+            <div className="mt-3 pt-3 border-t border-slate-700/60">
+              <div className="text-xs font-medium text-slate-300 mb-1">対象ドメイン</div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-sm font-bold text-white">{domainUsage.used}</span>
+                <span className="text-xs text-slate-400">
+                  / {domainUsage.limit < 0 ? "∞" : domainUsage.limit}
+                </span>
+              </div>
+              <div className="mt-1.5 h-1 bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 rounded-full"
+                  style={{ width: `${domainUsage.limit > 0 ? Math.min(100, (domainUsage.used / domainUsage.limit) * 100) : 0}%` }}
+                />
+              </div>
+            </div>
           )}
           <div className="mt-2.5 flex flex-col gap-1.5">
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 leading-tight">

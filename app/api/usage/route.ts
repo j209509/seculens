@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { checkScanQuota, ensureUsageWindow } from "@/lib/usage";
+import { checkScanQuota, ensureUsageWindow, getUsedDomainsThisMonth } from "@/lib/usage";
+import { getPlan } from "@/lib/plans";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,11 @@ export async function GET() {
     const refreshed = await ensureUsageWindow(user);
     const quota = await checkScanQuota(refreshed);
 
+    // ドメイン使用状況
+    const usedDomains = await getUsedDomainsThisMonth(refreshed);
+    const planCfg = getPlan(refreshed.plan);
+    const domainLimit = refreshed.role === "admin" ? -1 : planCfg.limits.maxDomainsPerMonth;
+
     return NextResponse.json({
       plan: refreshed.plan,
       used: quota.used,
@@ -26,6 +32,11 @@ export async function GET() {
       remaining: quota.remaining,
       resetAt: refreshed.usageResetAt,
       isAdmin: refreshed.role === "admin",
+      domains: {
+        used: usedDomains.length,
+        limit: domainLimit,
+        list: usedDomains,
+      },
     });
   } catch (e) {
     console.error("[api/usage GET]", e);

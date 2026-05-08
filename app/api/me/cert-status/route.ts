@@ -23,7 +23,7 @@ export async function GET() {
 
     let highestTier: 0 | 2 | 3 | 4 = 0;
     if (count >= 1) highestTier = 3; // ★3 は1回スキャンで取れる
-    if (count >= 2 && daysSpan >= 60) highestTier = 4;
+    if (count >= 2 && daysSpan >= 31) highestTier = 4;
 
     return NextResponse.json({ highestTier, completedScans: count, daysSpan });
   } catch (e) {

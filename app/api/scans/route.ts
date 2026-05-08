@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { runFullScan } from "@/lib/scan-runner";
 import { getCurrentUser } from "@/lib/auth";
-import { checkScanQuota, incrementScanUsage } from "@/lib/usage";
+import { checkScanQuota, checkDomainQuota, incrementScanUsage } from "@/lib/usage";
 
 export const runtime = "nodejs";
 
@@ -33,8 +33,19 @@ export async function POST(request: Request) {
       if (!quota.allowed) {
         return NextResponse.json(
           {
-            error: "利用上限に達しました。プランをアップグレードしてください。",
+            error: "今月のスキャン回数上限に達しました。プランをアップグレードしてください。",
             quota,
+          },
+          { status: 402 }
+        );
+      }
+      // ドメイン数上限チェック
+      const domainQuota = await checkDomainQuota(user, url);
+      if (!domainQuota.allowed) {
+        return NextResponse.json(
+          {
+            error: domainQuota.reason ?? "ドメイン上限に達しました",
+            domainQuota,
           },
           { status: 402 }
         );

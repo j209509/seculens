@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { Award, Lock, Download } from "lucide-react";
 
 type Eligibility = {
-  tier2: { eligible: boolean; reason: string };
-  tier3: { eligible: boolean; reason: string; current: number; required: number };
-  tier4: { eligible: boolean; reason: string; current: number; required: number; daysSpan: number; daysRequired: number };
+  tier2: { eligible: boolean; reason: string; planLocked?: boolean };
+  tier3: { eligible: boolean; reason: string; planLocked?: boolean; current: number; required: number };
+  tier4: { eligible: boolean; reason: string; planLocked?: boolean; current: number; required: number; daysSpan: number; daysRequired: number };
 };
 
 const TIERS = [
@@ -102,6 +102,13 @@ export function CertificateDownload({ scanId }: { scanId: string }) {
                 >
                   <Download className="w-3.5 h-3.5" />
                   PDFダウンロード
+                </a>
+              ) : elig.planLocked ? (
+                <a
+                  href="/pricing"
+                  className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors"
+                >
+                  💎 プランをアップグレード
                 </a>
               ) : (
                 <div className="text-xs text-slate-500 bg-white border border-slate-200 rounded-lg px-3 py-2">
