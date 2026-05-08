@@ -729,7 +729,7 @@ export default function LandingPage() {
             {[
               {
                 cls: "", tag: "2023 / RANSOMWARE", ico: "🔒", icoColor: "#dc2626", imgColor: "#fee2e2",
-                photo: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=240&fit=crop&crop=center&q=80",
+                photo: "/beverage-factory.jpg",
                 co: "大手飲料メーカー", meta: "ランサムウェア攻撃",
                 body: "製造・物流システムが全停止。出荷停止が数週間続き、損失は数十億円規模に。サプライチェーン全体に波及した。",
                 prev: "公開Webシステムの侵入経路を\n事前発見できた可能性があります。",
@@ -737,7 +737,7 @@ export default function LandingPage() {
               },
               {
                 cls: "orange", tag: "2022 / SUPPLY CHAIN", ico: "🔗", icoColor: "#f97316", imgColor: "#ffedd5",
-                photo: "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=600&h=240&fit=crop&crop=center&q=80",
+                photo: "/autoparts-factory.jpg",
                 co: "大手自動車部品メーカー", meta: "サプライチェーン攻撃",
                 body: "VPN脆弱性から侵入。大手自動車メーカーの全工場が1日停止し、損失は数百億円規模に達した。",
                 prev: "VPNの既知脆弱性を発見し、\nパッチ適用できた可能性があります。",
@@ -745,7 +745,7 @@ export default function LandingPage() {
               },
               {
                 cls: "purple", tag: "2021 / MEDICAL", ico: "🏥", icoColor: "#8b5cf6", imgColor: "#ede9fe",
-                photo: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&h=240&fit=crop&crop=center&q=80",
+                photo: "/hospital.jpg",
                 co: "地方病院", meta: "電子カルテ停止",
                 body: "電子カルテが完全停止。救急受入れ停止が2ヶ月以上続き、地域医療に大きな影響が出た。",
                 prev: "定期的な脆弱性診断が\n早期の検知と対策につながった可能性があります。",
