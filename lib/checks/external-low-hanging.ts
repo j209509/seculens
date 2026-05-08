@@ -7,6 +7,7 @@ import { maskBody } from "@/lib/mask";
 import { safeJsonParse } from "@/lib/json";
 import { isLikelyValidApex } from "@/lib/domain-validity";
 import { makeScanCtx, createScanFinding, findExistingScanFinding } from "@/lib/scan-adapter";
+import { reportSubStep } from "@/lib/scan-context";
 
 async function fetchAnon(url: string): Promise<{ status: number; body: string; headers: Record<string, string | string[] | undefined> } | null> {
   try {
@@ -44,6 +45,7 @@ function getHosts(program: { allowedDomains: string }, max = 4): string[] {
 
 // === 1. HTML コメント抽出 ( TODO / FIXME / debug / admin / api key / secret ) ===
 export async function runHtmlCommentExtraction(scanId: string, targetUrl: string) {
+  reportSubStep("HTML コメント (TODO / debug 等) 抽出");
   const program = makeScanCtx(scanId, targetUrl);
   // Fetch target URL and extract HTML comments
   let count = 0;
@@ -71,6 +73,7 @@ export async function runHtmlCommentExtraction(scanId: string, targetUrl: string
 
 // === 2. small public config files ===
 export async function runSmallPublicConfigCheck(scanId: string, targetUrl: string) {
+  reportSubStep("小規模公開 config ファイル探索");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = [
     "/runtime-config.json", "/env.js", "/config.runtime.js", "/runtime.json", "/runtime.js",
@@ -106,6 +109,7 @@ export async function runSmallPublicConfigCheck(scanId: string, targetUrl: strin
 
 // === 3. .well-known 拡張 ( webfinger / nodeinfo / host-meta / jwks / matrix ) ===
 export async function runWellKnownExtended(scanId: string, targetUrl: string) {
+  reportSubStep(".well-known 拡張パス検査");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = [
     { p: "/.well-known/webfinger?resource=acct:admin@", sig: /"subject"|aliases/, label: "WebFinger admin lookup" },
@@ -146,6 +150,7 @@ export async function runWellKnownExtended(scanId: string, targetUrl: string) {
 
 // === 4. legacy policy files ( crossdomain / clientaccesspolicy ) ===
 export async function runLegacyPolicyFiles(scanId: string, targetUrl: string) {
+  reportSubStep("レガシー policy ファイル確認");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, 4)) {
@@ -172,6 +177,7 @@ export async function runLegacyPolicyFiles(scanId: string, targetUrl: string) {
 
 // === 5. RSS/Atom/feed から非公開っぽい URL 抽出 ===
 export async function runRssFeedMining(scanId: string, targetUrl: string) {
+  reportSubStep("RSS / Atom フィード解析");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = ["/feed", "/rss", "/atom.xml", "/feed.xml", "/rss.xml", "/feed/", "/feed/atom", "/index.xml", "/blog/feed"];
   let count = 0;
@@ -200,6 +206,7 @@ export async function runRssFeedMining(scanId: string, targetUrl: string) {
 
 // === 6. CSP report-uri から内部 URL / Sentry / staging URL 抽出 ===
 export async function runCspReportUriMining(scanId: string, targetUrl: string) {
+  reportSubStep("CSP report-uri 採掘");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, 3)) {
@@ -226,6 +233,7 @@ export async function runCspReportUriMining(scanId: string, targetUrl: string) {
 
 // === 7. sourceMappingURL コメント解析 + 外部 source map 確認 ===
 export async function runSourcemapCommentCheck(scanId: string, targetUrl: string) {
+  reportSubStep("ソースマップコメント検出");
   const program = makeScanCtx(scanId, targetUrl);
   // Fetch main page to get JS URLs
   let count = 0;
@@ -267,6 +275,7 @@ export async function runSourcemapCommentCheck(scanId: string, targetUrl: string
 
 // === 8. public CMS REST 軽量確認 ( Ghost / Strapi / Directus ) ===
 export async function runPublicCmsRestCheck(scanId: string, targetUrl: string) {
+  reportSubStep("WordPress / CMS REST API 確認");
   const program = makeScanCtx(scanId, targetUrl);
   const probes = [
     { p: "/ghost/api/v3/content/settings/?key=", sig: /"settings"\s*:|"site_title"/i, label: "Ghost content/settings ( public API )", sev: "low" as const },
@@ -299,6 +308,7 @@ export async function runPublicCmsRestCheck(scanId: string, targetUrl: string) {
 
 // === 9. GraphQL Playground / GraphiQL / Altair UI 検出 ===
 export async function runGraphqlUiDetection(scanId: string, targetUrl: string) {
+  reportSubStep("GraphQL Playground / UI 検出");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = ["/graphql", "/graphiql", "/playground", "/altair", "/__graphql", "/api/graphql", "/v1/graphql"];
   let count = 0;
@@ -327,6 +337,7 @@ export async function runGraphqlUiDetection(scanId: string, targetUrl: string) {
 
 // === 10. URL token format review ===
 export async function runUrlTokenFormatReview(scanId: string, targetUrl: string) {
+  reportSubStep("URL token 形式レビュー");
   const program = makeScanCtx(scanId, targetUrl);
   void program;
   // This check analyzes URL token format from the target URL itself
@@ -359,6 +370,7 @@ export async function runUrlTokenFormatReview(scanId: string, targetUrl: string)
 
 // === 11. favicon hash + meta generator fingerprint ===
 export async function runFaviconAndMetaFingerprint(scanId: string, targetUrl: string) {
+  reportSubStep("favicon ハッシュフィンガープリント");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, 3)) {
@@ -387,6 +399,7 @@ export async function runFaviconAndMetaFingerprint(scanId: string, targetUrl: st
 
 // === 12. Wayback / archive 取り込み ( 古い JS / OpenAPI / admin path ) ===
 export async function runWaybackImport(scanId: string, targetUrl: string) {
+  reportSubStep("Wayback Machine 履歴 import");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, 2)) {
@@ -413,6 +426,7 @@ export async function runWaybackImport(scanId: string, targetUrl: string) {
 
 // === 13. CDN old asset leakage ===
 export async function runCdnOldAssetLeakage(scanId: string, targetUrl: string) {
+  reportSubStep("CDN 古いアセット漏洩確認");
   const program = makeScanCtx(scanId, targetUrl);
   const mainPage = await fetchAnon(targetUrl);
   if (!mainPage) return 0;

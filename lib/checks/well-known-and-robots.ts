@@ -8,6 +8,7 @@ import { maskBody } from "@/lib/mask";
 import { safeJsonParse } from "@/lib/json";
 import { isLikelyValidApex } from "@/lib/domain-validity";
 import { makeScanCtx, createScanFinding, findExistingScanFinding } from "@/lib/scan-adapter";
+import { reportSubStep } from "@/lib/scan-context";
 
 const WELL_KNOWN_PATHS = [
   "/.well-known/openid-configuration",
@@ -58,12 +59,15 @@ export async function runWellKnownAndRobotsCheck(scanId: string, targetUrl: stri
   let count = 0;
   for (const host of hosts.slice(0, 8)) {
     if (count >= 6) break;
+    reportSubStep(`robots.txt を取得中... (${host})`);
     const robotsRes = await fetchAnon(`https://${host}/robots.txt`);
+    reportSubStep(`sitemap.xml を解析中... (${host})`);
     const sitemapRes = await fetchAnon(`https://${host}/sitemap.xml`);
     const interestingPaths: string[] = [];
     if (robotsRes && robotsRes.status === 200) interestingPaths.push(...extractInterestingPaths(robotsRes.body));
     if (sitemapRes && sitemapRes.status === 200) interestingPaths.push(...extractInterestingPaths(sitemapRes.body));
 
+    if (interestingPaths.length > 0) reportSubStep("robots.txt の隠しパス検証");
     for (const rawPath of interestingPaths.slice(0, 8)) {
       if (count >= 6) break;
       let fullUrl: string;
@@ -97,6 +101,7 @@ export async function runWellKnownAndRobotsCheck(scanId: string, targetUrl: stri
     }
 
     // .well-known 系の機密設定チェック
+    reportSubStep(".well-known/* メタデータ確認中");
     for (const wkPath of WELL_KNOWN_PATHS) {
       if (count >= 6) break;
       const url = `https://${host}${wkPath}`;

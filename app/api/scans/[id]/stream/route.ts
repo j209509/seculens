@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { getSubStep } from "@/lib/scan-progress-bus";
 
 export const runtime = "nodejs";
 
@@ -118,6 +119,14 @@ export async function GET(
             return;
           }
 
+          // ライブ findings (発見順に最大200件)
+          const liveFindings = await prisma.scanFinding.findMany({
+            where: { scanId },
+            select: { id: true, type: true, severity: true, target: true, impact: true, createdAt: true },
+            orderBy: { createdAt: "asc" },
+            take: 200,
+          });
+
           // 経過時間・推定残り時間をサーバー側で付加
           const progressPct = scan.progress ?? 0;
           const elapsedSec  = Math.floor(elapsed / 1000);
@@ -131,6 +140,8 @@ export async function GET(
           sendEvent({
             ...scan,
             findingsCount: scan._count.findings,
+            findings: liveFindings,
+            currentSubStep: getSubStep(scanId) ?? "",
             elapsedSec,
             estRemainSec,
           });

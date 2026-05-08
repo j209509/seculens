@@ -15,6 +15,7 @@ import { maskBody } from "@/lib/mask";
 import { safeJsonParse } from "@/lib/json";
 import { isLikelyValidApex } from "@/lib/domain-validity";
 import { makeScanCtx, createScanFinding, findExistingScanFinding } from "@/lib/scan-adapter";
+import { reportSubStep } from "@/lib/scan-context";
 
 async function fetchAnon(url: string, method: "GET" | "POST" = "GET", body?: string): Promise<{ status: number; body: string; headers: Record<string, string | string[] | undefined> } | null> {
   try {
@@ -54,6 +55,7 @@ async function createFinding(scanId: string, type: string, target: string, sever
 
 // === 1. OpenAPI / Swagger deep extraction ===
 export async function runOpenapiDeepExtraction(scanId: string, targetUrl: string) {
+  reportSubStep("OpenAPI / Swagger schema 深堀り");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   const hosts = [...new Set(allowed.map((d) => d.replace(/^\*\./, "").replace(/^https?:\/\//, "").split("/")[0]))].filter(isLikelyValidApex).slice(0, 6);
@@ -116,6 +118,7 @@ export async function runOpenapiDeepExtraction(scanId: string, targetUrl: string
 
 // === 2. GraphQL schema deep extraction ===
 export async function runGraphqlSchemaDeep(scanId: string, targetUrl: string) {
+  reportSubStep("GraphQL schema 深堀り解析");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   const hosts = [...new Set(allowed.map((d) => d.replace(/^\*\./, "").replace(/^https?:\/\//, "").split("/")[0]))].filter(isLikelyValidApex).slice(0, 4);
@@ -184,6 +187,7 @@ export async function runGraphqlSchemaDeep(scanId: string, targetUrl: string) {
 
 // === 3. Directory Listing 検出 ===
 export async function runDirectoryListingCheck(scanId: string, targetUrl: string) {
+  reportSubStep("ディレクトリリスティング検出");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   const hosts = [...new Set(allowed.map((d) => d.replace(/^\*\./, "").replace(/^https?:\/\//, "").split("/")[0]))].filter(isLikelyValidApex).slice(0, 6);
@@ -215,6 +219,7 @@ export async function runDirectoryListingCheck(scanId: string, targetUrl: string
 
 // === 4. Backup / config / lockfile 拡張 ===
 export async function runBackupAndConfigCheck(scanId: string, targetUrl: string) {
+  reportSubStep("バックアップ / config 漏洩確認");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   const hosts = [...new Set(allowed.map((d) => d.replace(/^\*\./, "").replace(/^https?:\/\//, "").split("/")[0]))].filter(isLikelyValidApex).slice(0, 5);
@@ -263,6 +268,7 @@ export async function runBackupAndConfigCheck(scanId: string, targetUrl: string)
 
 // === 5. DNS / Email security ( SPF / DMARC / DKIM / CAA ) ===
 export async function runDnsEmailSecurityCheck(scanId: string, targetUrl: string) {
+  reportSubStep("SPF / DMARC / DKIM / CAA 検査");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   const apexDomains = [...new Set(allowed.map((d) => d.replace(/^\*\./, "").replace(/^https?:\/\//, "").split("/")[0]).filter(isLikelyValidApex).map((d) => d.split(".").slice(-2).join(".")))].filter(isLikelyValidApex).slice(0, 8);
@@ -309,6 +315,7 @@ export async function runDnsEmailSecurityCheck(scanId: string, targetUrl: string
 
 // === 6. Web Cache Deception ===
 export async function runWebCacheDeceptionCheck(scanId: string, targetUrl: string) {
+  reportSubStep("Web cache deception プローブ");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   const hosts = [...new Set(allowed.map((d) => d.replace(/^\*\./, "").replace(/^https?:\/\//, "").split("/")[0]))].filter(isLikelyValidApex).slice(0, 3);
@@ -346,6 +353,7 @@ export async function runWebCacheDeceptionCheck(scanId: string, targetUrl: strin
 
 // === 7. Public Error / Debug Surface ===
 export async function runPublicDebugSurfaceCheck(scanId: string, targetUrl: string) {
+  reportSubStep("公開 debug / error surface 確認");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   const hosts = [...new Set(allowed.map((d) => d.replace(/^\*\./, "").replace(/^https?:\/\//, "").split("/")[0]))].filter(isLikelyValidApex).slice(0, 5);

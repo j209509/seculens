@@ -15,33 +15,35 @@ import { CoffeeBreak } from "@/components/scan/CoffeeBreak";
 // ─── チェック説明マップ ────────────────────────────────────────────────────────
 // scan-runner.ts の CHECKS 配列と同順・同名
 const CHECK_DESCRIPTIONS: Record<string, { desc: string; items: string }> = {
+  // Tier 1
+  "外部その他": {
+    desc: "セキュリティヘッダー（HSTS / CSP / X-Frame-Options）・クリックジャッキング防止の確認",
+    items: "8〜10項目",
+  },
   "Well-Known & Robots": {
     desc: "サイト構造・クローラ設定・隠しパスの検出（.well-known, robots.txt, sitemap 等）",
     items: "6〜8項目",
   },
-  "外部受動観測": {
-    desc: "公開情報からの情報漏洩・機密ファイル露出の受動的検査（バックアップファイル・Git露出 等）",
-    items: "8〜10項目",
+  "アウトデートソフトウェア": {
+    desc: "既知脆弱性を持つ古いフレームワーク・ライブラリ・サーバーソフトウェアの検出",
+    items: "6〜8項目",
   },
   "外部低コスト確認": {
     desc: "設定ミス・デフォルト認証・管理画面露出の低コスト検査（ディレクトリリスティング・管理パス 等）",
     items: "12〜15項目",
   },
-  "情報収集": {
-    desc: "DNS・Whois・サブドメイン・メタデータから攻撃者が収集できる情報の洗い出し",
+  // Tier 2
+  "外部受動観測": {
+    desc: "公開情報からの情報漏洩・機密ファイル露出の受動的検査（バックアップファイル・Git露出 等）",
     items: "8〜10項目",
   },
-  "外部その他": {
-    desc: "セキュリティヘッダー（HSTS / CSP / X-Frame-Options）・クリックジャッキング防止の確認",
+  "情報収集": {
+    desc: "DNS・Whois・サブドメイン・メタデータから攻撃者が収集できる情報の洗い出し",
     items: "8〜10項目",
   },
   "攻撃対象面分析": {
     desc: "インターネット公開エンドポイント・ポート・サービスの攻撃対象面を分析（SCS★3 主要要件）",
     items: "5〜7項目",
-  },
-  "キャッシュポイズニング": {
-    desc: "Webキャッシュポイズニング脆弱性の検出（Host・X-Forwarded-Host ヘッダー操作 等）",
-    items: "3〜5項目",
   },
   "CORS設定確認": {
     desc: "クロスオリジンリソース共有（CORS）の誤設定検出（Originリフレクション・wildcard 等）",
@@ -51,33 +53,30 @@ const CHECK_DESCRIPTIONS: Record<string, { desc: string; items: string }> = {
     desc: "クロスサイトリクエストフォージェリ（CSRF）保護トークンの欠落を確認",
     items: "4〜6項目",
   },
-  "アウトデートソフトウェア": {
-    desc: "既知脆弱性を持つ古いフレームワーク・ライブラリ・サーバーソフトウェアの検出",
-    items: "6〜8項目",
-  },
-  "JWT脆弱性": {
-    desc: "JSON Webトークンの署名検証欠落・アルゴリズム混同（alg:none）攻撃の確認",
-    items: "4〜6項目",
-  },
-  "オープンリダイレクト": {
-    desc: "フィッシング・認証バイパスに悪用されるオープンリダイレクト脆弱性の検出",
+  "匿名API露出確認": {
+    desc: "認証なしでアクセス可能なAPIエンドポイント・機密データ露出の検査（OWASP API Top10）",
     items: "5〜7項目",
   },
   "レートリミット": {
     desc: "ブルートフォース・DoS攻撃を許容するレート制限（Rate Limit）欠落の確認",
     items: "4〜5項目",
   },
+  // Tier 3
+  "オープンリダイレクト": {
+    desc: "フィッシング・認証バイパスに悪用されるオープンリダイレクト脆弱性の検出",
+    items: "5〜7項目",
+  },
   "ユーザー列挙": {
     desc: "ログイン・パスワードリセット画面でのユーザー存在確認による列挙攻撃の検出",
     items: "4〜5項目",
   },
-  "GraphQL脆弱性": {
-    desc: "GraphQLのイントロスペクション有効化・クエリ深度制限欠落・バッチ攻撃の確認",
-    items: "5〜7項目",
-  },
-  "HTTPスマグリング": {
-    desc: "HTTPリクエストスマグリング（CL-TE / TE-CL）脆弱性の検出",
+  "キャッシュポイズニング": {
+    desc: "Webキャッシュポイズニング脆弱性の検出（Host・X-Forwarded-Host ヘッダー操作 等）",
     items: "3〜5項目",
+  },
+  "JWT脆弱性": {
+    desc: "JSON Webトークンの署名検証欠落・アルゴリズム混同（alg:none）攻撃の確認",
+    items: "4〜6項目",
   },
   "パブリッククラウドストレージ": {
     desc: "AWS S3・GCS・Azure Blob の公開バケット・機密ファイル露出の検査",
@@ -87,6 +86,11 @@ const CHECK_DESCRIPTIONS: Record<string, { desc: string; items: string }> = {
     desc: "OAuth 2.0 フローの state 値欠落・リダイレクトURI検証不備・トークン漏洩の確認",
     items: "5〜7項目",
   },
+  "GraphQL脆弱性": {
+    desc: "GraphQLのイントロスペクション有効化・クエリ深度制限欠落・バッチ攻撃の確認",
+    items: "5〜7項目",
+  },
+  // Tier 4
   "XSS安全確認": {
     desc: "クロスサイトスクリプティング（反射型・保存型・DOM型 XSS）の安全かつ非破壊的な検査",
     items: "8〜10項目",
@@ -99,9 +103,9 @@ const CHECK_DESCRIPTIONS: Record<string, { desc: string; items: string }> = {
     desc: "サーバーサイドリクエストフォージェリ（SSRF）・テンプレートインジェクション（SSTI）の安全検査",
     items: "4〜6項目",
   },
-  "匿名API露出確認": {
-    desc: "認証なしでアクセス可能なAPIエンドポイント・機密データ露出の検査（OWASP API Top10）",
-    items: "5〜7項目",
+  "HTTPスマグリング": {
+    desc: "HTTPリクエストスマグリング（CL-TE / TE-CL）脆弱性の検出",
+    items: "3〜5項目",
   },
 };
 
@@ -132,6 +136,7 @@ export default function ScanPage() {
   const [scanState, setScanState] = useState<ScanState>("idle");
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState("");
+  const [currentSubStep, setCurrentSubStep] = useState("");
   const [doneChecks, setDoneChecks] = useState(0);
   const [totalChecks, setTotalChecks] = useState(TOTAL_CHECKS);
   const [elapsedSec, setElapsedSec] = useState(0);
@@ -189,10 +194,12 @@ export default function ScanPage() {
         setProgress(data.progress ?? 0);
         const step = data.currentStep ?? "";
         setCurrentStep(step);
+        if (typeof data.currentSubStep === "string") setCurrentSubStep(data.currentSubStep);
         setDoneChecks(data.doneChecks ?? 0);
         setTotalChecks(data.totalChecks ?? TOTAL_CHECKS);
         setElapsedSec(data.elapsedSec ?? 0);
         setEstRemainSec(data.estRemainSec ?? null);
+        if (Array.isArray(data.findings)) setFindings(data.findings);
 
         // 完了済みチェックリストを更新
         if (step && step !== "完了" && step !== "接続中...") {
@@ -265,6 +272,7 @@ export default function ScanPage() {
     scanStateRef.current = "scanning";
     setProgress(0);
     setCurrentStep("接続中...");
+    setCurrentSubStep("");
     setDoneChecks(0);
     setTotalChecks(TOTAL_CHECKS);
     setElapsedSec(0);
@@ -303,6 +311,7 @@ export default function ScanPage() {
     scanStateRef.current = "idle";
     setProgress(0);
     setCurrentStep("");
+    setCurrentSubStep("");
     setDoneChecks(0);
     setTotalChecks(TOTAL_CHECKS);
     setElapsedSec(0);
@@ -457,12 +466,24 @@ export default function ScanPage() {
                 {currentCheckInfo ? (
                   <>
                     <p className="text-sm text-slate-300 leading-relaxed">{currentCheckInfo.desc}</p>
+                    {currentSubStep && (
+                      <p className="text-xs text-blue-300/70 mt-1 font-mono truncate">
+                        ▸ {currentSubStep}
+                      </p>
+                    )}
                     <span className="inline-block mt-2 text-xs bg-blue-900/60 text-blue-300 rounded px-2 py-0.5">
                       {currentCheckInfo.items}を確認
                     </span>
                   </>
                 ) : (
-                  <p className="text-sm text-slate-400">診断を準備しています...</p>
+                  <>
+                    <p className="text-sm text-slate-400">診断を準備しています...</p>
+                    {currentSubStep && (
+                      <p className="text-xs text-blue-300/70 mt-1 font-mono truncate">
+                        ▸ {currentSubStep}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </CardContent>
@@ -470,6 +491,46 @@ export default function ScanPage() {
 
           {/* コーヒーブレイク（30秒以上経過したら表示） */}
           <CoffeeBreak elapsedSec={elapsedSec} />
+
+          {/* 🔍 リアルタイム検出 */}
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <Search className="w-4 h-4 text-blue-500" />
+                🔍 リアルタイム検出 ({findings.length}件)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {findings.length === 0 ? (
+                <p className="text-xs text-slate-400">まだ検出されていません — 順次表示されます</p>
+              ) : (
+                <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
+                  {[...findings].reverse().map((finding) => {
+                    const sev = (finding.severity?.toLowerCase() ?? "info") as "critical" | "high" | "medium" | "low" | "info";
+                    const barColor =
+                      sev === "critical" ? "bg-red-500" :
+                      sev === "high" ? "bg-orange-500" :
+                      sev === "medium" ? "bg-amber-500" :
+                      sev === "low" ? "bg-green-500" : "bg-blue-500";
+                    return (
+                      <div key={finding.id} className="flex items-start gap-3 py-2 px-3 rounded-lg bg-slate-50 border border-slate-100">
+                        <div className={`rounded-full flex-shrink-0 ${barColor}`} style={{ width: 3, minHeight: 36 }} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <RiskBadge level={sev} />
+                            <span className="text-sm font-semibold text-slate-900 truncate">{finding.type}</span>
+                          </div>
+                          {finding.target && (
+                            <p className="text-xs text-slate-500 truncate">対象: {finding.target}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* 完了済みチェックリスト */}
           {completedSteps.length > 0 && (

@@ -1,5 +1,7 @@
 import { prisma } from "./prisma";
 import { updateScanProgress } from "./scan-adapter";
+import { scanContext } from "./scan-context";
+import { clearSubStep } from "./scan-progress-bus";
 
 import { runWellKnownAndRobotsCheck } from "@/lib/checks/well-known-and-robots";
 import { runExternalPassiveChecks } from "@/lib/checks/external-passive";
@@ -72,29 +74,34 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
     },
   }).catch((e) => console.error("[scan-runner] failed to set running:", e));
 
+  // Tier 順 ( hit 率高い → 低い ) に並び替え
   const CHECKS: CheckDef[] = [
-    { name: "Well-Known & Robots", fn: () => runWellKnownAndRobotsCheck(scanId, targetUrl) },
-    { name: "外部受動観測", fn: () => runExternalPassiveChecks(scanId, targetUrl) },
-    { name: "外部低コスト確認", fn: () => runExternalLowHangingChecks(scanId, targetUrl) },
-    { name: "情報収集", fn: () => runExternalMiningChecks(scanId, targetUrl) },
+    // Tier 1
     { name: "外部その他", fn: () => runExternalMiscChecks(scanId, targetUrl) },
+    { name: "Well-Known & Robots", fn: () => runWellKnownAndRobotsCheck(scanId, targetUrl) },
+    { name: "アウトデートソフトウェア", fn: () => runOutdatedSoftwareCheck(scanId, targetUrl) },
+    { name: "外部低コスト確認", fn: () => runExternalLowHangingChecks(scanId, targetUrl) },
+    // Tier 2
+    { name: "外部受動観測", fn: () => runExternalPassiveChecks(scanId, targetUrl) },
+    { name: "情報収集", fn: () => runExternalMiningChecks(scanId, targetUrl) },
     { name: "攻撃対象面分析", fn: () => runExternalAttackSurfaceProbe(scanId, targetUrl) },
-    { name: "キャッシュポイズニング", fn: () => runCachePoisoningCheck(scanId, targetUrl) },
     { name: "CORS設定確認", fn: () => runCorsCheck(scanId, targetUrl) },
     { name: "CSRF確認", fn: () => runCsrfCheck(scanId, targetUrl) },
-    { name: "アウトデートソフトウェア", fn: () => runOutdatedSoftwareCheck(scanId, targetUrl) },
-    { name: "JWT脆弱性", fn: () => runJwtVulnsCheck(scanId, targetUrl) },
-    { name: "オープンリダイレクト", fn: () => runOpenRedirectCheck(scanId, targetUrl) },
+    { name: "匿名API露出確認", fn: () => runAnonymousApiExposureCheck(scanId, targetUrl) },
     { name: "レートリミット", fn: () => runRateLimitCheck(scanId, targetUrl) },
+    // Tier 3
+    { name: "オープンリダイレクト", fn: () => runOpenRedirectCheck(scanId, targetUrl) },
     { name: "ユーザー列挙", fn: () => runUserEnumerationCheck(scanId, targetUrl) },
-    { name: "GraphQL脆弱性", fn: () => runGraphqlVulnsCheck(scanId, targetUrl) },
-    { name: "HTTPスマグリング", fn: () => runHttpSmugglingCheck(scanId, targetUrl) },
+    { name: "キャッシュポイズニング", fn: () => runCachePoisoningCheck(scanId, targetUrl) },
+    { name: "JWT脆弱性", fn: () => runJwtVulnsCheck(scanId, targetUrl) },
     { name: "パブリッククラウドストレージ", fn: () => runPublicCloudStorageCheck(scanId, targetUrl) },
     { name: "OAuthフロー欠陥", fn: () => runOauthFlawsCheck(scanId, targetUrl) },
+    { name: "GraphQL脆弱性", fn: () => runGraphqlVulnsCheck(scanId, targetUrl) },
+    // Tier 4
     { name: "XSS安全確認", fn: () => runXssSafeProbe(scanId, targetUrl) },
     { name: "SQLi安全確認", fn: () => runSqliSafeProbe(scanId, targetUrl) },
     { name: "SSRF安全確認", fn: () => runSsrfSafeProbe(scanId, targetUrl) },
-    { name: "匿名API露出確認", fn: () => runAnonymousApiExposureCheck(scanId, targetUrl) },
+    { name: "HTTPスマグリング", fn: () => runHttpSmugglingCheck(scanId, targetUrl) },
   ];
 
   try {
@@ -102,7 +109,7 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
     for (let i = 0; i < CHECKS.length; i++) {
       await updateScanProgress(scanId, CHECKS[i].name, i, CHECKS.length);
       try {
-        await CHECKS[i].fn();
+        await scanContext.run({ scanId }, () => CHECKS[i].fn());
       } catch (e) {
         console.warn(`[scan] ${CHECKS[i].name} failed:`, e);
       }
@@ -140,5 +147,7 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
         error: errorMsg.slice(0, 500),
       },
     }).catch(() => {});
+  } finally {
+    clearSubStep(scanId);
   }
 }

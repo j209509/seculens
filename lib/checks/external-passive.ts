@@ -9,6 +9,7 @@ import { maskBody } from "@/lib/mask";
 import { safeJsonParse } from "@/lib/json";
 import { isLikelyValidApex } from "@/lib/domain-validity";
 import { makeScanCtx, createScanFinding, findExistingScanFinding } from "@/lib/scan-adapter";
+import { reportSubStep } from "@/lib/scan-context";
 
 async function fetchAnon(url: string, method: "GET" | "HEAD" | "OPTIONS" = "GET"): Promise<{ status: number; body: string; headers: Record<string, string | string[] | undefined> } | null> {
   try {
@@ -50,6 +51,7 @@ function getHosts(program: { allowedDomains: string }, targetUrl: string, max = 
 
 // === 1. Framework manifest route discovery ===
 export async function runFrameworkManifestDiscovery(scanId: string, targetUrl: string) {
+  reportSubStep("Next.js _buildManifest 解析中");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, targetUrl, 5)) {
@@ -93,6 +95,7 @@ export async function runFrameworkManifestDiscovery(scanId: string, targetUrl: s
 
 // === 2. Client-side feature flag leakage ===
 export async function runFeatureFlagLeakage(scanId: string, targetUrl: string) {
+  reportSubStep("クライアント側 feature flag 検出");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   // Fetch main page and extract JS bundle URLs
@@ -149,6 +152,7 @@ export async function runFeatureFlagLeakage(scanId: string, targetUrl: string) {
 
 // === 3. Public build metadata exposure ===
 export async function runBuildMetadataExposure(scanId: string, targetUrl: string) {
+  reportSubStep("ビルド commit / version 露出確認");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = ["/version.json", "/.well-known/version", "/api/version", "/version", "/BUILD_INFO", "/build-info.json", "/api/build-info", "/_app/version.json", "/version.txt", "/healthz?verbose"];
   let count = 0;
@@ -175,6 +179,7 @@ export async function runBuildMetadataExposure(scanId: string, targetUrl: string
 
 // === 4. Public error page fingerprinting ===
 export async function runErrorPageFingerprinting(scanId: string, targetUrl: string) {
+  reportSubStep("エラーページ fingerprint 解析");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, targetUrl, 4)) {
@@ -210,6 +215,7 @@ export async function runErrorPageFingerprinting(scanId: string, targetUrl: stri
 
 // === 5. Trace ID / Request ID correlation ===
 export async function runTraceIdCorrelation(scanId: string, targetUrl: string) {
+  reportSubStep("Trace / Request ID ヘッダー観察");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, targetUrl, 3)) {
@@ -241,6 +247,7 @@ export async function runTraceIdCorrelation(scanId: string, targetUrl: string) {
 
 // === 6. Public status page correlation ===
 export async function runStatusPageCorrelation(scanId: string, targetUrl: string) {
+  reportSubStep("公開 status page 解析");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, targetUrl, 3)) {
@@ -267,6 +274,7 @@ export async function runStatusPageCorrelation(scanId: string, targetUrl: string
 
 // === 7. Changelog / release notes mining ===
 export async function runChangelogMining(scanId: string, targetUrl: string) {
+  reportSubStep("CHANGELOG / リリースノート探索");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = ["/CHANGELOG.md", "/CHANGES.md", "/RELEASE_NOTES.md", "/changelog", "/releases", "/blog/changelog", "/whats-new", "/release-notes"];
   let count = 0;
@@ -293,6 +301,7 @@ export async function runChangelogMining(scanId: string, targetUrl: string) {
 
 // === 8. Developer docs / SDK endpoint extraction ===
 export async function runDeveloperDocsExtraction(scanId: string, targetUrl: string) {
+  reportSubStep("Developer docs から endpoint 抽出");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = ["/docs", "/developer", "/developers", "/api-reference", "/reference", "/sdk", "/help/api", "/docs/api", "/api/reference"];
   let count = 0;
@@ -321,6 +330,7 @@ export async function runDeveloperDocsExtraction(scanId: string, targetUrl: stri
 
 // === 9. Public webhook receiver misconfig ===
 export async function runWebhookReceiverCheck(scanId: string, targetUrl: string) {
+  reportSubStep("Webhook receiver 設定漏洩確認");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = ["/webhooks", "/webhook", "/hook", "/api/webhooks", "/api/webhook", "/integrations/webhooks", "/v1/webhooks"];
   let count = 0;
@@ -354,6 +364,7 @@ export async function runWebhookReceiverCheck(scanId: string, targetUrl: string)
 
 // === 10. CORS preflight policy inventory ===
 export async function runCorsPreflightInventory(scanId: string, targetUrl: string) {
+  reportSubStep("CORS preflight policy 棚卸し");
   const program = makeScanCtx(scanId, targetUrl);
   const apiPaths = ["/api", "/api/v1", "/api/user", "/api/me", "/graphql", "/v1/api"];
   const hosts = getHosts(program, targetUrl, 3);
@@ -392,6 +403,7 @@ export async function runCorsPreflightInventory(scanId: string, targetUrl: strin
 
 // === 11. Static asset access-control drift ===
 export async function runStaticAssetDrift(scanId: string, targetUrl: string) {
+  reportSubStep("静的アセット access-control 検査");
   const program = makeScanCtx(scanId, targetUrl);
   // Fetch main page to find static asset URLs
   let count = 0;
@@ -440,6 +452,7 @@ export async function runStaticAssetDrift(scanId: string, targetUrl: string) {
 
 // === 12. PDF / Office metadata leakage ===
 export async function runPdfOfficeMetadataLeakage(scanId: string, targetUrl: string) {
+  reportSubStep("PDF / Office metadata 漏洩探索");
   const program = makeScanCtx(scanId, targetUrl);
   // Probe known document paths
   const hosts = getHosts(program, targetUrl, 3);
@@ -471,6 +484,7 @@ export async function runPdfOfficeMetadataLeakage(scanId: string, targetUrl: str
 
 // === 13. Analytics / tag manager exposure review ===
 export async function runAnalyticsTagManagerReview(scanId: string, targetUrl: string) {
+  reportSubStep("Analytics / Tag manager ID 抽出");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   // Fetch main page
@@ -502,6 +516,7 @@ export async function runAnalyticsTagManagerReview(scanId: string, targetUrl: st
 
 // === 14. CSP report / Sentry ingestion abuse classification ===
 export async function runCspSentryAbuseRisk(scanId: string, targetUrl: string) {
+  reportSubStep("CSP report-uri abuse リスク評価");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, targetUrl, 3)) {
@@ -524,6 +539,7 @@ export async function runCspSentryAbuseRisk(scanId: string, targetUrl: string) {
 
 // === 15. Multi-tenant hostname/slug pattern discovery ===
 export async function runMultiTenantPatternDiscovery(scanId: string, targetUrl: string) {
+  reportSubStep("Multi-tenant subdomain パターン探索");
   const program = makeScanCtx(scanId, targetUrl);
   const allowed = safeJsonParse<string[]>(program.allowedDomains, []);
   let count = 0;
@@ -560,6 +576,7 @@ export async function runMultiTenantPatternDiscovery(scanId: string, targetUrl: 
 
 // === 16. Invite/share link format analysis without brute force ===
 export async function runInviteLinkFormatAnalysis(scanId: string, targetUrl: string): Promise<number> {
+  reportSubStep("Invite / share link 形式分析");
   // Without httpTraffic, we can only probe known invite/share paths
   const program = makeScanCtx(scanId, targetUrl);
   const hosts = getHosts(program, targetUrl, 2);
@@ -593,6 +610,7 @@ export async function runInviteLinkFormatAnalysis(scanId: string, targetUrl: str
 
 // === 17. CDN cache key/header audit ===
 export async function runCdnCacheKeyAudit(scanId: string, targetUrl: string) {
+  reportSubStep("CDN cache-key / Vary 監査");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, targetUrl, 3)) {
@@ -622,6 +640,7 @@ export async function runCdnCacheKeyAudit(scanId: string, targetUrl: string) {
 
 // === 18. Dependency confusion risk without package registration ===
 export async function runDependencyConfusionRisk(scanId: string, targetUrl: string) {
+  reportSubStep("Dependency confusion 候補チェック");
   const program = makeScanCtx(scanId, targetUrl);
   // Fetch JS bundles from main page to extract scoped package names
   const internalPackages = new Set<string>();
@@ -668,6 +687,7 @@ export async function runDependencyConfusionRisk(scanId: string, targetUrl: stri
 
 // === 19. Public CI/CD metadata discovery ===
 export async function runCicdMetadataDiscovery(scanId: string, targetUrl: string) {
+  reportSubStep("CI/CD 設定ファイル公開確認");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = [".github/workflows/", "/.gitlab-ci.yml", "/Jenkinsfile", "/azure-pipelines.yml", "/.circleci/config.yml", "/.travis.yml", "/buildkite/", "/.drone.yml"];
   let count = 0;
@@ -695,6 +715,7 @@ export async function runCicdMetadataDiscovery(scanId: string, targetUrl: string
 
 // === 20. Passive CVE mapping without exploitation ===
 export async function runPassiveCveMapping(scanId: string, targetUrl: string) {
+  reportSubStep("Server / X-Powered-By から CVE 突合せ");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, targetUrl, 4)) {

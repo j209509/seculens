@@ -7,6 +7,7 @@ import { maskBody } from "@/lib/mask";
 import { safeJsonParse } from "@/lib/json";
 import { isLikelyValidApex } from "@/lib/domain-validity";
 import { makeScanCtx, createScanFinding, findExistingScanFinding } from "@/lib/scan-adapter";
+import { reportSubStep } from "@/lib/scan-context";
 
 async function fetchAnon(url: string, method: "GET" | "HEAD" = "GET"): Promise<{ status: number; body: string; headers: Record<string, string | string[] | undefined> } | null> {
   try {
@@ -44,6 +45,7 @@ function getHosts(program: { allowedDomains: string }, max = 4): string[] {
 
 // === 1. HTTP/2 Alt-Svc / h3 / Via / Server backend correlation ===
 export async function runHttp2AltSvcCorrelation(scanId: string, targetUrl: string) {
+  reportSubStep("HTTP/2 Alt-Svc ヘッダー解析");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, 3)) {
@@ -75,6 +77,7 @@ export async function runHttp2AltSvcCorrelation(scanId: string, targetUrl: strin
 
 // === 2. canonical / hreflang alternate host extraction ===
 export async function runCanonicalHreflangMining(scanId: string, targetUrl: string) {
+  reportSubStep("canonical / hreflang 採掘");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   const r = await fetchAnon(targetUrl);
@@ -103,6 +106,7 @@ export async function runCanonicalHreflangMining(scanId: string, targetUrl: stri
 
 // === 3. Open Graph / Twitter Card metadata leakage ===
 export async function runOpenGraphTwitterCardMining(scanId: string, targetUrl: string) {
+  reportSubStep("OpenGraph / Twitter card 採掘");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   if (!isUrlInScope(program, targetUrl).allowed) return count;
@@ -132,6 +136,7 @@ export async function runOpenGraphTwitterCardMining(scanId: string, targetUrl: s
 
 // === 4. JSON-LD structured data mining ===
 export async function runJsonLdMining(scanId: string, targetUrl: string) {
+  reportSubStep("JSON-LD 構造化データ採掘");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   if (!isUrlInScope(program, targetUrl).allowed) return count;
@@ -165,6 +170,7 @@ export async function runJsonLdMining(scanId: string, targetUrl: string) {
 
 // === 5. HTML data-* attribute mining ===
 export async function runDataAttributeMining(scanId: string, targetUrl: string) {
+  reportSubStep("data-* 属性採掘");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   if (!isUrlInScope(program, targetUrl).allowed) return count;
@@ -188,6 +194,7 @@ export async function runDataAttributeMining(scanId: string, targetUrl: string) 
 
 // === 6. robots.txt Disallow target verification ===
 export async function runRobotsSensitiveVerification(scanId: string, targetUrl: string) {
+  reportSubStep("robots.txt の sensitive パス検証");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, 3)) {
@@ -220,6 +227,7 @@ export async function runRobotsSensitiveVerification(scanId: string, targetUrl: 
 
 // === 7. favicon / apple-touch-icon asset host/path mining ===
 export async function runFaviconAppleTouchMining(scanId: string, targetUrl: string) {
+  reportSubStep("favicon / apple-touch-icon 採掘");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   for (const host of getHosts(program, 3)) {
@@ -250,6 +258,7 @@ export async function runFaviconAppleTouchMining(scanId: string, targetUrl: stri
 
 // === 8. public worker files inspection ===
 export async function runPublicWorkerFilesCheck(scanId: string, targetUrl: string) {
+  reportSubStep("Service Worker / Manifest 確認");
   const program = makeScanCtx(scanId, targetUrl);
   const paths = [
     "/worker.js", "/sw.js", "/service-worker.js",
@@ -287,6 +296,7 @@ export async function runPublicWorkerFilesCheck(scanId: string, targetUrl: strin
 
 // === 9. CSS sourceMappingURL exposure ===
 export async function runCssSourcemapCheck(scanId: string, targetUrl: string) {
+  reportSubStep("CSS sourcemap 公開確認");
   const program = makeScanCtx(scanId, targetUrl);
   // Fetch main page to get CSS URLs
   let count = 0;
@@ -328,6 +338,7 @@ export async function runCssSourcemapCheck(scanId: string, targetUrl: string) {
 
 // === 10. meta refresh redirect review ===
 export async function runMetaRefreshReview(scanId: string, targetUrl: string) {
+  reportSubStep("meta refresh リダイレクト確認");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   if (!isUrlInScope(program, targetUrl).allowed) return count;
@@ -355,6 +366,7 @@ export async function runMetaRefreshReview(scanId: string, targetUrl: string) {
 
 // === 11. JS/CSS license comment block mining ===
 export async function runLicenseCommentBlockMining(scanId: string, targetUrl: string) {
+  reportSubStep("ライセンスコメント解析");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   const mainPage = await fetchAnon(targetUrl);
@@ -395,6 +407,7 @@ export async function runLicenseCommentBlockMining(scanId: string, targetUrl: st
 
 // === 12. CSS url() asset host mining ===
 export async function runCssUrlAssetHostMining(scanId: string, targetUrl: string) {
+  reportSubStep("CSS url() アセットホスト採掘");
   const program = makeScanCtx(scanId, targetUrl);
   let count = 0;
   const mainPage = await fetchAnon(targetUrl);
