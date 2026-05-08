@@ -318,19 +318,19 @@ export default function LandingPage() {
             {[
               {
                 cls: "red", ico: "🔒", color: "var(--red-50)", iconColor: "var(--red)",
-                title: "セキュリティ診断、\nいつやったか分からない",
+                title: "放置するほど\n悪用リスクは高まる",
                 body: "脆弱性は放置するほど悪用リスクが高まります。最後に診断した時期が分からない、社内に詳しい人がいない...そんな企業様が多くいらっしゃいます。",
                 solution: "定期的な診断がリスク低減の第一歩です",
               },
               {
                 cls: "orange", ico: "¥", color: "#fff7ed", iconColor: "var(--orange)",
-                title: "専門業者に頼むと\n数十万円かかる",
+                title: "高コストでは\n継続的な診断が困難",
                 body: "中小企業が定期的に診断を行うにはコストが大きな負担に。年1回のテストでは、年間の脆弱性の変化をカバーしきれません。",
                 solution: "コストを抑えて継続できる仕組みが必要です",
               },
               {
                 cls: "amber", ico: "!", color: "#fffbeb", iconColor: "var(--amber)",
-                title: "もし情報漏えいしたら...\nどう思うと不安",
+                title: "事後対応では\n信頼回復に時間がかかる",
                 body: "対策していないと取引先・顧客への説明ができない。被害が出てからでは信頼の回復に時間もコストもかかってしまいます。",
                 solution: "「備え」が企業の信頼と価値を守ります",
               },
