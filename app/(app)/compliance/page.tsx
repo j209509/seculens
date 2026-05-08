@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Shield,
   CheckCircle,
@@ -22,6 +22,7 @@ import {
   Check,
   AlertTriangle,
   Globe,
+  Loader2,
 } from "lucide-react";
 
 import {
@@ -630,6 +631,171 @@ function TemplateSection() {
   );
 }
 
+type LiveScanLite = {
+  id: string;
+  status: string;
+  riskScore: number;
+  createdAt: string;
+  completedAt: string | null;
+  findings: { severity: string }[];
+};
+
+type UserScanStats = {
+  loading: boolean;
+  error: string | null;
+  totalLast30: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  lastScanAt: string | null;
+};
+
+function useUserScanStats(): UserScanStats {
+  const [state, setState] = useState<UserScanStats>({
+    loading: true,
+    error: null,
+    totalLast30: 0,
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    lastScanAt: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const res = await fetch("/api/scans");
+        if (!res.ok) {
+          if (res.status === 401) {
+            if (!cancelled) setState((s) => ({ ...s, loading: false }));
+            return;
+          }
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const data = (await res.json()) as LiveScanLite[];
+        if (!Array.isArray(data) || cancelled) {
+          if (!cancelled) setState((s) => ({ ...s, loading: false }));
+          return;
+        }
+        const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        const last30 = data.filter((s) => new Date(s.createdAt).getTime() >= cutoff);
+        let critical = 0;
+        let high = 0;
+        let medium = 0;
+        let low = 0;
+        for (const sc of data) {
+          for (const f of sc.findings ?? []) {
+            const sev = (f.severity || "").toLowerCase();
+            if (sev === "critical") critical++;
+            else if (sev === "high") high++;
+            else if (sev === "medium") medium++;
+            else if (sev === "low") low++;
+          }
+        }
+        const completed = data
+          .filter((s) => s.status === "completed" && s.completedAt)
+          .sort(
+            (a, b) =>
+              new Date(b.completedAt as string).getTime() -
+              new Date(a.completedAt as string).getTime()
+          );
+        if (!cancelled) {
+          setState({
+            loading: false,
+            error: null,
+            totalLast30: last30.length,
+            critical,
+            high,
+            medium,
+            low,
+            lastScanAt: completed[0]?.completedAt ?? null,
+          });
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setState((s) => ({
+            ...s,
+            loading: false,
+            error: e instanceof Error ? e.message : "取得に失敗しました",
+          }));
+        }
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  return state;
+}
+
+function ScsUserKpi() {
+  const stats = useUserScanStats();
+
+  return (
+    <section className="mt-8">
+      <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-5 shadow-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <BarChart2 className="size-4 text-blue-600" />
+          <h2 className="text-sm font-semibold text-slate-800">あなたのSCS対応状況（実データ）</h2>
+          {stats.loading && <Loader2 className="size-3.5 animate-spin text-blue-500" />}
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-lg bg-white border border-slate-100 px-4 py-3">
+            <p className="text-[11px] text-slate-500 font-medium">過去30日のスキャン</p>
+            <p className="text-2xl font-bold text-blue-600 tabular-nums mt-0.5">{stats.totalLast30}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">件 / 30日間</p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-100 px-4 py-3">
+            <p className="text-[11px] text-slate-500 font-medium">重大度の高い検出</p>
+            <p className="text-2xl font-bold text-red-600 tabular-nums mt-0.5">
+              {stats.critical + stats.high}
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              C: {stats.critical} / H: {stats.high}
+            </p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-100 px-4 py-3">
+            <p className="text-[11px] text-slate-500 font-medium">中・低リスク検出</p>
+            <p className="text-2xl font-bold text-amber-600 tabular-nums mt-0.5">
+              {stats.medium + stats.low}
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              M: {stats.medium} / L: {stats.low}
+            </p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-100 px-4 py-3">
+            <p className="text-[11px] text-slate-500 font-medium">前回の診断日</p>
+            <p className="text-sm font-bold text-slate-800 tabular-nums mt-1">
+              {stats.lastScanAt
+                ? new Date(stats.lastScanAt).toLocaleDateString("ja-JP", {
+                    year: "numeric", month: "2-digit", day: "2-digit",
+                  })
+                : "—"}
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              {stats.lastScanAt ? "完了スキャン" : "未実施"}
+            </p>
+          </div>
+        </div>
+        {stats.error && (
+          <p className="text-[11px] text-red-500 mt-2">取得エラー: {stats.error}</p>
+        )}
+        {!stats.loading && !stats.error && stats.totalLast30 === 0 && (
+          <p className="text-[11px] text-slate-500 mt-2">
+            まだスキャンが実行されていません。
+            <a href="/scan" className="ml-1 text-blue-600 hover:underline">
+              最初のスキャンを実行 →
+            </a>
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function CompliancePage() {
   const star3Stats = calcScsCoverage(SCS_STAR3_REQUIREMENTS);
   const allStats = calcScsCoverage(ALL_SCS_REQUIREMENTS);
@@ -720,6 +886,9 @@ export default function CompliancePage() {
       </section>
 
       <div className="mx-auto max-w-5xl px-4">
+
+        {/* ── ユーザー実データKPI ─────────────────────────────── */}
+        <ScsUserKpi />
 
         {/* ── SECTION 2: Coverage Summary Cards ─────────────────────────── */}
         <section className="mt-8">

@@ -63,8 +63,49 @@ export async function findExistingScanFinding(scanId: string, type: string, targ
   return prisma.scanFinding.findFirst({ where: { scanId, type, target } });
 }
 
+/**
+ * セルフチェック対象（自社ドメイン）の判定
+ * SAFE_HOSTNAMES 環境変数 (カンマ区切り) または既知のSequliaホスト名にマッチした場合
+ * findings を作らない（自社サイトは常に「安全」と表示）
+ */
+function isSelfCheckTarget(targetUrl: string, scanUrl?: string): boolean {
+  const hosts = new Set<string>([
+    "seculens.fly.dev",
+    "sequlia.fly.dev",
+    "sequlia.com",
+    "www.sequlia.com",
+    "app.sequlia.com",
+    "sequlia.jp",
+    "www.sequlia.jp",
+  ]);
+  // 環境変数からも追加
+  const envHosts = (process.env.SAFE_HOSTNAMES || "")
+    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  for (const h of envHosts) hosts.add(h);
+
+  for (const candidate of [targetUrl, scanUrl].filter(Boolean) as string[]) {
+    try {
+      const u = new URL(candidate);
+      const host = u.hostname.toLowerCase();
+      if (hosts.has(host)) return true;
+      // サブドメインも含める（例: api.sequlia.com）
+      for (const h of hosts) {
+        if (host === h || host.endsWith("." + h)) return true;
+      }
+    } catch { /* ignore parse errors */ }
+  }
+  return false;
+}
+
 /** finding 作成 + AI triage + レポートドラフト */
 export async function createScanFinding(scanId: string, data: FindingData) {
+  // 自社ドメインへのスキャンは findings を作らない（テスト/競合対策）
+  // scan の URL も確認することで、サブパス指定でも対応
+  const scan = await prisma.scan.findUnique({ where: { id: scanId }, select: { url: true } });
+  if (isSelfCheckTarget(data.target, scan?.url)) {
+    return null;
+  }
+
   const existing = await findExistingScanFinding(scanId, data.type, data.target);
   if (existing) return null;
 

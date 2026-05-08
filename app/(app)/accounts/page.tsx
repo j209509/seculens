@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,18 +15,19 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Users, Plus, Trash2, Loader2, GitCompare, CheckCircle, XCircle,
+  Users, Plus, Trash2, Loader2, GitCompare, CheckCircle, XCircle, Pencil,
+  Crown, AlertTriangle,
 } from "lucide-react";
 
-interface Account {
+type Account = {
   id: string;
   name: string;
   roleName: string;
   email: string;
   loginUrl: string;
   isActive: boolean;
-  memo?: string;
-}
+  notes?: string;
+};
 
 const ROLE_OPTIONS = [
   { value: "admin", label: "管理者" },
@@ -33,36 +35,6 @@ const ROLE_OPTIONS = [
   { value: "premium", label: "プレミアム" },
   { value: "readonly", label: "閲覧専用" },
   { value: "guest", label: "ゲスト" },
-];
-
-const MOCK_ACCOUNTS: Account[] = [
-  {
-    id: "acc-001",
-    name: "テスト管理者",
-    roleName: "admin",
-    email: "admin@example.com",
-    loginUrl: "https://example.com/admin/login",
-    isActive: true,
-    memo: "管理者権限を持つテストアカウント",
-  },
-  {
-    id: "acc-002",
-    name: "一般ユーザーA",
-    roleName: "user",
-    email: "user-a@example.com",
-    loginUrl: "https://example.com/login",
-    isActive: true,
-    memo: "一般権限のテストアカウント",
-  },
-  {
-    id: "acc-003",
-    name: "プレミアムユーザー",
-    roleName: "premium",
-    email: "premium@example.com",
-    loginUrl: "https://example.com/login",
-    isActive: false,
-    memo: "",
-  },
 ];
 
 function roleLabel(role: string) {
@@ -79,20 +51,28 @@ function roleBadgeClass(role: string) {
   }
 }
 
+const EMPTY_FORM = {
+  name: "",
+  roleName: "user",
+  email: "",
+  password: "",
+  loginUrl: "",
+  notes: "",
+};
+
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
+  const [planForbidden, setPlanForbidden] = useState(false);
+  const [unauthorized, setUnauthorized] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState({
-    name: "",
-    roleName: "user",
-    email: "",
-    loginUrl: "",
-    memo: "",
-  });
+  const [form, setForm] = useState({ ...EMPTY_FORM });
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
@@ -101,82 +81,181 @@ export default function AccountsPage() {
 
   async function fetchAccounts() {
     setLoading(true);
+    setError(null);
+    setPlanForbidden(false);
+    setUnauthorized(false);
     try {
       const res = await fetch("/api/accounts");
-      if (!res.ok) throw new Error("fetch failed");
+      if (res.status === 401) {
+        setUnauthorized(true);
+        setAccounts([]);
+        return;
+      }
+      if (res.status === 403) {
+        setPlanForbidden(true);
+        setAccounts([]);
+        return;
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const list: Account[] = Array.isArray(data) ? data : data.accounts ?? [];
-      setAccounts(list.length > 0 ? list : MOCK_ACCOUNTS);
-    } catch {
-      setAccounts(MOCK_ACCOUNTS);
+      setAccounts(list);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "取得に失敗しました");
+      setAccounts([]);
     } finally {
       setLoading(false);
     }
   }
 
-  function openDialog() {
-    setForm({ name: "", roleName: "user", email: "", loginUrl: "", memo: "" });
+  function openCreateDialog() {
+    setEditingId(null);
+    setForm({ ...EMPTY_FORM });
     setFormError("");
     setDialogOpen(true);
   }
 
-  async function handleAdd() {
+  function openEditDialog(account: Account) {
+    setEditingId(account.id);
+    setForm({
+      name: account.name,
+      roleName: account.roleName,
+      email: account.email,
+      password: "",
+      loginUrl: account.loginUrl,
+      notes: account.notes ?? "",
+    });
+    setFormError("");
+    setDialogOpen(true);
+  }
+
+  async function handleSave() {
     if (!form.name.trim()) { setFormError("名前を入力してください"); return; }
     if (!form.email.trim()) { setFormError("メールアドレスを入力してください"); return; }
     if (!form.loginUrl.trim()) { setFormError("ログインURLを入力してください"); return; }
     setFormError("");
     setSaving(true);
     try {
-      const res = await fetch("/api/accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, isActive: true }),
-      });
-      if (!res.ok) throw new Error("add failed");
-      const newAccount: Account = await res.json();
-      setAccounts((prev) => [...prev, newAccount]);
-    } catch {
-      // Optimistic fallback
-      const optimistic: Account = {
-        id: `acc-${Date.now()}`,
-        ...form,
-        isActive: true,
-      };
-      setAccounts((prev) => [...prev, optimistic]);
+      if (editingId) {
+        const res = await fetch(`/api/accounts/${editingId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name,
+            roleName: form.roleName,
+            email: form.email,
+            loginUrl: form.loginUrl,
+            notes: form.notes,
+          }),
+        });
+        if (!res.ok) throw new Error("更新に失敗しました");
+        const updated: Account = await res.json();
+        setAccounts((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+      } else {
+        const res = await fetch("/api/accounts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name,
+            roleName: form.roleName,
+            email: form.email,
+            password: form.password,
+            loginUrl: form.loginUrl,
+            notes: form.notes,
+          }),
+        });
+        if (!res.ok) throw new Error("作成に失敗しました");
+        const created: Account = await res.json();
+        setAccounts((prev) => [created, ...prev]);
+      }
+      setDialogOpen(false);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "保存に失敗しました");
     } finally {
       setSaving(false);
-      setDialogOpen(false);
     }
   }
 
   async function handleDelete(id: string) {
+    if (!confirm("このアカウントを削除しますか？")) return;
     setDeleting(id);
     try {
       const res = await fetch(`/api/accounts/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("delete failed");
-    } catch {
-      // Continue with optimistic removal
-    } finally {
+      if (!res.ok) throw new Error("削除に失敗しました");
       setAccounts((prev) => prev.filter((a) => a.id !== id));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "削除に失敗しました");
+    } finally {
       setDeleting(null);
     }
+  }
+
+  if (unauthorized) {
+    return (
+      <div className="p-6">
+        <Card className="border-0 shadow-sm">
+          <CardContent className="py-16 flex flex-col items-center text-slate-500">
+            <AlertTriangle className="w-10 h-10 mb-2 text-amber-500" />
+            <p className="text-sm font-medium text-slate-700">ログインが必要です</p>
+            <Link href="/login" className="mt-4 text-xs text-blue-600 hover:underline">
+              ログインへ →
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (planForbidden) {
+    return (
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">テストアカウント管理</h1>
+          <p className="text-sm text-slate-500 mt-1">認証後ページの脆弱性診断に使用するアカウントを登録</p>
+        </div>
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+          <CardContent className="pt-8 pb-8 flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
+              <Crown className="w-7 h-7 text-yellow-300" />
+            </div>
+            <h2 className="text-xl font-bold">Proプラン以上が必要です</h2>
+            <p className="text-sm text-blue-100 mt-2 max-w-md">
+              テストアカウントを使用したログイン後ページの脆弱性診断は、Proプラン以上でご利用いただけます。
+              管理者権限と一般ユーザーの差分テストなど、より深い診断が可能になります。
+            </p>
+            <Link
+              href="/pricing"
+              className="mt-6 inline-flex items-center gap-2 bg-white text-blue-700 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition-colors"
+            >
+              プランを確認する →
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">アカウント管理</h1>
-          <p className="text-sm text-slate-500 mt-1">テストアカウントの登録・管理</p>
+          <h1 className="text-2xl font-bold text-slate-900">テストアカウント管理</h1>
+          <p className="text-sm text-slate-500 mt-1">認証後ページの脆弱性診断に使用するアカウントを登録</p>
         </div>
-        <Button onClick={openDialog} className="bg-blue-600 hover:bg-blue-700 gap-1.5">
+        <Button onClick={openCreateDialog} className="bg-blue-600 hover:bg-blue-700 gap-1.5">
           <Plus className="w-4 h-4" />
           アカウント追加
         </Button>
       </div>
 
-      {/* Explanation card */}
-      <Card className="border-0 shadow-sm bg-blue-50 border-blue-100">
+      {error && (
+        <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+          <p className="text-xs text-red-700">{error}</p>
+        </div>
+      )}
+
+      <Card className="border-0 shadow-sm bg-blue-50">
         <CardContent className="pt-5">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -193,7 +272,6 @@ export default function AccountsPage() {
         </CardContent>
       </Card>
 
-      {/* Account table */}
       <Card className="border-0 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -213,7 +291,7 @@ export default function AccountsPage() {
               <Users className="w-10 h-10 mb-2 opacity-30" />
               <p className="text-sm">アカウントが登録されていません</p>
               <button
-                onClick={openDialog}
+                onClick={openCreateDialog}
                 className="mt-3 text-xs text-blue-600 hover:underline"
               >
                 最初のアカウントを追加する
@@ -228,7 +306,6 @@ export default function AccountsPage() {
                   <TableHead className="text-xs">メールアドレス</TableHead>
                   <TableHead className="text-xs">ログインURL</TableHead>
                   <TableHead className="text-xs">ステータス</TableHead>
-                  <TableHead className="text-xs">メモ</TableHead>
                   <TableHead className="text-xs pr-6 text-right">操作</TableHead>
                 </TableRow>
               </TableHeader>
@@ -244,18 +321,22 @@ export default function AccountsPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm text-slate-600 font-mono text-xs">{account.email}</span>
+                      <span className="text-xs text-slate-600 font-mono">{account.email}</span>
                     </TableCell>
                     <TableCell>
-                      <a
-                        href={account.loginUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:underline font-mono truncate block max-w-[180px]"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {account.loginUrl}
-                      </a>
+                      {account.loginUrl ? (
+                        <a
+                          href={account.loginUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:underline font-mono truncate block max-w-[200px]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {account.loginUrl}
+                        </a>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       {account.isActive ? (
@@ -268,23 +349,30 @@ export default function AccountsPage() {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <span className="text-xs text-slate-500 truncate block max-w-[140px]">{account.memo || "—"}</span>
-                    </TableCell>
                     <TableCell className="pr-6 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50"
-                        onClick={() => handleDelete(account.id)}
-                        disabled={deleting === account.id}
-                      >
-                        {deleting === account.id ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-3.5 h-3.5" />
-                        )}
-                      </Button>
+                      <div className="flex items-center gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                          onClick={() => openEditDialog(account)}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                          onClick={() => handleDelete(account.id)}
+                          disabled={deleting === account.id}
+                        >
+                          {deleting === account.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -294,11 +382,12 @@ export default function AccountsPage() {
         </CardContent>
       </Card>
 
-      {/* Add account dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle className="text-base font-semibold">アカウントを追加</DialogTitle>
+            <DialogTitle className="text-base font-semibold">
+              {editingId ? "アカウントを編集" : "アカウントを追加"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
@@ -336,6 +425,20 @@ export default function AccountsPage() {
               />
             </div>
 
+            {!editingId && (
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1.5">パスワード</label>
+                <Input
+                  type="password"
+                  placeholder="ログインに使用するパスワード"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="h-9 text-sm"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">サーバーで暗号化して保存されます</p>
+              </div>
+            )}
+
             <div>
               <label className="text-xs font-medium text-slate-500 block mb-1.5">ログインURL <span className="text-red-500">*</span></label>
               <Input
@@ -351,8 +454,8 @@ export default function AccountsPage() {
               <label className="text-xs font-medium text-slate-500 block mb-1.5">メモ</label>
               <Input
                 placeholder="このアカウントに関するメモ（任意）"
-                value={form.memo}
-                onChange={(e) => setForm({ ...form, memo: e.target.value })}
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 className="h-9 text-sm"
               />
             </div>
@@ -363,9 +466,9 @@ export default function AccountsPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="text-sm">
               キャンセル
             </Button>
-            <Button onClick={handleAdd} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-sm">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-              追加
+            <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-sm">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+              {editingId ? "保存" : "追加"}
             </Button>
           </DialogFooter>
         </DialogContent>

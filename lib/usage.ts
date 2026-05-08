@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { getPlan } from "./plans";
+import { isAdminEmail } from "./admin";
 import type { User } from "@prisma/client";
 
 /**
@@ -25,7 +26,7 @@ export async function checkScanQuota(
 ): Promise<{ allowed: boolean; remaining: number; limit: number; used: number }> {
   const u = await ensureUsageWindow(user);
   // 管理者は無制限（テスト・運用のため）
-  if (u.role === "admin") {
+  if (u.role === "admin" || isAdminEmail(u.email)) {
     return { allowed: true, remaining: -1, limit: -1, used: u.scansThisMonth };
   }
   const plan = getPlan(u.plan);
