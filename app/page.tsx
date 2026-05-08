@@ -968,43 +968,65 @@ export default function LandingPage() {
 
           <div className="cert-tier-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
             {/* ★2 */}
-            <div style={{ background: "#fff", border: "2px solid #d1fae5", borderRadius: 16, padding: 28, position: "relative" }}>
-              <div style={{ fontSize: 24, color: "#16a34a", fontWeight: 800, letterSpacing: 2 }}>★★</div>
-              <div style={{ marginTop: 8, fontSize: 11, color: "#16a34a", fontWeight: 700 }}>LEVEL 2 ／ 取得しやすい</div>
-              <h3 style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>実施宣言証</h3>
-              <p style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                Webサイトの脆弱性診断を実施したことを証明する基本証明書。<strong>初回スキャン完了で即時発行</strong>。
+            <div className="cert-card" style={{ background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 60%)", border: "2px solid #86efac", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 6px 20px rgba(22,163,74,0.10)" }}>
+              {/* IPAスタンプ */}
+              <div className="cert-stamp" style={{ width: 110, height: 110, margin: "0 auto 16px", borderRadius: "50%", background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 8px 20px rgba(22,163,74,0.4), inset 0 -3px 8px rgba(0,0,0,0.15)" }}>
+                <div style={{ fontSize: 9, opacity: 0.9, fontWeight: 600, letterSpacing: "0.1em" }}>IPA</div>
+                <div style={{ fontSize: 11, fontWeight: 700, marginTop: 1 }}>SECURITY</div>
+                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "0.05em", margin: "1px 0" }}>★★</div>
+                <div style={{ fontSize: 9, fontWeight: 600 }}>ACTION</div>
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#16a34a", letterSpacing: "0.15em" }}>LEVEL 2</div>
+              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>実施宣言証</h3>
+              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
+                Webサイトの脆弱性診断を<strong style={{ color: "#0f172a" }}>実施したこと</strong>を証明する基本証明書。<br/>初回スキャン完了で<strong style={{ color: "#16a34a" }}>即時発行</strong>。
               </p>
-              <div style={{ marginTop: 14, padding: "8px 12px", background: "#f0fdf4", borderRadius: 8, fontSize: 12, color: "#15803d" }}>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dcfce7", border: "1px solid #86efac", borderRadius: 10, fontSize: 12, color: "#15803d", fontWeight: 700 }}>
                 ✓ 1回スキャン完了で取得可能
               </div>
             </div>
 
             {/* ★3 */}
-            <div style={{ background: "#fff", border: "2px solid #2563eb", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(37,99,235,0.12)" }}>
-              <div style={{ position: "absolute", top: -10, left: 16, background: "#f59e0b", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 800 }}>人気</div>
-              <div style={{ fontSize: 24, color: "#2563eb", fontWeight: 800, letterSpacing: 2 }}>★★★</div>
-              <div style={{ marginTop: 8, fontSize: 11, color: "#2563eb", fontWeight: 700 }}>LEVEL 3 ／ 経産省 SCS★3 対応</div>
-              <h3 style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>継続実施認定証</h3>
-              <p style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                経産省 SCS★3 要件「継続的な脆弱性診断」に対応する認定証。<strong>大手取引先の監査要件をクリア</strong>。
+            <div className="cert-card" style={{ background: "linear-gradient(180deg, #eff6ff 0%, #ffffff 60%)", border: "3px solid #2563eb", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 12px 32px rgba(37,99,235,0.20)", transform: "scale(1.04)" }}>
+              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #f59e0b, #ea580c)", color: "#fff", padding: "5px 16px", borderRadius: 20, fontSize: 11, fontWeight: 900, letterSpacing: "0.1em", boxShadow: "0 4px 12px rgba(245,158,11,0.4)" }}>★ MOST POPULAR ★</div>
+
+              {/* 経産省スタンプ（大） */}
+              <div className="cert-stamp" style={{ width: 130, height: 130, margin: "0 auto 16px", borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 12px 24px rgba(245,158,11,0.5), inset 0 -3px 10px rgba(0,0,0,0.2)", border: "3px solid #fef3c7", position: "relative" }}>
+                <div style={{ position: "absolute", inset: 4, borderRadius: "50%", border: "1.5px dashed rgba(255,255,255,0.4)", pointerEvents: "none" }} />
+                <div style={{ fontSize: 9, opacity: 0.95, fontWeight: 700, letterSpacing: "0.05em" }}>経済産業省</div>
+                <div style={{ fontSize: 14, fontWeight: 900, marginTop: 2 }}>SCS</div>
+                <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.04em", margin: "1px 0" }}>★★★</div>
+                <div style={{ fontSize: 9, fontWeight: 700 }}>Level 3</div>
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#2563eb", letterSpacing: "0.15em" }}>LEVEL 3 ／ 経産省 SCS★3 対応</div>
+              <h3 style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>継続実施認定証</h3>
+              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
+                経産省 SCS★3 要件「継続的な脆弱性診断」に対応する認定証。<br/><strong style={{ color: "#1e40af" }}>大手取引先の監査要件をクリア</strong>。
               </p>
-              <div style={{ marginTop: 14, padding: "8px 12px", background: "#eff6ff", borderRadius: 8, fontSize: 12, color: "#1e40af" }}>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, fontSize: 12, color: "#1e40af", fontWeight: 700 }}>
                 ✓ 1回スキャン完了で取得可能（Standard以上）
               </div>
             </div>
 
             {/* ★4 */}
-            <div style={{ background: "#fff", border: "2px solid #ddd6fe", borderRadius: 16, padding: 28, position: "relative" }}>
-              <div style={{ position: "absolute", top: -10, right: 16, background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "#fff", padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 800 }}>PREMIUM</div>
-              <div style={{ fontSize: 24, color: "#7c3aed", fontWeight: 800, letterSpacing: 2 }}>★★★★</div>
-              <div style={{ marginTop: 8, fontSize: 11, color: "#7c3aed", fontWeight: 700 }}>LEVEL 4 ／ 最上位認定</div>
-              <h3 style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: "#0f172a" }}>高度継続認定証</h3>
-              <p style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                <strong>31日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。サプライチェーン審査で他社との差別化に。
+            <div className="cert-card" style={{ background: "linear-gradient(180deg, #faf5ff 0%, #ffffff 60%)", border: "2px solid #c4b5fd", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 8px 24px rgba(124,58,237,0.15)" }}>
+              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", padding: "5px 14px", borderRadius: 20, fontSize: 10, fontWeight: 900, letterSpacing: "0.15em", boxShadow: "0 4px 12px rgba(124,58,237,0.4)" }}>👑 PREMIUM</div>
+
+              {/* ★4 高度認定スタンプ */}
+              <div className="cert-stamp" style={{ width: 130, height: 130, margin: "0 auto 16px", borderRadius: "50%", background: "linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 12px 24px rgba(124,58,237,0.5), inset 0 -3px 10px rgba(0,0,0,0.2)", border: "3px solid #ede9fe", position: "relative" }}>
+                <div style={{ position: "absolute", inset: 4, borderRadius: "50%", border: "1.5px dashed rgba(255,255,255,0.4)", pointerEvents: "none" }} />
+                <div style={{ fontSize: 9, opacity: 0.95, fontWeight: 700, letterSpacing: "0.05em" }}>継続実績</div>
+                <div style={{ fontSize: 13, fontWeight: 900, marginTop: 2 }}>31日+</div>
+                <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: "0.04em", margin: "1px 0" }}>★★★★</div>
+                <div style={{ fontSize: 9, fontWeight: 700 }}>ADVANCED</div>
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#7c3aed", letterSpacing: "0.15em" }}>LEVEL 4 ／ 最上位認定</div>
+              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>高度継続認定証</h3>
+              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
+                <strong style={{ color: "#0f172a" }}>31日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。<br/><strong style={{ color: "#6d28d9" }}>他社との差別化に</strong>。
               </p>
-              <div style={{ marginTop: 14, padding: "8px 12px", background: "#faf5ff", borderRadius: 8, fontSize: 12, color: "#6d28d9" }}>
-                ✓ 31日以上＋2回以上の継続実績で取得（Pro限定）
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#ede9fe", border: "1px solid #c4b5fd", borderRadius: 10, fontSize: 12, color: "#6d28d9", fontWeight: 700 }}>
+                ✓ 31日以上 ＋ 2回以上で取得（Pro限定）
               </div>
             </div>
           </div>
