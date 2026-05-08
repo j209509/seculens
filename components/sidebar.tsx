@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   CreditCard,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +28,7 @@ const navItems = [
   { href: "/billing", label: "課金・プラン", icon: CreditCard },
 ];
 
-type Me = { email: string; name?: string | null; plan: string } | null;
+type Me = { email: string; name?: string | null; plan: string; role?: string } | null;
 
 const PLAN_LABEL: Record<string, string> = {
   free: "Free",
@@ -46,7 +47,7 @@ export function Sidebar() {
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (d?.user) setMe({ email: d.user.email, name: d.user.name, plan: d.user.plan ?? "free" });
+        if (d?.user) setMe({ email: d.user.email, name: d.user.name, plan: d.user.plan ?? "free", role: d.user.role });
       })
       .catch(() => {});
     fetch("/api/usage")
@@ -124,6 +125,30 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* 管理者専用リンク */}
+        {me?.role === "admin" && (
+          <>
+            <div className="pt-3 mt-3 border-t border-slate-700/60">
+              <div className="px-3 mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-400">Admin</div>
+              <Link
+                href="/admin"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                  pathname === "/admin" || pathname.startsWith("/admin/")
+                    ? "bg-amber-500 text-white shadow-lg"
+                    : "text-amber-300 hover:bg-amber-500/10 hover:text-amber-200"
+                )}
+              >
+                <ShieldCheck className="w-4 h-4 flex-shrink-0" />
+                <span className="flex-1">管理画面</span>
+                {(pathname === "/admin" || pathname.startsWith("/admin/")) && (
+                  <ChevronRight className="w-3 h-3 opacity-70" />
+                )}
+              </Link>
+            </div>
+          </>
+        )}
       </nav>
 
       <div className="px-4 py-4 border-t border-slate-700">
