@@ -135,10 +135,10 @@ export default function LandingPage() {
     <div className="lp-root">
 
       {/* 1. Announcement Bar */}
-      <div className="announce" style={{ background: "linear-gradient(90deg, #dc2626 0%, #b91c1c 50%, #dc2626 100%)" }}>
+      <div className="announce">
         <div className="container">
-          <div className="msg">🚨 <strong>【2027年問題】</strong> 来年、インボイス制度並みの大混乱が来ます<span className="sep"> | </span><span className="announce-ipa">経産省 SCS評価制度が本格運用開始</span></div>
-          <a href="#crisis">詳しく見る →</a>
+          <div className="msg">🎉 経産省 SCS評価制度 ★3 脆弱性診断 対応完了！<span className="sep"> | </span><span className="announce-ipa">IPA SECURITY ACTION ★2 対応</span></div>
+          <a href="#scs">詳しく見る →</a>
         </div>
       </div>
 
@@ -487,6 +487,94 @@ export default function LandingPage() {
               🚀 今すぐ無料で診断を試す →
             </a>
             <p style={{ marginTop: 12, fontSize: 12, color: "#94a3b8" }}>クレジットカード不要 ／ 30秒で登録 ／ 月10回まで完全無料</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4.7.5 公式証明書（最大の推し） ─── */}
+      <section className="block" style={{ background: "linear-gradient(180deg, #fefefe 0%, #f8fafc 100%)" }}>
+        <div className="container">
+          <div className="section-head" style={{ textAlign: "center", marginBottom: 48 }}>
+            <span className="eyebrow">📜 Sequlia 公式証明書</span>
+            <h2 className="section-title">取引先・監査用に <span className="accent">「公式証明書」</span> を発行できます</h2>
+            <p className="section-sub">IPA SECURITY ACTION 宣言済み事業者として発行する Sequlia 独自認定書。<br />サプライチェーン監査・ISMS更新・取引先審査での提示にお使いいただけます。</p>
+          </div>
+
+          <div className="cert-tier-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
+            {/* ★2 - IPA本物 */}
+            <div className="cert-card" style={{ background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 60%)", border: "2px solid #86efac", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 6px 20px rgba(22,163,74,0.10)" }}>
+              {/* 本物のIPAロゴ */}
+              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", borderRadius: 16, border: "1px solid #d1fae5", padding: 10 }}>
+                <img src="/ipa-security-action-2.svg" alt="IPA SECURITY ACTION ★2" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#16a34a", letterSpacing: "0.15em" }}>LEVEL 2 ／ IPA SECURITY ACTION</div>
+              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>実施宣言証</h3>
+              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
+                IPA SECURITY ACTION ★2 宣言事業者として、Webサイトの脆弱性診断を<strong style={{ color: "#0f172a" }}>実施したこと</strong>を証明する基本証明書。
+              </p>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dcfce7", border: "1px solid #86efac", borderRadius: 10, fontSize: 12, color: "#15803d", fontWeight: 700 }}>
+                ✓ 1回スキャン完了で取得可能
+              </div>
+            </div>
+
+            {/* ★3 - Sequlia独自・IPA風 */}
+            <div className="cert-card" style={{ background: "linear-gradient(180deg, #eff6ff 0%, #ffffff 60%)", border: "3px solid #2563eb", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 12px 32px rgba(37,99,235,0.20)", transform: "scale(1.04)" }}>
+              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #f59e0b, #ea580c)", color: "#fff", padding: "5px 16px", borderRadius: 20, fontSize: 11, fontWeight: 900, letterSpacing: "0.1em", boxShadow: "0 4px 12px rgba(245,158,11,0.4)" }}>★ MOST POPULAR ★</div>
+
+              {/* Sequliaブランドのシールド型バッジ (IPA風) */}
+              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #2563eb 0%, #1e40af 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(37,99,235,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #3b82f6" }}>
+                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
+                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>SECURITY</div>
+                <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.05em", margin: "2px 0", lineHeight: 1 }}>★★★</div>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.05em" }}>CERTIFIED</div>
+                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>SCS LEVEL 3 対応</div>
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#2563eb", letterSpacing: "0.15em" }}>LEVEL 3 ／ 経産省 SCS★3 要件対応</div>
+              <h3 style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>SCS★3対応認定証</h3>
+              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
+                経産省 SCS★3 制度の主要要件「継続的な脆弱性診断」に対応していることをSequliaが認定。<br/><strong style={{ color: "#1e40af" }}>大手取引先の監査要件をクリア</strong>。
+              </p>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, fontSize: 12, color: "#1e40af", fontWeight: 700 }}>
+                ✓ 1回スキャン完了で取得可能（Standard以上）
+              </div>
+            </div>
+
+            {/* ★4 - Sequlia独自・IPA風 */}
+            <div className="cert-card" style={{ background: "linear-gradient(180deg, #faf5ff 0%, #ffffff 60%)", border: "2px solid #c4b5fd", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 8px 24px rgba(124,58,237,0.15)" }}>
+              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", padding: "5px 14px", borderRadius: 20, fontSize: 10, fontWeight: 900, letterSpacing: "0.15em", boxShadow: "0 4px 12px rgba(124,58,237,0.4)" }}>👑 PREMIUM</div>
+
+              {/* Sequliaブランドのシールド型バッジ ★4 */}
+              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(124,58,237,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #a855f7" }}>
+                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
+                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>ADVANCED</div>
+                <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: "0.04em", margin: "2px 0", lineHeight: 1 }}>★★★★</div>
+                <div style={{ fontSize: 9, fontWeight: 700 }}>CERTIFIED</div>
+                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>31日 継続運用</div>
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#7c3aed", letterSpacing: "0.15em" }}>LEVEL 4 ／ 最上位認定</div>
+              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>高度継続認定証</h3>
+              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
+                <strong style={{ color: "#0f172a" }}>31日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。<br/><strong style={{ color: "#6d28d9" }}>他社との差別化に</strong>。
+              </p>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#ede9fe", border: "1px solid #c4b5fd", borderRadius: 10, fontSize: 12, color: "#6d28d9", fontWeight: 700 }}>
+                ✓ 31日以上 ＋ 2回以上で取得（Pro限定）
+              </div>
+            </div>
+          </div>
+
+          {/* 法的注釈 */}
+          <p style={{ marginTop: 24, fontSize: 11, color: "#94a3b8", textAlign: "center", maxWidth: 800, margin: "24px auto 0", lineHeight: 1.7 }}>
+            ※ 本証明書はSequliaが発行する独自の認定書です。経産省「サプライチェーン強化に向けた連携プログラム（SCS）」の要件への対応を示すもので、経産省の公式認定そのものではありません。
+            ★2のロゴはIPA「SECURITY ACTION」宣言事業者として正規に使用しています。
+          </p>
+
+          <div style={{ marginTop: 36, textAlign: "center", padding: 24, background: "#0f172a", borderRadius: 16, color: "#fff", maxWidth: 800, margin: "36px auto 0" }}>
+            <p style={{ fontSize: 14, color: "#cbd5e1", marginBottom: 8 }}>💡 ポイント</p>
+            <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.7 }}>
+              SCS制度では <span style={{ color: "#fbbf24" }}>★2は誰でも取れる</span> が、<br />
+              <span style={{ color: "#60a5fa" }}>★3は急に難易度が上がる</span>のが業界の常識。<br />
+              <strong style={{ color: "#fff" }}>Sequliaなら、★3も★4も最短ルートで取得できます。</strong>
+            </p>
           </div>
         </div>
       </section>
@@ -1168,94 +1256,6 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="pricing-note">※料金はすべて税抜表示です。</div>
-        </div>
-      </section>
-
-      {/* 10. 公式証明書 */}
-      <section className="block" style={{ background: "linear-gradient(180deg, #fefefe 0%, #f8fafc 100%)" }}>
-        <div className="container">
-          <div className="section-head" style={{ textAlign: "center", marginBottom: 48 }}>
-            <span className="eyebrow">📜 Sequlia 公式証明書</span>
-            <h2 className="section-title">取引先・監査用に <span className="accent">「公式証明書」</span> を発行できます</h2>
-            <p className="section-sub">IPA SECURITY ACTION 宣言済み事業者として発行する Sequlia 独自認定書。<br />サプライチェーン監査・ISMS更新・取引先審査での提示にお使いいただけます。</p>
-          </div>
-
-          <div className="cert-tier-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
-            {/* ★2 - IPA本物 */}
-            <div className="cert-card" style={{ background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 60%)", border: "2px solid #86efac", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 6px 20px rgba(22,163,74,0.10)" }}>
-              {/* 本物のIPAロゴ */}
-              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", borderRadius: 16, border: "1px solid #d1fae5", padding: 10 }}>
-                <img src="/ipa-security-action-2.svg" alt="IPA SECURITY ACTION ★2" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#16a34a", letterSpacing: "0.15em" }}>LEVEL 2 ／ IPA SECURITY ACTION</div>
-              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>実施宣言証</h3>
-              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                IPA SECURITY ACTION ★2 宣言事業者として、Webサイトの脆弱性診断を<strong style={{ color: "#0f172a" }}>実施したこと</strong>を証明する基本証明書。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dcfce7", border: "1px solid #86efac", borderRadius: 10, fontSize: 12, color: "#15803d", fontWeight: 700 }}>
-                ✓ 1回スキャン完了で取得可能
-              </div>
-            </div>
-
-            {/* ★3 - Sequlia独自・IPA風 */}
-            <div className="cert-card" style={{ background: "linear-gradient(180deg, #eff6ff 0%, #ffffff 60%)", border: "3px solid #2563eb", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 12px 32px rgba(37,99,235,0.20)", transform: "scale(1.04)" }}>
-              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #f59e0b, #ea580c)", color: "#fff", padding: "5px 16px", borderRadius: 20, fontSize: 11, fontWeight: 900, letterSpacing: "0.1em", boxShadow: "0 4px 12px rgba(245,158,11,0.4)" }}>★ MOST POPULAR ★</div>
-
-              {/* Sequliaブランドのシールド型バッジ (IPA風) */}
-              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #2563eb 0%, #1e40af 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(37,99,235,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #3b82f6" }}>
-                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
-                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>SECURITY</div>
-                <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.05em", margin: "2px 0", lineHeight: 1 }}>★★★</div>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.05em" }}>CERTIFIED</div>
-                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>SCS LEVEL 3 対応</div>
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#2563eb", letterSpacing: "0.15em" }}>LEVEL 3 ／ 経産省 SCS★3 要件対応</div>
-              <h3 style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>SCS★3対応認定証</h3>
-              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                経産省 SCS★3 制度の主要要件「継続的な脆弱性診断」に対応していることをSequliaが認定。<br/><strong style={{ color: "#1e40af" }}>大手取引先の監査要件をクリア</strong>。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, fontSize: 12, color: "#1e40af", fontWeight: 700 }}>
-                ✓ 1回スキャン完了で取得可能（Standard以上）
-              </div>
-            </div>
-
-            {/* ★4 - Sequlia独自・IPA風 */}
-            <div className="cert-card" style={{ background: "linear-gradient(180deg, #faf5ff 0%, #ffffff 60%)", border: "2px solid #c4b5fd", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 8px 24px rgba(124,58,237,0.15)" }}>
-              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", padding: "5px 14px", borderRadius: 20, fontSize: 10, fontWeight: 900, letterSpacing: "0.15em", boxShadow: "0 4px 12px rgba(124,58,237,0.4)" }}>👑 PREMIUM</div>
-
-              {/* Sequliaブランドのシールド型バッジ ★4 */}
-              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(124,58,237,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #a855f7" }}>
-                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
-                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>ADVANCED</div>
-                <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: "0.04em", margin: "2px 0", lineHeight: 1 }}>★★★★</div>
-                <div style={{ fontSize: 9, fontWeight: 700 }}>CERTIFIED</div>
-                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>31日 継続運用</div>
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#7c3aed", letterSpacing: "0.15em" }}>LEVEL 4 ／ 最上位認定</div>
-              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>高度継続認定証</h3>
-              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                <strong style={{ color: "#0f172a" }}>31日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。<br/><strong style={{ color: "#6d28d9" }}>他社との差別化に</strong>。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#ede9fe", border: "1px solid #c4b5fd", borderRadius: 10, fontSize: 12, color: "#6d28d9", fontWeight: 700 }}>
-                ✓ 31日以上 ＋ 2回以上で取得（Pro限定）
-              </div>
-            </div>
-          </div>
-
-          {/* 法的注釈 */}
-          <p style={{ marginTop: 24, fontSize: 11, color: "#94a3b8", textAlign: "center", maxWidth: 800, margin: "24px auto 0", lineHeight: 1.7 }}>
-            ※ 本証明書はSequliaが発行する独自の認定書です。経産省「サプライチェーン強化に向けた連携プログラム（SCS）」の要件への対応を示すもので、経産省の公式認定そのものではありません。
-            ★2のロゴはIPA「SECURITY ACTION」宣言事業者として正規に使用しています。
-          </p>
-
-          <div style={{ marginTop: 36, textAlign: "center", padding: 24, background: "#0f172a", borderRadius: 16, color: "#fff", maxWidth: 800, margin: "36px auto 0" }}>
-            <p style={{ fontSize: 14, color: "#cbd5e1", marginBottom: 8 }}>💡 ポイント</p>
-            <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.7 }}>
-              SCS制度では <span style={{ color: "#fbbf24" }}>★2は誰でも取れる</span> が、<br />
-              <span style={{ color: "#60a5fa" }}>★3は急に難易度が上がる</span>のが業界の常識。<br />
-              <strong style={{ color: "#fff" }}>Sequliaなら、★3も★4も最短ルートで取得できます。</strong>
-            </p>
-          </div>
         </div>
       </section>
 

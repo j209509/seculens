@@ -856,20 +856,20 @@ export default function ScanPage() {
 
       {/* ─── OWASP情報（アイドル時のみ）────────────────────────────── */}
       {(scanState === "idle" || scanState === "error") && (
-        <Card className="border-0 shadow-sm bg-slate-800 text-slate-100">
+        <Card className="border border-blue-200 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
           <CardContent className="pt-5">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-5 h-5 text-amber-400" />
+              <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <AlertTriangle className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-sm">OWASP Top 10 準拠の包括的診断（{TOTAL_ITEMS}項目）</p>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                  A01: アクセス制御の破損 / A02: 暗号化の失敗 / A03: インジェクション / A04: 安全でない設計 /
-                  A05: セキュリティの設定ミス / A06: 脆弱で古くなったコンポーネント / A07: 識別と認証の失敗 /
-                  A08: ソフトウェアとデータの整合性の失敗 / A09: セキュリティログの失敗 / A10: SSRF
+                <p className="font-bold text-sm text-slate-900">OWASP Top 10 準拠の包括的診断（{TOTAL_ITEMS}項目）</p>
+                <p className="text-xs text-slate-700 mt-1.5 leading-relaxed">
+                  <span className="font-semibold text-slate-900">A01:</span> アクセス制御の破損 / <span className="font-semibold text-slate-900">A02:</span> 暗号化の失敗 / <span className="font-semibold text-slate-900">A03:</span> インジェクション / <span className="font-semibold text-slate-900">A04:</span> 安全でない設計 /
+                  <span className="font-semibold text-slate-900"> A05:</span> セキュリティの設定ミス / <span className="font-semibold text-slate-900">A06:</span> 脆弱で古くなったコンポーネント / <span className="font-semibold text-slate-900">A07:</span> 識別と認証の失敗 /
+                  <span className="font-semibold text-slate-900"> A08:</span> ソフトウェアとデータの整合性の失敗 / <span className="font-semibold text-slate-900">A09:</span> セキュリティログの失敗 / <span className="font-semibold text-slate-900">A10:</span> SSRF
                 </p>
-                <p className="text-xs text-blue-400 mt-2">
+                <p className="text-xs font-semibold text-blue-700 mt-2.5 inline-flex items-center gap-1">
                   ⭐ 経産省 SCS評価制度 ★3「インターネット公開機器の脆弱性診断」要件に対応
                 </p>
               </div>
