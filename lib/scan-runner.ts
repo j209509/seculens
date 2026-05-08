@@ -113,13 +113,14 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
     const os = await import("node:os");
     const cpuCount = os.cpus().length;
     const totalMemMB = Math.round(os.totalmem() / (1024 * 1024));
-    // メモリ < 1GB は控えめ、< 2GB は中程度、それ以上は CPU の 1.5 倍まで
+    // メモリ < 1.5GB は2並列、< 3GB は3並列、それ以上は CPU の1.5倍
+    // Fly.io shared-cpu-1x (1GB) で OOM ハングを避けるため控えめに設定
     const baseConcurrency =
-      totalMemMB < 768 ? 2 :
-      totalMemMB < 1500 ? 3 :
+      totalMemMB < 1500 ? 2 :
+      totalMemMB < 3000 ? 3 :
       Math.min(8, Math.max(4, Math.floor(cpuCount * 1.5)));
-    // Playwright を多用する Tier 4 はメモリを食うので控えめに
-    const HEAVY_CONCURRENCY = totalMemMB < 1500 ? 1 : 2;
+    // Playwright を多用する Tier 4 はメモリを食うので常に1並列
+    const HEAVY_CONCURRENCY = totalMemMB < 3000 ? 1 : 2;
     console.log(`[scan-runner] cpus=${cpuCount} mem=${totalMemMB}MB concurrency=${baseConcurrency} heavy=${HEAVY_CONCURRENCY}`);
 
     // Tier 境界 (CHECKS の順番に対応, 計23モジュール)
