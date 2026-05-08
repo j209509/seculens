@@ -272,6 +272,12 @@ section.block { padding: 64px 0; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--blue); background: var(--blue-50); padding: 6px 14px; border-radius: 999px; margin-bottom: 18px; }
 .eyebrow.warn { color: #9a3412; background: #ffedd5; }
 h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; line-height: 1.35; margin: 0 0 12px; color: var(--ink); }
+
+/* 公式証明書ティアグリッド */
+.cert-tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 900px) {
+  .cert-tier-grid { grid-template-columns: 1fr; gap: 16px; max-width: 480px; }
+}
 .section-sub { font-size: 15.5px; color: var(--gray-600); max-width: 640px; margin: 0 0 48px; line-height: 1.8; }
 .section-head { text-align: center; margin-bottom: 48px; }
 .section-head .section-sub { margin: 0 auto; text-align: center; }

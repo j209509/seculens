@@ -966,7 +966,7 @@ export default function LandingPage() {
             <p className="section-sub">経産省マーク・IPAマーク入りの正式書類。スキャン完了で即時PDFダウンロード可能。<br />サプライチェーン監査・ISMS更新・取引先審査での提示にお使いいただけます。</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1100, margin: "0 auto" }}>
+          <div className="cert-tier-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
             {/* ★2 */}
             <div style={{ background: "#fff", border: "2px solid #d1fae5", borderRadius: 16, padding: 28, position: "relative" }}>
               <div style={{ fontSize: 24, color: "#16a34a", fontWeight: 800, letterSpacing: 2 }}>★★</div>
