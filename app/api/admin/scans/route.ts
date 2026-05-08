@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     Math.max(1, parseInt(searchParams.get("limit") || "20", 10) || 20)
   );
 
-  const where: any = {};
+  const where: Record<string, unknown> = {};
   if (q) where.url = { contains: q, mode: "insensitive" };
   if (status && ["queued", "running", "completed", "failed"].includes(status)) {
     where.status = status;

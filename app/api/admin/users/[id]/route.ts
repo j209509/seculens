@@ -59,7 +59,7 @@ export async function PATCH(
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
   }
 
-  let body: any;
+  let body: { plan?: string; role?: string };
   try {
     body = await req.json();
   } catch {
@@ -115,9 +115,10 @@ export async function DELETE(
 
   try {
     await prisma.user.delete({ where: { id: params.id } });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
-      { error: "DELETE_FAILED", detail: e?.message },
+      { error: "DELETE_FAILED", detail: msg },
       { status: 400 }
     );
   }

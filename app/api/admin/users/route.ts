@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     Math.max(1, parseInt(searchParams.get("limit") || "20", 10) || 20)
   );
 
-  const where: any = {};
+  const where: Record<string, unknown> = {};
   if (q) where.email = { contains: q, mode: "insensitive" };
   if (plan && ["free", "standard", "pro", "enterprise"].includes(plan)) {
     where.plan = plan;
