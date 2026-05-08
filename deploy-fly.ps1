@@ -1,14 +1,14 @@
-# SecuLens 本番デプロイスクリプト（Fly.io）
-# 実行: .\deploy-fly.ps1
-#   - 環境変数は .env.local から読み込みます
-$ErrorActionPreference = "Stop"
+# SecuLens Fly.io deploy script
 $env:Path += ";C:\Users\81908\AppData\Local\Microsoft\WinGet\Links"
+# Treat stderr warnings as info, not errors
+$ErrorActionPreference = "Continue"
+$PSNativeCommandUseErrorActionPreference = $false
 
-Write-Host "==> Fly.io デプロイ開始" -ForegroundColor Cyan
+Write-Host "==> Fly.io deploy start" -ForegroundColor Cyan
 
-# .env.local 読み込み
 if (-not (Test-Path ".env.local")) {
-  Write-Host "❌ .env.local が見つかりません" -ForegroundColor Red; exit 1
+  Write-Host "ERROR: .env.local not found" -ForegroundColor Red
+  exit 1
 }
 $envVars = @{}
 Get-Content .env.local | ForEach-Object {
@@ -17,42 +17,42 @@ Get-Content .env.local | ForEach-Object {
   }
 }
 
-# ログイン確認
-$me = flyctl auth whoami 2>&1
+$me = flyctl auth whoami 2>$null
 if ($LASTEXITCODE -ne 0) {
-  Write-Host "❌ ログインしてません。先に: flyctl auth signup または flyctl auth login" -ForegroundColor Red
+  Write-Host "ERROR: not logged in. Run: flyctl auth login" -ForegroundColor Red
   exit 1
 }
-Write-Host "✅ ログイン済み: $me" -ForegroundColor Green
+Write-Host "Logged in as: $me" -ForegroundColor Green
 
-# アプリ名（被ったらランダム付与）
 $APP_NAME = "seculens"
-Write-Host "==> アプリ作成: $APP_NAME"
-flyctl apps create $APP_NAME --org personal 2>&1 | Out-Null
+Write-Host "==> Creating app: $APP_NAME"
+flyctl apps create $APP_NAME --org personal 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) {
   $APP_NAME = "seculens-" + ([guid]::NewGuid().ToString().Substring(0,6))
-  Write-Host "==> 名前競合のため変更: $APP_NAME"
+  Write-Host "==> Name taken, using: $APP_NAME"
   flyctl apps create $APP_NAME --org personal
-  if ($LASTEXITCODE -ne 0) { Write-Host "❌ アプリ作成失敗" -ForegroundColor Red; exit 1 }
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: app create failed" -ForegroundColor Red
+    exit 1
+  }
   (Get-Content fly.toml) -replace '^app = ".*"', "app = `"$APP_NAME`"" | Set-Content fly.toml
 }
-Write-Host "✅ アプリ: $APP_NAME"
+Write-Host "App: $APP_NAME"
 
-# Postgres
 $DB_NAME = "$APP_NAME-db"
-Write-Host "==> Postgres作成: $DB_NAME"
-flyctl postgres create --name $DB_NAME --region nrt --org personal --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 1 --autostart 2>&1 | Tee-Object -Variable pgOut
-if ($LASTEXITCODE -ne 0 -and ($pgOut -notmatch "already exists")) {
-  Write-Host "❌ Postgres作成失敗" -ForegroundColor Red; exit 1
+Write-Host "==> Creating Postgres: $DB_NAME"
+$pgOut = & flyctl postgres create --name $DB_NAME --region nrt --org personal --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 1 --autostart 2>&1 | Out-String
+Write-Host $pgOut
+if ($LASTEXITCODE -ne 0 -and ($pgOut -notmatch "already exists|already taken")) {
+  Write-Host "ERROR: postgres create failed" -ForegroundColor Red
+  exit 1
 }
 
-# Attach
-Write-Host "==> Postgres アタッチ"
-flyctl postgres attach $DB_NAME --app $APP_NAME --yes 2>&1 | Out-Null
-Write-Host "✅ DATABASE_URL 自動設定済み"
+Write-Host "==> Attaching Postgres"
+flyctl postgres attach $DB_NAME --app $APP_NAME --yes 2>$null | Out-Null
+Write-Host "DATABASE_URL configured"
 
-# Secrets（.env.local から）
-Write-Host "==> 環境変数設定"
+Write-Host "==> Setting secrets"
 $keys = @("OPENAI_API_KEY","OPENAI_MODEL","AI_TRIAGE_MODEL","AI_BULK_MODEL",
   "AI_DAILY_BUDGET_USD","AI_MONTHLY_BUDGET_USD","ENCRYPTION_KEY",
   "MAX_REQUESTS_PER_PROGRAM","DEFAULT_DELAY_MS","SCREENSHOT_RETENTION_DAYS",
@@ -66,15 +66,17 @@ foreach ($k in $keys) {
 if ($secretArgs.Count -gt 0) {
   flyctl secrets set --app $APP_NAME --stage @secretArgs
 }
-Write-Host "✅ シークレット設定完了"
+Write-Host "Secrets done"
 
-# デプロイ
-Write-Host "==> デプロイ実行（5〜10分）"
+Write-Host "==> Deploying (5-10 min)"
 flyctl deploy --app $APP_NAME --remote-only --ha=false
-if ($LASTEXITCODE -ne 0) { Write-Host "❌ デプロイ失敗" -ForegroundColor Red; exit 1 }
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "ERROR: deploy failed" -ForegroundColor Red
+  exit 1
+}
 
 $URL = "https://$APP_NAME.fly.dev"
 Write-Host ""
-Write-Host "🎉 デプロイ完了！" -ForegroundColor Green
+Write-Host "DONE!" -ForegroundColor Green
 Write-Host "URL: $URL" -ForegroundColor Cyan
 flyctl status --app $APP_NAME

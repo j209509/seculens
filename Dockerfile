@@ -2,8 +2,9 @@
 FROM mcr.microsoft.com/playwright:v1.59.1-jammy AS builder
 WORKDIR /app
 
-# Install deps
+# Install deps (prisma schema needed before npm ci because of postinstall)
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma
 RUN npm ci
 
 # Copy source
@@ -40,4 +41,4 @@ COPY --from=builder /app/package.json ./package.json
 EXPOSE 3000
 
 # Apply migrations then start server
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node server.js"]
+CMD ["node", "server.js"]

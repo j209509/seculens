@@ -24,4 +24,4 @@ primary_region = "nrt"
   cpus = 1
 
 [deploy]
-  release_command = "npx prisma db push --accept-data-loss"
+  release_command = "node node_modules/prisma/build/index.js db push --accept-data-loss --skip-generate"
