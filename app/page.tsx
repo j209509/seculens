@@ -119,7 +119,7 @@ export default function LandingPage() {
       {/* 1. Announcement Bar */}
       <div className="announce">
         <div className="container">
-          <div className="msg">🎉 経産省 SCS評価制度 ★3 脆弱性診断 対応完了<span className="sep">|</span>IPA SECURITY ACTION ★2 対応</div>
+          <div className="msg">🎉 経産省 SCS評価制度 ★3 脆弱性診断 対応完了！<span className="sep"> | </span><span className="announce-ipa">IPA SECURITY ACTION ★2 対応</span></div>
           <a href="#scs">詳しく見る →</a>
         </div>
       </div>
@@ -147,14 +147,6 @@ export default function LandingPage() {
 
       {/* 3. Hero */}
       <section className="hero" id="scan">
-        {/* 背景: 女性写真 (PC=hero-pc.png, SP=hero-sp.png) */}
-        <div className="hero-bg">
-          <picture>
-            <source media="(max-width: 640px)" srcSet="/hero-sp.png" />
-            <img src="/hero-pc.png" alt="" aria-hidden="true" />
-          </picture>
-        </div>
-        <div className="hero-overlay" />
 
         <div className="container hero-layout">
           {/* 左: テキスト + フォーム */}
@@ -224,53 +216,9 @@ export default function LandingPage() {
             )}
           </div>
 
-          {/* 右: ダッシュボードUIモックアップ */}
+          {/* 右: 女性写真（コンテンツとして） */}
           <div className="hero-right">
-            <div className="dash-mock">
-              {/* ブラウザバー */}
-              <div className="dash-topbar">
-                <div className="dash-dots"><span /><span /><span /></div>
-                <div className="dash-url">🔒 app.seculens.jp/dashboard</div>
-              </div>
-              {/* KPIカード */}
-              <div className="dash-kpis">
-                <div className="dash-kpi"><span className="dk-num">47</span><span className="dk-lbl">スキャン数</span></div>
-                <div className="dash-kpi warn"><span className="dk-num">23</span><span className="dk-lbl">脆弱性検出</span></div>
-                <div className="dash-kpi danger"><span className="dk-num">7</span><span className="dk-lbl">HIGHリスク</span></div>
-                <div className="dash-kpi ok"><span className="dk-num">18</span><span className="dk-lbl">完了スキャン</span></div>
-              </div>
-              {/* ミニバーチャート */}
-              <div className="dash-chart-wrap">
-                <div className="dash-chart-title">脆弱性検出数の推移</div>
-                <div className="dash-bars">
-                  {[{s:20,v:28},{s:26,v:40},{s:22,v:35},{s:30,v:52},{s:18,v:30},{s:24,v:38}].map((d,i) => (
-                    <div key={i} className="dash-bar-col">
-                      <div className="db-scan" style={{height:`${d.s}px`}} />
-                      <div className="db-vuln" style={{height:`${d.v}px`}} />
-                    </div>
-                  ))}
-                </div>
-                <div className="dash-legend">
-                  <span><span className="leg-dot" style={{background:"var(--blue)"}} />スキャン数</span>
-                  <span><span className="leg-dot" style={{background:"var(--orange)"}} />脆弱性検出</span>
-                </div>
-              </div>
-              {/* スキャンリスト */}
-              <div className="dash-list">
-                <div className="dl-header">最近のスキャン結果</div>
-                {[
-                  {url:"techsolution.co.jp", sevs:["C","H","H"], score:78, c:"high"},
-                  {url:"sample-shoji.com",   sevs:["H","M","L"], score:52, c:"med"},
-                  {url:"innovation-lab.co.jp",sevs:["M","L"],    score:28, c:"low"},
-                ].map((r,i) => (
-                  <div key={i} className="dl-row">
-                    <span className="dl-url">{r.url}</span>
-                    <span className="dl-sevs">{r.sevs.map((s,j) => <span key={j} className={`dl-badge dl-${s.toLowerCase()}`}>{s}</span>)}</span>
-                    <span className={`dl-score dl-${r.c}`}>{r.score}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <img src="/hero-sp.png" alt="" aria-hidden="true" className="hero-content-photo" />
           </div>
         </div>
       </section>
