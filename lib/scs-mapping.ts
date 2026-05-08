@@ -68,7 +68,7 @@ export const SCS_STAR3_REQUIREMENTS: ScsRequirement[] = [
     description: "自社のIT資産（サーバー、端末、クラウドサービス等）を一覧化している",
     coverage: "partial",
     coverageNote: "Sequliaはインターネット公開資産を自動検出・一覧化する",
-    relatedChecks: ["外部攻撃対象面分析", "外部受動観測"],
+    relatedChecks: ["攻撃対象面（Attack Surface）分析", "情報漏洩・機密ファイル露出検査"],
   },
   {
     id: "s3-risk-02",
@@ -78,7 +78,7 @@ export const SCS_STAR3_REQUIREMENTS: ScsRequirement[] = [
     description: "CVE等の脆弱性情報を継続的に収集し、自社システムへの影響を把握している",
     coverage: "full",
     coverageNote: "Sequliaが既知脆弱性（CVE）を自動検出・レポート出力",
-    relatedChecks: ["アウトデートソフトウェア", "外部その他"],
+    relatedChecks: ["古いソフトウェア・既知脆弱性検出", "セキュリティヘッダー検査"],
   },
 
   // ===== 攻撃等の防御 =====
@@ -91,8 +91,8 @@ export const SCS_STAR3_REQUIREMENTS: ScsRequirement[] = [
     coverage: "full",
     coverageNote: "Sequliaのコア機能。110+チェック・OWASP Top10準拠で完全対応",
     relatedChecks: [
-      "Well-Known & Robots", "外部受動観測", "外部低コスト確認", "情報収集", "外部その他",
-      "攻撃対象面分析", "CORS設定確認", "CSRF確認", "XSS安全確認", "SQLi安全確認",
+      "サイト構造・隠しパス検出", "情報漏洩・機密ファイル露出検査", "設定ミス・管理画面露出検査", "DNS・サブドメイン情報収集", "セキュリティヘッダー検査",
+      "攻撃対象面（Attack Surface）分析", "CORS設定確認", "CSRF確認", "XSS安全確認", "SQLi安全確認",
     ],
   },
   {
@@ -116,7 +116,7 @@ export const SCS_STAR3_REQUIREMENTS: ScsRequirement[] = [
     description: "高危険度の脆弱性パッチは14日以内に適用するプロセスを有している",
     coverage: "partial",
     coverageNote: "Sequliaは老朽化ソフトウェア・未パッチ状態を検出し、優先度付きで報告",
-    relatedChecks: ["アウトデートソフトウェア"],
+    relatedChecks: ["古いソフトウェア・既知脆弱性検出"],
   },
   {
     id: "s3-prot-04",
@@ -136,7 +136,7 @@ export const SCS_STAR3_REQUIREMENTS: ScsRequirement[] = [
     description: "サーバー・クラウドサービスのセキュリティ設定を適正に維持している",
     coverage: "full",
     coverageNote: "SequliaはHTTPヘッダー・CORS・クッキー属性・クラウドストレージ設定を自動検査",
-    relatedChecks: ["CORS設定確認", "パブリッククラウドストレージ", "外部受動観測"],
+    relatedChecks: ["CORS設定確認", "パブリッククラウドストレージ", "情報漏洩・機密ファイル露出検査"],
   },
   {
     id: "s3-prot-06",

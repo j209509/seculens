@@ -77,14 +77,14 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
   // Tier 順 ( hit 率高い → 低い ) に並び替え
   const CHECKS: CheckDef[] = [
     // Tier 1
-    { name: "外部その他", fn: () => runExternalMiscChecks(scanId, targetUrl) },
-    { name: "Well-Known & Robots", fn: () => runWellKnownAndRobotsCheck(scanId, targetUrl) },
-    { name: "アウトデートソフトウェア", fn: () => runOutdatedSoftwareCheck(scanId, targetUrl) },
-    { name: "外部低コスト確認", fn: () => runExternalLowHangingChecks(scanId, targetUrl) },
+    { name: "セキュリティヘッダー検査", fn: () => runExternalMiscChecks(scanId, targetUrl) },
+    { name: "サイト構造・隠しパス検出", fn: () => runWellKnownAndRobotsCheck(scanId, targetUrl) },
+    { name: "古いソフトウェア・既知脆弱性検出", fn: () => runOutdatedSoftwareCheck(scanId, targetUrl) },
+    { name: "設定ミス・管理画面露出検査", fn: () => runExternalLowHangingChecks(scanId, targetUrl) },
     // Tier 2
-    { name: "外部受動観測", fn: () => runExternalPassiveChecks(scanId, targetUrl) },
-    { name: "情報収集", fn: () => runExternalMiningChecks(scanId, targetUrl) },
-    { name: "攻撃対象面分析", fn: () => runExternalAttackSurfaceProbe(scanId, targetUrl) },
+    { name: "情報漏洩・機密ファイル露出検査", fn: () => runExternalPassiveChecks(scanId, targetUrl) },
+    { name: "DNS・サブドメイン情報収集", fn: () => runExternalMiningChecks(scanId, targetUrl) },
+    { name: "攻撃対象面（Attack Surface）分析", fn: () => runExternalAttackSurfaceProbe(scanId, targetUrl) },
     { name: "CORS設定確認", fn: () => runCorsCheck(scanId, targetUrl) },
     { name: "CSRF確認", fn: () => runCsrfCheck(scanId, targetUrl) },
     { name: "匿名API露出確認", fn: () => runAnonymousApiExposureCheck(scanId, targetUrl) },

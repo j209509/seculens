@@ -17,7 +17,8 @@ export function CoffeeBreak({ elapsedSec }: { elapsedSec: number }) {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % MESSAGES.length), 12000);
+    // 3分（180秒）ごとに切替
+    const t = setInterval(() => setIdx((i) => (i + 1) % MESSAGES.length), 180000);
     return () => clearInterval(t);
   }, []);
 

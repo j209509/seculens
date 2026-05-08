@@ -11,37 +11,38 @@ import {
 } from "lucide-react";
 import { RiskBadge } from "@/components/risk-badge";
 import { CoffeeBreak } from "@/components/scan/CoffeeBreak";
+import { FindingDetailModal } from "@/components/scan/FindingDetailModal";
 
 // ─── チェック説明マップ ────────────────────────────────────────────────────────
 // scan-runner.ts の CHECKS 配列と同順・同名
 const CHECK_DESCRIPTIONS: Record<string, { desc: string; items: string }> = {
   // Tier 1
-  "外部その他": {
-    desc: "セキュリティヘッダー（HSTS / CSP / X-Frame-Options）・クリックジャッキング防止の確認",
+  "セキュリティヘッダー検査": {
+    desc: "HSTS / CSP / X-Frame-Options などのセキュリティヘッダー・クリックジャッキング防止の確認",
     items: "8〜10項目",
   },
-  "Well-Known & Robots": {
-    desc: "サイト構造・クローラ設定・隠しパスの検出（.well-known, robots.txt, sitemap 等）",
+  "サイト構造・隠しパス検出": {
+    desc: ".well-known / robots.txt / sitemap.xml からのサイト構造・隠しパスの検出",
     items: "6〜8項目",
   },
-  "アウトデートソフトウェア": {
+  "古いソフトウェア・既知脆弱性検出": {
     desc: "既知脆弱性を持つ古いフレームワーク・ライブラリ・サーバーソフトウェアの検出",
     items: "6〜8項目",
   },
-  "外部低コスト確認": {
-    desc: "設定ミス・デフォルト認証・管理画面露出の低コスト検査（ディレクトリリスティング・管理パス 等）",
+  "設定ミス・管理画面露出検査": {
+    desc: "設定ミス・デフォルト認証・管理画面露出の検査（ディレクトリリスティング・管理パス 等）",
     items: "12〜15項目",
   },
   // Tier 2
-  "外部受動観測": {
+  "情報漏洩・機密ファイル露出検査": {
     desc: "公開情報からの情報漏洩・機密ファイル露出の受動的検査（バックアップファイル・Git露出 等）",
     items: "8〜10項目",
   },
-  "情報収集": {
+  "DNS・サブドメイン情報収集": {
     desc: "DNS・Whois・サブドメイン・メタデータから攻撃者が収集できる情報の洗い出し",
     items: "8〜10項目",
   },
-  "攻撃対象面分析": {
+  "攻撃対象面（Attack Surface）分析": {
     desc: "インターネット公開エンドポイント・ポート・サービスの攻撃対象面を分析（SCS★3 主要要件）",
     items: "5〜7項目",
   },
@@ -143,6 +144,7 @@ export default function ScanPage() {
   const [estRemainSec, setEstRemainSec] = useState<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [findings, setFindings] = useState<Finding[]>([]);
+  const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [scanId, setScanId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
@@ -513,18 +515,24 @@ export default function ScanPage() {
                       sev === "medium" ? "bg-amber-500" :
                       sev === "low" ? "bg-green-500" : "bg-blue-500";
                     return (
-                      <div key={finding.id} className="flex items-start gap-3 py-2 px-3 rounded-lg bg-slate-50 border border-slate-100">
+                      <button
+                        key={finding.id}
+                        type="button"
+                        onClick={() => setSelectedFinding(finding)}
+                        className="w-full text-left flex items-start gap-3 py-2 px-3 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer"
+                      >
                         <div className={`rounded-full flex-shrink-0 ${barColor}`} style={{ width: 3, minHeight: 36 }} />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
                             <RiskBadge level={sev} />
                             <span className="text-sm font-semibold text-slate-900 truncate">{finding.type}</span>
+                            <span className="text-[10px] text-blue-600 font-medium ml-auto flex-shrink-0">▸ 詳細</span>
                           </div>
                           {finding.target && (
                             <p className="text-xs text-slate-500 truncate">対象: {finding.target}</p>
                           )}
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -668,14 +676,20 @@ export default function ScanPage() {
                   sev === "medium" ? "bg-amber-500" :
                   sev === "low" ? "bg-green-500" : "bg-blue-500";
                 return (
-                  <Card key={finding.id} className="border-0 shadow-sm">
-                    <CardContent className="pt-5">
+                  <button
+                    key={finding.id}
+                    type="button"
+                    onClick={() => setSelectedFinding(finding)}
+                    className="w-full text-left bg-white rounded-lg border-0 shadow-sm hover:shadow-md hover:ring-2 hover:ring-blue-200 transition-all cursor-pointer"
+                  >
+                    <div className="pt-5 pb-5 px-6">
                       <div className="flex items-start gap-4">
                         <div className={`rounded-full flex-shrink-0 ${barColor}`} style={{ width: 3, minHeight: 60 }} />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 flex-wrap mb-2">
                             <RiskBadge level={sev} />
                             <span className="text-sm font-semibold text-slate-900">{finding.type}</span>
+                            <span className="text-xs text-blue-600 font-medium ml-auto">▸ クリックで詳細</span>
                           </div>
                           {finding.impact && (
                             <p className="text-sm text-slate-600 leading-relaxed">{finding.impact}</p>
@@ -689,8 +703,8 @@ export default function ScanPage() {
                           )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </button>
                 );
               })}
             </div>
@@ -730,6 +744,9 @@ export default function ScanPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Finding詳細モーダル */}
+      <FindingDetailModal finding={selectedFinding} onClose={() => setSelectedFinding(null)} />
     </div>
   );
 }
