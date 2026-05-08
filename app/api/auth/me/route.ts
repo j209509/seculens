@@ -8,6 +8,7 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
   }
-  const { passwordHash, ...safe } = user;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { passwordHash: _ph, ...safe } = user;
   return NextResponse.json({ user: safe });
 }
