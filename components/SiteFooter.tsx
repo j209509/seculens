@@ -11,7 +11,7 @@ export function SiteFooter() {
       <div className="container">
         <div className="foot-grid">
           <div className="foot-brand">
-            <div className="logo" style={{ color: "#fff" }}>
+            <Link href="/" className="logo" style={{ color: "#fff", textDecoration: "none", cursor: "pointer" }}>
               <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16 2L4 6v9c0 7.5 5.1 13.6 12 15 6.9-1.4 12-7.5 12-15V6L16 2z" fill="#3b82f6" />
                 <path d="M16 6.5L8 9v6c0 5.3 3.4 9.6 8 10.6 4.6-1 8-5.3 8-10.6V9L16 6.5z" fill="#0f172a" />
@@ -19,7 +19,7 @@ export function SiteFooter() {
                 <line x1="18.5" y1="16.5" x2="21" y2="19" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
               </svg>
               Sequlia
-            </div>
+            </Link>
             <p>あなたのWebサイト、今すぐ無料で脆弱性診断。</p>
             <div className="copy">© 2026 Sequlia, Inc.</div>
           </div>
@@ -33,7 +33,25 @@ export function SiteFooter() {
             <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
           </div>
           <div className="foot-cta">
-            <Link href="/dashboard" className="btn btn-lg">ダッシュボードへ</Link>
+            <Link
+              href="/dashboard"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 22px",
+                background: "#2563eb",
+                color: "#fff",
+                fontSize: 14,
+                fontWeight: 700,
+                borderRadius: 10,
+                textDecoration: "none",
+                boxShadow: "0 4px 12px rgba(37,99,235,0.3)",
+                transition: "background 0.15s, transform 0.15s",
+              }}
+            >
+              ダッシュボードへ →
+            </Link>
           </div>
         </div>
         <div className="foot-bottom">
