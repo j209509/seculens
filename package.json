@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "start:prod": "prisma migrate deploy && node server.js",
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",

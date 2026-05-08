@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.env
+.env.local
+.env*.local
+dev.db
+dev.db-journal
+prisma/dev.db
+npm-debug.log*
+.DS_Store
+*.log
+.vercel
