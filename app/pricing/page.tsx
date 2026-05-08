@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PLANS, type PlanId } from "@/lib/plans";
+import { SiteFooter } from "@/components/SiteFooter";
 
 const BRAND = "#2563eb";
 
@@ -315,6 +316,7 @@ export default function PricingPage() {
           </details>
         ))}
       </section>
+      <SiteFooter />
     </main>
   );
 }
