@@ -108,6 +108,7 @@ export async function GET(
               error:        true,
               startedAt:    true,
               completedAt:  true,
+              updatedAt:    true,
               url:          true,
               _count: { select: { findings: true } },
             },
@@ -117,6 +118,26 @@ export async function GET(
             sendEvent({ status: "error", error: "Scan not found" });
             safeClose();
             return;
+          }
+
+          // ─── オーファン検出 ─────────────────────────────────
+          // running なのに 5分以上更新がない＝マシン再起動等で死亡したスキャン
+          // failed としてマークし、UIにエラーを返す
+          if (scan.status === "running" || scan.status === "queued") {
+            const since = Date.now() - scan.updatedAt.getTime();
+            if (since > 5 * 60 * 1000) {
+              await prisma.scan.update({
+                where: { id: scanId },
+                data: {
+                  status: "failed",
+                  error: "サーバー再起動によりスキャンが中断されました。再実行してください。",
+                  completedAt: new Date(),
+                },
+              }).catch(() => {});
+              sendEvent({ status: "failed", error: "サーバー再起動により中断" });
+              safeClose();
+              return;
+            }
           }
 
           // ライブ findings (発見順に最大200件)
