@@ -240,8 +240,8 @@ export default function LandingPage() {
             <h1>見つける、守れる、<br /><span className="accent">Webのリスクを可視化</span></h1>
             <p className="hero-sub">自動化された診断で、脆弱性を早期に発見。<br />安全なWebサービス運用をサポートします。</p>
             <div className="hero-feats">
-              <div className="hfeat"><span className="hfeat-ico">🎯</span><div><strong>高精度スキャン</strong><span>174項目を自動診断</span></div></div>
-              <div className="hfeat"><span className="hfeat-ico">⚡</span><div><strong>スピード診断</strong><span>最短3分で結果を確認</span></div></div>
+              <div className="hfeat"><span className="hfeat-ico">🌐</span><div><strong>URLを1つ入れるだけ</strong><span>サブページ・サブドメイン全自動探索</span></div></div>
+              <div className="hfeat"><span className="hfeat-ico">⚡</span><div><strong>スピード診断</strong><span>174項目を最短3分で確認</span></div></div>
               <div className="hfeat"><span className="hfeat-ico">🛡️</span><div><strong>安心のサポート</strong><span>専門チームが徹底支援</span></div></div>
             </div>
 
@@ -487,6 +487,68 @@ export default function LandingPage() {
               🚀 今すぐ無料で診断を試す →
             </a>
             <p style={{ marginTop: 12, fontSize: 12, color: "#94a3b8" }}>クレジットカード不要 ／ 30秒で登録 ／ 月10回まで完全無料</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4.8 自動探索の紹介 (NEW) ─── */}
+      <section className="block" style={{ background: "#0f172a", color: "#fff" }}>
+        <div className="container">
+          <div className="section-head" style={{ textAlign: "center", marginBottom: 32 }}>
+            <span className="eyebrow" style={{ background: "#1e3a8a", color: "#bfdbfe", border: "1px solid #2563eb" }}>🌐 全自動クローリング</span>
+            <h2 className="section-title" style={{ color: "#fff" }}>URLを<span style={{ color: "#fbbf24" }}>1つ入れるだけ</span>。<br />サブページ・サブドメイン<span style={{ color: "#60a5fa" }}>すべて自動で探索</span>します</h2>
+            <p className="section-sub" style={{ maxWidth: 720, margin: "16px auto 0", color: "#cbd5e1" }}>
+              「ページ毎にURLを1個ずつ入力する」必要なし。トップURLを入れた瞬間、Sequliaのクローラがサイト全体を縦横無尽に発見＆検査します。
+            </p>
+          </div>
+
+          <div style={{ maxWidth: 1000, margin: "0 auto", background: "#1e293b", borderRadius: 16, padding: 32, border: "1px solid #334155" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 32, alignItems: "center" }} className="discovery-flow">
+              <div>
+                <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8, fontWeight: 700, letterSpacing: 1 }}>あなたが入力する</div>
+                <div style={{ background: "#0f172a", border: "2px solid #2563eb", borderRadius: 10, padding: "14px 18px", fontFamily: "ui-monospace, monospace", fontSize: 15, color: "#60a5fa", fontWeight: 600 }}>
+                  https://example.com/
+                </div>
+                <div style={{ marginTop: 8, fontSize: 11, color: "#64748b" }}>↑ これだけ</div>
+              </div>
+
+              <div style={{ fontSize: 32, color: "#fbbf24" }}>→</div>
+
+              <div>
+                <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8, fontWeight: 700, letterSpacing: 1 }}>Sequliaが自動で発見</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>example.com/blog</div>
+                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>example.com/admin</div>
+                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>example.com/login</div>
+                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>api.example.com</div>
+                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>... その他多数</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 28, paddingTop: 24, borderTop: "1px solid #334155", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }} className="discovery-methods">
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 22 }}>🗺️</div>
+                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "#fff" }}>sitemap / robots</div>
+                <div style={{ marginTop: 2, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>サイトマップ全URL抽出</div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 22 }}>🔗</div>
+                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "#fff" }}>HTML リンク解析</div>
+                <div style={{ marginTop: 2, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>ページ内 a タグ全追跡</div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 22 }}>🔍</div>
+                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "#fff" }}>サブドメイン列挙</div>
+                <div style={{ marginTop: 2, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>DNS解析で自動発見</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 24, textAlign: "center", padding: "16px 24px", background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.3)", borderRadius: 12, maxWidth: 720, margin: "24px auto 0" }}>
+            <p style={{ fontSize: 14, color: "#fbbf24", fontWeight: 700 }}>
+              💡 つまり、<strong style={{ color: "#fff" }}>1ドメイン1回のスキャン</strong>でサイト全体の脆弱性が一括チェックできます。
+            </p>
           </div>
         </div>
       </section>
@@ -1055,17 +1117,17 @@ export default function LandingPage() {
             {[
               {
                 ico: "🌱", name: "フリー", price: "¥0", per: "", tag: "無料登録", featured: false,
-                feats: ["1ドメインまで","月10回までスキャン","全174項目チェック","結果はWeb上で閲覧","証明書発行 ❌"],
+                feats: ["1ドメインまで","月3回までスキャン（再診断用）","全174項目チェック","サブページ自動探索","証明書発行 ❌"],
                 cta: { label: "無料登録で始める", href: "/signup", cls: "btn-outline-plan" },
               },
               {
                 ico: "🛡", name: "スタンダード", price: "¥4,980", per: "/月", tag: "中小企業に最適", featured: true,
-                feats: ["3ドメインまで","月30回までスキャン","公式証明書 ★2★3 発行可能","PDF/CSVレポート出力","Slack/Discord通知","メールサポート"],
+                feats: ["5ドメインまで","月15回までスキャン","公式証明書 ★2★3 発行可能","PDF/CSVレポート出力","Slack/Discord通知","メールサポート"],
                 cta: { label: "このプランで始める", href: "/signup?plan=standard", cls: "btn-primary" },
               },
               {
                 ico: "🏢", name: "プロ", price: "¥19,800", per: "/月", tag: "エンタープライズ向け", featured: false,
-                feats: ["10ドメインまで","月100回までスキャン","公式証明書 ★2★3★4 発行可能","ログイン後ページ診断","API連携","優先サポート","SCS★3対応レポート"],
+                feats: ["20ドメインまで","月60回までスキャン","公式証明書 ★2★3★4 発行可能","ログイン後ページ診断","API連携","優先サポート","SCS★3対応レポート"],
                 cta: { label: "このプランで始める", href: "/signup?plan=pro", cls: "btn-outline-plan" },
               },
               {
@@ -1113,64 +1175,61 @@ export default function LandingPage() {
       <section className="block" style={{ background: "linear-gradient(180deg, #fefefe 0%, #f8fafc 100%)" }}>
         <div className="container">
           <div className="section-head" style={{ textAlign: "center", marginBottom: 48 }}>
-            <span className="eyebrow">📜 公式証明書発行</span>
+            <span className="eyebrow">📜 Sequlia 公式証明書</span>
             <h2 className="section-title">取引先・監査用に <span className="accent">「公式証明書」</span> を発行できます</h2>
-            <p className="section-sub">経産省マーク・IPAマーク入りの正式書類。スキャン完了で即時PDFダウンロード可能。<br />サプライチェーン監査・ISMS更新・取引先審査での提示にお使いいただけます。</p>
+            <p className="section-sub">IPA SECURITY ACTION 宣言済み事業者として発行する Sequlia 独自認定書。<br />サプライチェーン監査・ISMS更新・取引先審査での提示にお使いいただけます。</p>
           </div>
 
           <div className="cert-tier-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
-            {/* ★2 */}
+            {/* ★2 - IPA本物 */}
             <div className="cert-card" style={{ background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 60%)", border: "2px solid #86efac", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 6px 20px rgba(22,163,74,0.10)" }}>
-              {/* IPAスタンプ */}
-              <div className="cert-stamp" style={{ width: 110, height: 110, margin: "0 auto 16px", borderRadius: "50%", background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 8px 20px rgba(22,163,74,0.4), inset 0 -3px 8px rgba(0,0,0,0.15)" }}>
-                <div style={{ fontSize: 9, opacity: 0.9, fontWeight: 600, letterSpacing: "0.1em" }}>IPA</div>
-                <div style={{ fontSize: 11, fontWeight: 700, marginTop: 1 }}>SECURITY</div>
-                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "0.05em", margin: "1px 0" }}>★★</div>
-                <div style={{ fontSize: 9, fontWeight: 600 }}>ACTION</div>
+              {/* 本物のIPAロゴ */}
+              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", borderRadius: 16, border: "1px solid #d1fae5", padding: 10 }}>
+                <img src="/ipa-security-action-2.svg" alt="IPA SECURITY ACTION ★2" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
               </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#16a34a", letterSpacing: "0.15em" }}>LEVEL 2</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#16a34a", letterSpacing: "0.15em" }}>LEVEL 2 ／ IPA SECURITY ACTION</div>
               <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>実施宣言証</h3>
               <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                Webサイトの脆弱性診断を<strong style={{ color: "#0f172a" }}>実施したこと</strong>を証明する基本証明書。<br/>初回スキャン完了で<strong style={{ color: "#16a34a" }}>即時発行</strong>。
+                IPA SECURITY ACTION ★2 宣言事業者として、Webサイトの脆弱性診断を<strong style={{ color: "#0f172a" }}>実施したこと</strong>を証明する基本証明書。
               </p>
               <div style={{ marginTop: 16, padding: "10px 14px", background: "#dcfce7", border: "1px solid #86efac", borderRadius: 10, fontSize: 12, color: "#15803d", fontWeight: 700 }}>
                 ✓ 1回スキャン完了で取得可能
               </div>
             </div>
 
-            {/* ★3 */}
+            {/* ★3 - Sequlia独自・IPA風 */}
             <div className="cert-card" style={{ background: "linear-gradient(180deg, #eff6ff 0%, #ffffff 60%)", border: "3px solid #2563eb", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 12px 32px rgba(37,99,235,0.20)", transform: "scale(1.04)" }}>
               <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #f59e0b, #ea580c)", color: "#fff", padding: "5px 16px", borderRadius: 20, fontSize: 11, fontWeight: 900, letterSpacing: "0.1em", boxShadow: "0 4px 12px rgba(245,158,11,0.4)" }}>★ MOST POPULAR ★</div>
 
-              {/* 経産省スタンプ（大） */}
-              <div className="cert-stamp" style={{ width: 130, height: 130, margin: "0 auto 16px", borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 12px 24px rgba(245,158,11,0.5), inset 0 -3px 10px rgba(0,0,0,0.2)", border: "3px solid #fef3c7", position: "relative" }}>
-                <div style={{ position: "absolute", inset: 4, borderRadius: "50%", border: "1.5px dashed rgba(255,255,255,0.4)", pointerEvents: "none" }} />
-                <div style={{ fontSize: 9, opacity: 0.95, fontWeight: 700, letterSpacing: "0.05em" }}>経済産業省</div>
-                <div style={{ fontSize: 14, fontWeight: 900, marginTop: 2 }}>SCS</div>
-                <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.04em", margin: "1px 0" }}>★★★</div>
-                <div style={{ fontSize: 9, fontWeight: 700 }}>Level 3</div>
+              {/* Sequliaブランドのシールド型バッジ (IPA風) */}
+              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #2563eb 0%, #1e40af 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(37,99,235,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #3b82f6" }}>
+                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
+                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>SECURITY</div>
+                <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.05em", margin: "2px 0", lineHeight: 1 }}>★★★</div>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.05em" }}>CERTIFIED</div>
+                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>SCS LEVEL 3 対応</div>
               </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#2563eb", letterSpacing: "0.15em" }}>LEVEL 3 ／ 経産省 SCS★3 対応</div>
-              <h3 style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>継続実施認定証</h3>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#2563eb", letterSpacing: "0.15em" }}>LEVEL 3 ／ 経産省 SCS★3 要件対応</div>
+              <h3 style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>SCS★3対応認定証</h3>
               <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                経産省 SCS★3 要件「継続的な脆弱性診断」に対応する認定証。<br/><strong style={{ color: "#1e40af" }}>大手取引先の監査要件をクリア</strong>。
+                経産省 SCS★3 制度の主要要件「継続的な脆弱性診断」に対応していることをSequliaが認定。<br/><strong style={{ color: "#1e40af" }}>大手取引先の監査要件をクリア</strong>。
               </p>
               <div style={{ marginTop: 16, padding: "10px 14px", background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, fontSize: 12, color: "#1e40af", fontWeight: 700 }}>
                 ✓ 1回スキャン完了で取得可能（Standard以上）
               </div>
             </div>
 
-            {/* ★4 */}
+            {/* ★4 - Sequlia独自・IPA風 */}
             <div className="cert-card" style={{ background: "linear-gradient(180deg, #faf5ff 0%, #ffffff 60%)", border: "2px solid #c4b5fd", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 8px 24px rgba(124,58,237,0.15)" }}>
               <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", padding: "5px 14px", borderRadius: 20, fontSize: 10, fontWeight: 900, letterSpacing: "0.15em", boxShadow: "0 4px 12px rgba(124,58,237,0.4)" }}>👑 PREMIUM</div>
 
-              {/* ★4 高度認定スタンプ */}
-              <div className="cert-stamp" style={{ width: 130, height: 130, margin: "0 auto 16px", borderRadius: "50%", background: "linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 12px 24px rgba(124,58,237,0.5), inset 0 -3px 10px rgba(0,0,0,0.2)", border: "3px solid #ede9fe", position: "relative" }}>
-                <div style={{ position: "absolute", inset: 4, borderRadius: "50%", border: "1.5px dashed rgba(255,255,255,0.4)", pointerEvents: "none" }} />
-                <div style={{ fontSize: 9, opacity: 0.95, fontWeight: 700, letterSpacing: "0.05em" }}>継続実績</div>
-                <div style={{ fontSize: 13, fontWeight: 900, marginTop: 2 }}>31日+</div>
-                <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: "0.04em", margin: "1px 0" }}>★★★★</div>
-                <div style={{ fontSize: 9, fontWeight: 700 }}>ADVANCED</div>
+              {/* Sequliaブランドのシールド型バッジ ★4 */}
+              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(124,58,237,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #a855f7" }}>
+                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
+                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>ADVANCED</div>
+                <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: "0.04em", margin: "2px 0", lineHeight: 1 }}>★★★★</div>
+                <div style={{ fontSize: 9, fontWeight: 700 }}>CERTIFIED</div>
+                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>31日 継続運用</div>
               </div>
               <div style={{ fontSize: 11, fontWeight: 800, color: "#7c3aed", letterSpacing: "0.15em" }}>LEVEL 4 ／ 最上位認定</div>
               <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>高度継続認定証</h3>
@@ -1182,6 +1241,12 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+
+          {/* 法的注釈 */}
+          <p style={{ marginTop: 24, fontSize: 11, color: "#94a3b8", textAlign: "center", maxWidth: 800, margin: "24px auto 0", lineHeight: 1.7 }}>
+            ※ 本証明書はSequliaが発行する独自の認定書です。経産省「サプライチェーン強化に向けた連携プログラム（SCS）」の要件への対応を示すもので、経産省の公式認定そのものではありません。
+            ★2のロゴはIPA「SECURITY ACTION」宣言事業者として正規に使用しています。
+          </p>
 
           <div style={{ marginTop: 36, textAlign: "center", padding: 24, background: "#0f172a", borderRadius: 16, color: "#fff", maxWidth: 800, margin: "36px auto 0" }}>
             <p style={{ fontSize: 14, color: "#cbd5e1", marginBottom: 8 }}>💡 ポイント</p>
