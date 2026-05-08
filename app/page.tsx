@@ -93,6 +93,13 @@ export default function LandingPage() {
         }
         setScanProgress(data.progress ?? 0);
         setCurrentStep(data.currentStep ?? "");
+        // ─── リアルタイムで findings 表示（LPデモ用） ─────────────────
+        if (Array.isArray(data.findings) && data.findings.length > 0) {
+          const sorted: LiveFinding[] = [...data.findings].sort(
+            (a, b) => (SEV_ORDER[a.severity] ?? 5) - (SEV_ORDER[b.severity] ?? 5)
+          );
+          setRealFindings(sorted);
+        }
         if (data.status === "completed") { es.close(); fetchFindings(id); }
         else if (data.status === "failed") { es.close(); setScanPhase("error"); }
       } catch { /* ignore */ }
@@ -124,6 +131,15 @@ export default function LandingPage() {
       const { scanId } = await res.json();
       scanIdRef.current = scanId;
       connectStream(scanId);
+
+      // ─── LPデモ: 30秒で強制終了して結果表示 ──────────────────────
+      // 完全な診断には登録が必要、というメッセージを促す
+      setTimeout(() => {
+        if (scanIdRef.current !== scanId) return; // 別スキャンが始まってる
+        if (esRef.current) { esRef.current.close(); esRef.current = null; }
+        // 既存の findings を取得して done 表示
+        fetchFindings(scanId);
+      }, 30_000);
     } catch { setScanPhase("error"); }
   }
 
@@ -283,49 +299,9 @@ export default function LandingPage() {
             )}
           </div>
 
-          {/* 右: ダッシュボードUIモックアップ */}
+          {/* 右: ヒロイン画像（ビジネスウーマン） */}
           <div className="hero-right">
-            <div className="dash-mock">
-              <div className="dash-topbar">
-                <div className="dash-dots"><span /><span /><span /></div>
-                <div className="dash-url">🔒 app.sequlia.jp/dashboard</div>
-              </div>
-              <div className="dash-kpis">
-                <div className="dash-kpi"><span className="dk-num">47</span><span className="dk-lbl">スキャン数</span></div>
-                <div className="dash-kpi warn"><span className="dk-num">23</span><span className="dk-lbl">脆弱性検出</span></div>
-                <div className="dash-kpi danger"><span className="dk-num">7</span><span className="dk-lbl">HIGHリスク</span></div>
-                <div className="dash-kpi ok"><span className="dk-num">18</span><span className="dk-lbl">完了スキャン</span></div>
-              </div>
-              <div className="dash-chart-wrap">
-                <div className="dash-chart-title">脆弱性検出数の推移</div>
-                <div className="dash-bars">
-                  {[{s:20,v:28},{s:26,v:40},{s:22,v:35},{s:30,v:52},{s:18,v:30},{s:24,v:38}].map((d,i) => (
-                    <div key={i} className="dash-bar-col">
-                      <div className="db-scan" style={{height:`${d.s}px`}} />
-                      <div className="db-vuln" style={{height:`${d.v}px`}} />
-                    </div>
-                  ))}
-                </div>
-                <div className="dash-legend">
-                  <span><span className="leg-dot" style={{background:"var(--blue)"}} />スキャン数</span>
-                  <span><span className="leg-dot" style={{background:"var(--orange)"}} />脆弱性検出</span>
-                </div>
-              </div>
-              <div className="dash-list">
-                <div className="dl-header">最近のスキャン結果</div>
-                {[
-                  {url:"techsolution.co.jp", sevs:["C","H","H"], score:78, c:"high"},
-                  {url:"sample-shoji.com",   sevs:["H","M","L"], score:52, c:"med"},
-                  {url:"innovation-lab.co.jp",sevs:["M","L"],    score:28, c:"low"},
-                ].map((r,i) => (
-                  <div key={i} className="dl-row">
-                    <span className="dl-url">{r.url}</span>
-                    <span className="dl-sevs">{r.sevs.map((s,j) => <span key={j} className={`dl-badge dl-${s.toLowerCase()}`}>{s}</span>)}</span>
-                    <span className={`dl-score dl-${r.c}`}>{r.score}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <img src="/hero-woman.jpg" alt="セキュリティ診断のプロフェッショナル" className="hero-woman" />
           </div>
         </div>
       </section>
