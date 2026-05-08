@@ -34,3 +34,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Secrets & local DB
+.env*
+prisma/dev.db
+dev.log
+public/prob-p1.jpg
+public/prob-p2.jpg
+public/prob-p3.jpg

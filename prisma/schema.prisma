@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Scan {
+  id          String   @id @default(cuid())
+  url         String
+  status      String   @default("queued") // queued | running | completed | failed
+  progress    Int      @default(0)
+  currentStep String   @default("")
+  totalChecks Int      @default(0)
+  doneChecks  Int      @default(0)
+  riskScore   Int      @default(0)
+  error       String   @default("")
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  findings    ScanFinding[]
+  diffResults DiffResult[]
+  reportDrafts ReportDraft[]
+}
+
+model ScanFinding {
+  id                  String   @id @default(cuid())
+  scanId              String
+  type                String
+  target              String
+  severity            String   @default("low") // critical | high | medium | low | info
+  priority            String   @default("低")
+  impact              String
+  inScopeReason       String   @default("")
+  evidence            String
+  requestResponseDiff String   @default("")
+  reproductionSteps   String   @default("")
+  aiWorthSending      String   @default("")
+  bountyLikelihood    String   @default("unknown")
+  evidenceStrength    String   @default("weak")
+  reproducibility     String   @default("uncertain")
+  scopeStatus         String   @default("in_scope")
+  falsePositiveRisk   String   @default("medium")
+  recommendedAction   String   @default("manual_verify")
+  aiTriageReason      String   @default("")
+  aiTriageConfidence  Float    @default(0)
+  humanDecision       String   @default("unreviewed")
+  owasp               String   @default("")
+  cvssScore           Float    @default(0)
+  category            String   @default("")
+  affectedUrl         String   @default("")
+  triaged             Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  scan         Scan          @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  reportDrafts ReportDraft[]
+}
+
+model TestAccount {
+  id                String   @id @default(cuid())
+  name              String
+  roleName          String   @default("user")
+  email             String
+  encryptedPassword String   @default("")
+  loginUrl          String   @default("")
+  notes             String   @default("")
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  diffResults DiffResult[]
+}
+
+model DiffResult {
+  id             String   @id @default(cuid())
+  scanId         String
+  accountAId     String?
+  accountBId     String?
+  scenario       String
+  targetUrl      String
+  method         String   @default("GET")
+  statusA        Int      @default(0)
+  statusB        Int      @default(0)
+  bodyDiff       String   @default("")
+  headerDiff     String   @default("")
+  resultSummary  String   @default("")
+  candidate      Boolean  @default(false)
+  severity       String   @default("low")
+  createdAt      DateTime @default(now())
+
+  scan     Scan         @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  accountA TestAccount? @relation(fields: [accountAId], references: [id], onDelete: SetNull)
+}
+
+model ReportDraft {
+  id          String   @id @default(cuid())
+  scanId      String?
+  findingId   String?
+  format      String   @default("Markdown")
+  title       String
+  body        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  scan    Scan?        @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  finding ScanFinding? @relation(fields: [findingId], references: [id], onDelete: Cascade)
+}
+
+model RejectionPattern {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  description String
+  matchRules  String
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
