@@ -206,6 +206,14 @@ export default function SignupForm() {
           >
             {loading ? "作成中..." : "アカウントを作成"}
           </button>
+
+          <p style={{ marginTop: 12, fontSize: 11, lineHeight: 1.6, color: "#64748b", textAlign: "center" }}>
+            登録することで、
+            <a href="/legal/terms" target="_blank" rel="noopener noreferrer" style={{ color: PRIMARY, textDecoration: "underline" }}>利用規約</a>
+            および
+            <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" style={{ color: PRIMARY, textDecoration: "underline" }}>プライバシーポリシー</a>
+            に同意したものとみなされます。
+          </p>
         </form>
 
         {/* Divider */}

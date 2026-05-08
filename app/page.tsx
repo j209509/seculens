@@ -1070,8 +1070,9 @@ export default function LandingPage() {
               <a href="#pricing">料金</a>
               <Link href="/compliance">SCS対応</Link>
               <Link href="/history">診断履歴</Link>
-              <a href="#">プライバシーポリシー</a>
-              <a href="#">利用規約</a>
+              <Link href="/legal/privacy">プライバシーポリシー</Link>
+              <Link href="/legal/terms">利用規約</Link>
+              <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
               <a href="#">運営会社</a>
               <a href="#">セキュリティ</a>
               <a href="#">採用情報</a>
