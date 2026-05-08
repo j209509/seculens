@@ -154,7 +154,10 @@ export default function ScanPage() {
   const [doneChecks, setDoneChecks] = useState(0);
   const [totalChecks, setTotalChecks] = useState(TOTAL_CHECKS);
   const [elapsedSec, setElapsedSec] = useState(0);
-  const [estRemainSec, setEstRemainSec] = useState<number | null>(null);
+  const [estRemainSec, setEstRemainSec] = useState<number | null>(25 * 60); // 初期値25分（楽観的な推定値が安定するまでの間表示）
+  // 残り時間は「減るだけ」にする（伸びると体験最悪）
+  const lastRemainRef = useRef<number>(25 * 60);
+  const lastTickAtRef = useRef<number>(Date.now());
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
@@ -213,7 +216,21 @@ export default function ScanPage() {
         setDoneChecks(data.doneChecks ?? 0);
         setTotalChecks(data.totalChecks ?? TOTAL_CHECKS);
         setElapsedSec(data.elapsedSec ?? 0);
-        setEstRemainSec(data.estRemainSec ?? null);
+        // 残り時間は「減るだけ」: サーバ推定が伸びても無視し、ティック分だけ減らす
+        const serverRemain = typeof data.estRemainSec === "number" ? data.estRemainSec : null;
+        const now = Date.now();
+        const dt = Math.floor((now - lastTickAtRef.current) / 1000);
+        lastTickAtRef.current = now;
+        let next = lastRemainRef.current;
+        if (serverRemain !== null && serverRemain < next) {
+          // サーバ推定の方が小さい時のみ採用
+          next = serverRemain;
+        } else {
+          // 経過分を引いて自然に減らす（最低0）
+          next = Math.max(0, next - Math.max(1, dt));
+        }
+        lastRemainRef.current = next;
+        setEstRemainSec(next);
         if (Array.isArray(data.findings)) setFindings(data.findings);
 
         // 完了済みチェックリストを更新
@@ -291,7 +308,9 @@ export default function ScanPage() {
     setDoneChecks(0);
     setTotalChecks(TOTAL_CHECKS);
     setElapsedSec(0);
-    setEstRemainSec(null);
+    setEstRemainSec(25 * 60);
+    lastRemainRef.current = 25 * 60;
+    lastTickAtRef.current = Date.now();
     setCompletedSteps([]);
     setFindings([]);
     setScanId(null);
@@ -330,7 +349,9 @@ export default function ScanPage() {
     setDoneChecks(0);
     setTotalChecks(TOTAL_CHECKS);
     setElapsedSec(0);
-    setEstRemainSec(null);
+    setEstRemainSec(25 * 60);
+    lastRemainRef.current = 25 * 60;
+    lastTickAtRef.current = Date.now();
     setCompletedSteps([]);
     setFindings([]);
     setScanId(null);
@@ -443,26 +464,49 @@ export default function ScanPage() {
                 />
               </div>
 
-              {/* ステータス行 */}
-              <div className="flex flex-wrap gap-4 text-xs text-slate-400 mb-5">
-                <div className="flex items-center gap-1.5">
-                  <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{itemsCompleted(doneChecks)} / {TOTAL_ITEMS} 項目を確認済み</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-blue-400" />
-                  <span>カテゴリ {doneChecks} / {totalChecks}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Timer className="w-3.5 h-3.5 text-amber-400" />
-                  <span>経過: {formatTime(elapsedSec)}</span>
-                </div>
-                {estRemainSec !== null && (
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-purple-400" />
-                    <span>残り約: {formatTime(estRemainSec)}</span>
+              {/* ステータス行（カード化して視認性UP） */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-5">
+                <div className="rounded-lg bg-emerald-500/10 border border-emerald-400/20 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-300/80 uppercase tracking-wide mb-1">
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    確認済み項目
                   </div>
-                )}
+                  <div className="text-lg font-bold text-white tabular-nums leading-none">
+                    {itemsCompleted(doneChecks)}
+                    <span className="text-sm font-medium text-slate-400 ml-1">/ {TOTAL_ITEMS}</span>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-blue-500/10 border border-blue-400/20 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-blue-300/80 uppercase tracking-wide mb-1">
+                    <Activity className="w-3.5 h-3.5" />
+                    カテゴリ
+                  </div>
+                  <div className="text-lg font-bold text-white tabular-nums leading-none">
+                    {doneChecks}
+                    <span className="text-sm font-medium text-slate-400 ml-1">/ {totalChecks}</span>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-amber-500/10 border border-amber-400/20 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-amber-300/80 uppercase tracking-wide mb-1">
+                    <Timer className="w-3.5 h-3.5" />
+                    経過時間
+                  </div>
+                  <div className="text-lg font-bold text-white tabular-nums leading-none">
+                    {formatTime(elapsedSec)}
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-purple-500/10 border border-purple-400/20 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-purple-300/80 uppercase tracking-wide mb-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    残り目安
+                  </div>
+                  <div className="text-lg font-bold text-white tabular-nums leading-none">
+                    {estRemainSec !== null ? formatTime(estRemainSec) : "計算中..."}
+                  </div>
+                </div>
               </div>
 
               {/* 現在実行中チェック */}

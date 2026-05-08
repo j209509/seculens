@@ -658,7 +658,7 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
   /* 全体 */
   .container { padding: 0 18px; }
   section.block { padding: 52px 0; }
-  h2.section-title { font-size: 24px; word-break: keep-all; }
+  h2.section-title { font-size: 22px; line-height: 1.4; word-break: normal; overflow-wrap: anywhere; }
   .section-sub { font-size: 14px; margin-bottom: 28px; }
   .section-head { margin-bottom: 28px; }
   .eyebrow { font-size: 12px; padding: 5px 12px; }

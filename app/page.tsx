@@ -702,7 +702,7 @@ export default function LandingPage() {
         <div className="container">
           <div className="section-head">
             <span className="eyebrow">💬 導入企業の声</span>
-            <h2 className="section-title">多くの企業が、<span className="accent">セキュリティ診断の習慣化</span>に活用しています</h2>
+            <h2 className="section-title">多くの企業が、<br /><span className="accent">セキュリティ診断の習慣化</span>に活用しています</h2>
             <p className="section-sub">業種・規模を問わず、Webサイトの安全性向上と運用コストの削減に貢献しています。</p>
           </div>
 
@@ -1030,8 +1030,11 @@ export default function LandingPage() {
             <div className="fcard">
               <div className="fic">📄</div>
               <h3>資料ダウンロード</h3>
-              <p>サービス概要・SCS対応詳細をPDFでまとめました。社内検討用にご利用ください。</p>
-              <Link href="/compliance" className="btn btn-secondary btn-lg">資料・テンプレートを見る</Link>
+              <p>サービス概要・SCS対応詳細・脅威分析をまとめた11ページの公式資料（PDF）。社内検討・取引先提示にご利用ください。</p>
+              <a href="/docs/Sequlia_Service_Overview.pdf" download className="btn btn-primary btn-lg" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                📄 PDF資料をダウンロード
+              </a>
+              <Link href="/compliance" className="btn btn-secondary" style={{ marginTop: 8, display: "inline-block" }}>SCS対応詳細を見る</Link>
             </div>
             <div className="fcard">
               <div className="fic">💬</div>
