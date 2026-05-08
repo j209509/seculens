@@ -150,10 +150,19 @@ export async function runFullScan(scanId: string, targetUrl: string): Promise<vo
             const check = slice[idx];
             // 開始時に進捗表示（このチェックを「実行中」として表示）
             await updateScanProgress(scanId, check.name, completed, CHECKS.length);
+            const t0 = Date.now();
             try {
-              await scanContext.run({ scanId }, () => check.fn());
+              // 各モジュールに最大3分のタイムアウト（ハング防止）
+              const MODULE_TIMEOUT_MS = 3 * 60 * 1000;
+              await Promise.race([
+                scanContext.run({ scanId }, () => check.fn()),
+                new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error(`module timeout: ${check.name}`)), MODULE_TIMEOUT_MS)
+                ),
+              ]);
+              console.log(`[scan] ${check.name} done in ${Math.round((Date.now() - t0) / 1000)}s`);
             } catch (e) {
-              console.warn(`[scan] ${check.name} failed:`, e);
+              console.warn(`[scan] ${check.name} failed/timeout in ${Math.round((Date.now() - t0) / 1000)}s:`, e instanceof Error ? e.message : e);
             }
             completed++;
             // 完了時に進捗を更新
