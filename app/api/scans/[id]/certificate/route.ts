@@ -51,16 +51,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         : null;
       const daysSpan = oldestScanAt ? (Date.now() - oldestScanAt) / (1000 * 60 * 60 * 24) : 0;
 
-      if (tier === 3 && completedCount < 3) {
+      if (tier === 3 && completedCount < 1) {
         return NextResponse.json({
-          error: "★3証明書には3回以上のスキャン完了が必要です",
-          required: { scans: 3, current: completedCount },
+          error: "★3証明書には1回以上のスキャン完了が必要です",
+          required: { scans: 1, current: completedCount },
         }, { status: 403 });
       }
-      if (tier === 4 && (completedCount < 8 || daysSpan < 60)) {
+      if (tier === 4 && (completedCount < 2 || daysSpan < 60)) {
         return NextResponse.json({
-          error: "★4証明書には60日間以上にわたる8回以上のスキャン完了が必要です",
-          required: { scans: 8, current: completedCount, daysRequired: 60, daysSpan: Math.floor(daysSpan) },
+          error: "★4証明書には60日間以上にわたる2回以上のスキャン完了が必要です",
+          required: { scans: 2, current: completedCount, daysRequired: 60, daysSpan: Math.floor(daysSpan) },
         }, { status: 403 });
       }
     }
@@ -141,17 +141,17 @@ function buildCertHtml(d: {
       stamps: ["ipa"],
     },
     3: {
-      stars: "★★★", title: "セキュリティ診断継続実施認定証", subtitle: "CONTINUOUS COMPLIANCE CERTIFICATE",
+      stars: "★★★", title: "セキュリティ診断実施認定証", subtitle: "SCS LEVEL 3 COMPLIANCE CERTIFICATE",
       mainColor: "#2563eb", bgGradient: "linear-gradient(135deg, #eff6ff, #dbeafe)",
-      eyebrow: "LEVEL 3 — 継続実施・SCS★3 対応",
-      criteria: "経産省SCS★3要件「インターネット公開機器の脆弱性診断」を継続実施（3回以上完了）",
+      eyebrow: "LEVEL 3 — 経産省 SCS★3 対応",
+      criteria: "経産省SCS★3要件「インターネット公開機器の脆弱性診断」を実施",
       stamps: ["gov", "ipa"],
     },
     4: {
-      stars: "★★★★", title: "セキュリティ診断高度継続認定証", subtitle: "ADVANCED CONTINUOUS CERTIFICATE",
+      stars: "★★★★", title: "セキュリティ診断継続認定証", subtitle: "ADVANCED CONTINUOUS CERTIFICATE",
       mainColor: "#7c3aed", bgGradient: "linear-gradient(135deg, #faf5ff, #ede9fe)",
-      eyebrow: "LEVEL 4 — 高度継続・60日以上の運用実績",
-      criteria: "60日間以上にわたり継続的に脆弱性診断を実施（8回以上完了）し、組織的なセキュリティ運用が確立",
+      eyebrow: "LEVEL 4 — 60日以上の継続運用実績",
+      criteria: "60日間以上にわたり継続的に脆弱性診断を実施（2回以上完了）し、組織的なセキュリティ運用が確立",
       stamps: ["gov", "ipa", "advanced"],
     },
   }[d.tier];

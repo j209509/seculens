@@ -990,7 +990,7 @@ export default function LandingPage() {
                 経産省 SCS★3 要件「継続的な脆弱性診断」に対応する認定証。<strong>大手取引先の監査要件をクリア</strong>。
               </p>
               <div style={{ marginTop: 14, padding: "8px 12px", background: "#eff6ff", borderRadius: 8, fontSize: 12, color: "#1e40af" }}>
-                ✓ 3回スキャン完了で取得可能
+                ✓ 1回スキャン完了で取得可能
               </div>
             </div>
 
@@ -1004,7 +1004,7 @@ export default function LandingPage() {
                 <strong>60日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。サプライチェーン審査で他社との差別化に。
               </p>
               <div style={{ marginTop: 14, padding: "8px 12px", background: "#faf5ff", borderRadius: 8, fontSize: 12, color: "#6d28d9" }}>
-                ✓ 60日以上＋8回以上の継続実績で取得
+                ✓ 60日以上＋2回以上の継続実績で取得
               </div>
             </div>
           </div>
