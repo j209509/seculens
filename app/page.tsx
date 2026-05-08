@@ -37,14 +37,14 @@ export default function LandingPage() {
   const [currentStep, setCurrentStep] = useState("");
   const [realFindings, setRealFindings] = useState<LiveFinding[]>([]);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [me, setMe] = useState<{ email: string; plan: string } | null>(null);
+  const [me, setMe] = useState<{ email: string; name: string | null; plan: string } | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (d?.user) setMe({ email: d.user.email, plan: d.user.plan ?? "free" });
+        if (d?.user) setMe({ email: d.user.email, name: d.user.name ?? null, plan: d.user.plan ?? "free" });
       })
       .catch(() => {});
   }, []);
@@ -171,8 +171,8 @@ export default function LandingPage() {
                     display: "inline-flex", alignItems: "center", justifyContent: "center",
                     width: 22, height: 22, borderRadius: "50%", background: "#fff",
                     color: "#2563eb", fontSize: 12, fontWeight: 700,
-                  }}>{me.email.charAt(0).toUpperCase()}</span>
-                  <span style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{me.email}</span>
+                  }}>{(me.name?.trim() || me.email.split("@")[0]).charAt(0).toUpperCase()}</span>
+                  <span style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{me.name?.trim() || me.email.split("@")[0]}</span>
                   <span style={{ fontSize: 10 }}>▾</span>
                 </button>
                 {userMenuOpen && (
@@ -186,7 +186,8 @@ export default function LandingPage() {
                   >
                     <div style={{ padding: "12px 14px", borderBottom: "1px solid #f1f5f9" }}>
                       <div style={{ fontSize: 12, color: "#64748b" }}>ログイン中</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis" }}>{me.email}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis" }}>{me.name?.trim() || me.email.split("@")[0]}</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis" }}>{me.email}</div>
                       <div style={{ marginTop: 4, fontSize: 11, color: "#2563eb", fontWeight: 600, textTransform: "uppercase" }}>Plan: {me.plan}</div>
                     </div>
                     <Link href="/dashboard" className="user-menu-item" style={menuItemStyle} onClick={() => setUserMenuOpen(false)}>ダッシュボード</Link>

@@ -10,6 +10,7 @@ import {
   CheckCheck, Timer, Activity,
 } from "lucide-react";
 import { RiskBadge } from "@/components/risk-badge";
+import { CoffeeBreak } from "@/components/scan/CoffeeBreak";
 
 // ─── チェック説明マップ ────────────────────────────────────────────────────────
 // scan-runner.ts の CHECKS 配列と同順・同名
@@ -466,6 +467,9 @@ export default function ScanPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* コーヒーブレイク（30秒以上経過したら表示） */}
+          <CoffeeBreak elapsedSec={elapsedSec} />
 
           {/* 完了済みチェックリスト */}
           {completedSteps.length > 0 && (

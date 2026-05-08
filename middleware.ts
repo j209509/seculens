@@ -9,6 +9,7 @@ const PROTECTED = [
   "/billing",
   "/accounts",
   "/compliance",
+  "/admin",
 ];
 
 export function middleware(req: NextRequest) {

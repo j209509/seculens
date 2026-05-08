@@ -71,7 +71,8 @@ export function Sidebar() {
     usage && usage.limit > 0 ? Math.min(100, Math.round((usage.used / usage.limit) * 100)) : 0;
   const remaining = usage ? Math.max(0, usage.limit - usage.used) : null;
   const planLabel = me ? PLAN_LABEL[me.plan] ?? me.plan : "—";
-  const initial = me ? (me.name?.charAt(0) || me.email.charAt(0)).toUpperCase() : "?";
+  const displayLabel = me ? (me.name?.trim() || me.email.split("@")[0]) : "";
+  const initial = me ? displayLabel.charAt(0).toUpperCase() : "?";
 
   return (
     <aside className="flex flex-col w-64 min-h-screen bg-slate-900 text-slate-100">
@@ -93,7 +94,7 @@ export function Sidebar() {
               {initial}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-slate-100 truncate">{me.email}</div>
+              <div className="text-sm font-semibold text-slate-100 truncate" title={me.email}>{displayLabel}</div>
               <span className="inline-flex items-center mt-1 rounded-full bg-blue-500/20 border border-blue-400/40 px-2 py-0.5 text-[10px] font-bold text-blue-200 uppercase tracking-wide">
                 {planLabel}
               </span>
