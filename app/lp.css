@@ -276,7 +276,17 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
 /* 公式証明書ティアグリッド */
 .cert-tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 @media (max-width: 900px) {
-  .cert-tier-grid { grid-template-columns: 1fr; gap: 16px; max-width: 480px; }
+  .cert-tier-grid { grid-template-columns: 1fr; gap: 16px; max-width: 480px; margin: 0 auto !important; }
+}
+
+/* 危機・ジレンマ・武器グリッド (3列→1列) */
+@media (max-width: 900px) {
+  .crisis-grid, .dilemma-grid, .weapon-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+  }
 }
 .section-sub { font-size: 15.5px; color: var(--gray-600); max-width: 640px; margin: 0 0 48px; line-height: 1.8; }
 .section-head { text-align: center; margin-bottom: 48px; }

@@ -135,10 +135,10 @@ export default function LandingPage() {
     <div className="lp-root">
 
       {/* 1. Announcement Bar */}
-      <div className="announce">
+      <div className="announce" style={{ background: "linear-gradient(90deg, #dc2626 0%, #b91c1c 50%, #dc2626 100%)" }}>
         <div className="container">
-          <div className="msg">🎉 経産省 SCS評価制度 ★3 脆弱性診断 対応完了！<span className="sep"> | </span><span className="announce-ipa">IPA SECURITY ACTION ★2 対応</span></div>
-          <a href="#scs">詳しく見る →</a>
+          <div className="msg">🚨 <strong>【2027年問題】</strong> 来年、インボイス制度並みの大混乱が来ます<span className="sep"> | </span><span className="announce-ipa">経産省 SCS評価制度が本格運用開始</span></div>
+          <a href="#crisis">詳しく見る →</a>
         </div>
       </div>
 
@@ -336,6 +336,158 @@ export default function LandingPage() {
           <div className="stat"><div className="num">174</div><div className="lbl">検査項目数</div></div>
           <div className="stat"><div className="num">3〜8<span className="unit">分</span></div><div className="lbl">診断所要時間</div></div>
           <div className="stat"><div className="num" style={{ fontSize: 24 }}>OWASP Top10</div><div className="lbl">完全準拠</div></div>
+        </div>
+      </section>
+
+      {/* ─── 4.5 危機セクション (NEW) ─── */}
+      <section className="block" id="crisis" style={{ background: "linear-gradient(180deg, #fef2f2 0%, #fff5f5 100%)", borderTop: "4px solid #dc2626" }}>
+        <div className="container">
+          <div className="section-head" style={{ textAlign: "center", marginBottom: 40 }}>
+            <span className="eyebrow" style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5" }}>🚨 2027年問題</span>
+            <h2 className="section-title" style={{ color: "#7f1d1d" }}>知ってますか？<br />来年、<span style={{ color: "#dc2626" }}>インボイス制度並みの大混乱</span>が来ることを</h2>
+            <p className="section-sub" style={{ maxWidth: 720, margin: "16px auto 0" }}>
+              経済産業省「<strong style={{ color: "#dc2626" }}>サプライチェーンセキュリティ評価制度（SCS）</strong>」が2027年に本格運用開始。
+              これに対応できない企業は、知らないうちに取引から外されていきます。
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 1100, margin: "0 auto" }} className="crisis-grid">
+            <div style={{ background: "#fff", border: "2px solid #fecaca", borderRadius: 14, padding: 24, position: "relative" }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>💔</div>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#991b1b", marginBottom: 8 }}>取引先から切られる</h3>
+              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+                大手企業はサプライチェーン全体のセキュリティ評価を求められます。<strong style={{ color: "#0f172a" }}>★3未対応の取引先は順次切り替え</strong>の対象に。
+              </p>
+            </div>
+            <div style={{ background: "#fff", border: "2px solid #fecaca", borderRadius: 14, padding: 24, position: "relative" }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>🚫</div>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#991b1b", marginBottom: 8 }}>新規契約を断られる</h3>
+              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+                新規取引で「セキュリティ対策の証明書を提示してください」が標準に。<strong style={{ color: "#0f172a" }}>提示できないと商談の入口で落ちる</strong>ケース増加。
+              </p>
+            </div>
+            <div style={{ background: "#fff", border: "2px solid #fecaca", borderRadius: 14, padding: 24, position: "relative" }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>📉</div>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#991b1b", marginBottom: 8 }}>入札で減点される</h3>
+              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+                ほぼ同条件の入札で<strong style={{ color: "#0f172a" }}>「セキュリティ対策の星評価が高い企業」が選ばれる</strong>のが現実。★1〜2では勝てない。
+              </p>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 32, padding: 24, background: "#0f172a", borderRadius: 16, color: "#fff", maxWidth: 880, margin: "32px auto 0", textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 6 }}>つまりは...</p>
+            <p style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.7 }}>
+              「我が社はセキュリティ対策をちゃんとやっていますよ」<br/>という<span style={{ color: "#fbbf24" }}>証明</span>を、誰もが用意しなければいけなくなる。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4.6 ジレンマ (NEW) ─── */}
+      <section className="block" style={{ background: "#f8fafc" }}>
+        <div className="container">
+          <div className="section-head" style={{ textAlign: "center", marginBottom: 40 }}>
+            <span className="eyebrow">😩 でも...</span>
+            <h2 className="section-title">対応する選択肢、<span className="accent">どれもキツくない？</span></h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1000, margin: "0 auto" }} className="dilemma-grid">
+            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 28, opacity: 0.85 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", letterSpacing: 1.5, marginBottom: 6 }}>選択肢 1</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>外部の専門業者に依頼</h3>
+              <ul style={{ fontSize: 13, color: "#64748b", lineHeight: 1.9, paddingLeft: 18 }}>
+                <li>初回 30〜100万円</li>
+                <li>月額 10〜50万円</li>
+                <li>結果まで 2〜4週間</li>
+                <li>年1回が限界</li>
+              </ul>
+              <div style={{ marginTop: 16, padding: 10, background: "#fef2f2", borderRadius: 8, fontSize: 12, color: "#991b1b", fontWeight: 700, textAlign: "center" }}>💰 高すぎる</div>
+            </div>
+
+            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 28, opacity: 0.85 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", letterSpacing: 1.5, marginBottom: 6 }}>選択肢 2</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>社内で何とかする</h3>
+              <ul style={{ fontSize: 13, color: "#64748b", lineHeight: 1.9, paddingLeft: 18 }}>
+                <li>何をやればいいか不明</li>
+                <li>専門知識のある社員いない</li>
+                <li>ツール選定だけで数週間</li>
+                <li>導入後も運用負荷が重い</li>
+              </ul>
+              <div style={{ marginTop: 16, padding: 10, background: "#fffbeb", borderRadius: 8, fontSize: 12, color: "#92400e", fontWeight: 700, textAlign: "center" }}>🤯 何から始めるか分からない</div>
+            </div>
+
+            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 28, opacity: 0.85 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", letterSpacing: 1.5, marginBottom: 6 }}>選択肢 3</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>何もしない</h3>
+              <ul style={{ fontSize: 13, color: "#64748b", lineHeight: 1.9, paddingLeft: 18 }}>
+                <li>取引先から切られる</li>
+                <li>新規契約断られる</li>
+                <li>入札で減点</li>
+                <li>サイバー攻撃の被害</li>
+              </ul>
+              <div style={{ marginTop: 16, padding: 10, background: "#fee2e2", borderRadius: 8, fontSize: 12, color: "#7f1d1d", fontWeight: 700, textAlign: "center" }}>💀 最悪の選択</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4.7 Sequliaの3つの武器 (NEW) ─── */}
+      <section className="block" style={{ background: "linear-gradient(180deg, #eff6ff 0%, #ffffff 100%)" }}>
+        <div className="container">
+          <div className="section-head" style={{ textAlign: "center", marginBottom: 40 }}>
+            <span className="eyebrow" style={{ background: "#dbeafe", color: "#1e40af" }}>💡 そこで...</span>
+            <h2 className="section-title">そんなとき、<span className="accent">Sequlia（セキュリア）</span></h2>
+            <p className="section-sub" style={{ maxWidth: 680, margin: "16px auto 0" }}>
+              健康診断と同じ。<strong>定期的にチェックする</strong>のが大事。<br/>
+              専門知識ゼロでも、URLを入れるだけで国の基準に沿った診断ができます。
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1100, margin: "0 auto" }} className="weapon-grid">
+            <div style={{ background: "#fff", border: "2px solid #2563eb", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(37,99,235,0.10)" }}>
+              <div style={{ position: "absolute", top: -12, left: 20, background: "#2563eb", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>武器 ①</div>
+              <div style={{ fontSize: 36, marginTop: 8, marginBottom: 12 }}>🚀</div>
+              <h3 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", marginBottom: 10 }}>インストール不要</h3>
+              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
+                ブラウザだけで完結。McAfee や Norton みたいな<strong style={{ color: "#0f172a" }}>常駐ソフトを入れる必要なし</strong>。社内PCを汚さない、アンインストール不要。
+              </p>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#eff6ff", borderRadius: 8, fontSize: 12, color: "#1e40af", fontWeight: 700, lineHeight: 1.6 }}>
+                ✓ ソフトウェア導入不要<br/>✓ IT部門の許可不要<br/>✓ ブラウザがあれば誰でも使える
+              </div>
+            </div>
+
+            <div style={{ background: "#fff", border: "2px solid #16a34a", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(22,163,74,0.10)" }}>
+              <div style={{ position: "absolute", top: -12, left: 20, background: "#16a34a", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>武器 ②</div>
+              <div style={{ fontSize: 36, marginTop: 8, marginBottom: 12 }}>🆓</div>
+              <h3 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", marginBottom: 10 }}>無料で試せる</h3>
+              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
+                クレジットカード登録不要。<strong style={{ color: "#0f172a" }}>無料アカウントで全174項目の診断が月10回まで</strong>。気に入ったらアップグレード。
+              </p>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#f0fdf4", borderRadius: 8, fontSize: 12, color: "#15803d", fontWeight: 700, lineHeight: 1.6 }}>
+                ✓ クレカ不要・有料切替なし<br/>✓ 全174項目フル機能<br/>✓ 30秒で登録完了
+              </div>
+            </div>
+
+            <div style={{ background: "#fff", border: "2px solid #f59e0b", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(245,158,11,0.10)" }}>
+              <div style={{ position: "absolute", top: -12, left: 20, background: "#f59e0b", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>武器 ③</div>
+              <div style={{ fontSize: 36, marginTop: 8, marginBottom: 12 }}>🏅</div>
+              <h3 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", marginBottom: 10 }}>★4まで証明書発行</h3>
+              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
+                <strong style={{ color: "#0f172a" }}>★5は国でまだ調整中</strong>のため、Sequliaで取得できる<strong style={{ color: "#b45309" }}>★4は実質最上位の証明</strong>。取引先・入札で他社と差別化。
+              </p>
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "#fffbeb", borderRadius: 8, fontSize: 12, color: "#92400e", fontWeight: 700, lineHeight: 1.6 }}>
+                ✓ 経産省マーク付き正式書類<br/>✓ 取引先・監査にそのまま提出可<br/>✓ 31日継続で★4取得
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 40, textAlign: "center" }}>
+            <a href="#scan" className="btn btn-primary btn-lg" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 32px", fontSize: 16 }}>
+              🚀 今すぐ無料で診断を試す →
+            </a>
+            <p style={{ marginTop: 12, fontSize: 12, color: "#94a3b8" }}>クレジットカード不要 ／ 30秒で登録 ／ 月10回まで完全無料</p>
+          </div>
         </div>
       </section>
 
