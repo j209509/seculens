@@ -18,8 +18,9 @@ console.log(`[remove-bg] size: ${w}x${h}`);
 
 // 黒/暗い色を検出してアルファチャンネルへ
 // しきい値: RGB全部が一定以下
-const THRESHOLD = 35;       // この値以下のRGBは黒として扱う
-const FEATHER = 25;          // 35〜60の間は徐々にフェード
+// JPGノイズで黒が完全じゃないので閾値を上げる
+const THRESHOLD = 60;       // 60以下は背景として扱う
+const FEATHER = 50;         // 60〜110の間は徐々にフェード
 
 img.scan(0, 0, w, h, function (x, y, idx) {
   const r = this.bitmap.data[idx + 0];
@@ -33,10 +34,14 @@ img.scan(0, 0, w, h, function (x, y, idx) {
   } else if (max <= THRESHOLD + FEATHER) {
     // フェード（縁を滑らかに）
     const t = (max - THRESHOLD) / FEATHER;
-    this.bitmap.data[idx + 3] = Math.round(t * 255);
+    // 二次曲線で滑らかに
+    this.bitmap.data[idx + 3] = Math.round(t * t * 255);
   }
   // それ以外は不透明のまま
 });
+
+// アルファチャンネルに軽いブラーをかけて縁を滑らかに
+img.blur(1);
 
 await img.write(outPath);
 console.log("[remove-bg] done:", outPath);

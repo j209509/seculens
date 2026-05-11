@@ -671,15 +671,23 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
 
 /* ── ナロータブレット (≤800px) ── */
 @media (max-width: 800px) {
-  .hero-layout { grid-template-columns: 1fr; gap: 24px; padding-top: 28px; padding-bottom: 32px; }
-  /* スマホでは「ダッシュボードは隠して女性のみ」表示 */
-  .hero-right { display: flex; justify-content: center; align-items: center; min-height: 360px; }
-  .hero-right .dash-mock { display: none; }
-  .hero-woman {
-    position: static !important;
-    transform: none !important;
-    height: 340px !important;
-    width: auto !important;
+  .hero-layout { grid-template-columns: 1fr; gap: 24px; padding-top: 28px; padding-bottom: 32px; position: relative; }
+  /* スマホでは女性をテキストの背景に薄く配置（ダッシュボードは隠す） */
+  .hero-right { display: none; }
+  .hero-left { position: relative; z-index: 2; }
+  /* 女性を hero-layout 全体の右側背景として絶対配置 */
+  .hero-layout::before {
+    content: "";
+    position: absolute;
+    right: -10%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 70%;
+    height: 90%;
+    background: url('/hero-woman.png') no-repeat center right / contain;
+    opacity: 0.18;
+    z-index: 0;
+    pointer-events: none;
   }
   .why-split { grid-template-columns: 1fr; gap: 32px; }
   .why-left { position: static; }
@@ -726,8 +734,11 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
   .hero-left h1 { font-size: 26px; line-height: 1.4; word-break: keep-all; }
   .hero-sub { font-size: 13.5px; }
   .hero-feats { flex-direction: column; gap: 8px; }
-  .hero-right { min-height: 280px; }
-  .hero-woman { height: 280px !important; }
+  .hero-layout::before {
+    opacity: 0.13;
+    right: -25%;
+    width: 100%;
+  }
   .scs-hero-seal { flex-direction: row; gap: 10px; padding: 10px 12px; margin-bottom: 14px; }
   .scs-seal-ring { width: 52px; height: 52px; }
   .scs-seal-name { font-size: 13px; }
