@@ -18,9 +18,9 @@ console.log(`[remove-bg] size: ${w}x${h}`);
 
 // 黒/暗い色を検出してアルファチャンネルへ
 // しきい値: RGB全部が一定以下
-// JPGノイズで黒が完全じゃないので閾値を上げる
-const THRESHOLD = 60;       // 60以下は背景として扱う
-const FEATHER = 50;         // 60〜110の間は徐々にフェード
+// 黒のみ厳密に透明化（顔の影を消さない）
+const THRESHOLD = 22;       // この値以下のみ完全透明
+const FEATHER = 8;          // ごく狭い範囲だけソフトエッジ
 
 img.scan(0, 0, w, h, function (x, y, idx) {
   const r = this.bitmap.data[idx + 0];
@@ -29,19 +29,13 @@ img.scan(0, 0, w, h, function (x, y, idx) {
   const max = Math.max(r, g, b);
 
   if (max <= THRESHOLD) {
-    // 完全透明
     this.bitmap.data[idx + 3] = 0;
   } else if (max <= THRESHOLD + FEATHER) {
-    // フェード（縁を滑らかに）
     const t = (max - THRESHOLD) / FEATHER;
-    // 二次曲線で滑らかに
-    this.bitmap.data[idx + 3] = Math.round(t * t * 255);
+    this.bitmap.data[idx + 3] = Math.round(t * 255);
   }
-  // それ以外は不透明のまま
+  // それ以外は完全に不透明（顔・髪は元のまま）
 });
-
-// アルファチャンネルに軽いブラーをかけて縁を滑らかに
-img.blur(1);
 
 await img.write(outPath);
 console.log("[remove-bg] done:", outPath);

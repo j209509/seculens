@@ -675,30 +675,30 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
   /* スマホでは女性をテキストの背景に薄く配置（ダッシュボードは隠す） */
   .hero-right { display: none; }
   .hero-left { position: relative; z-index: 2; }
-  /* 女性を hero-layout 全体の右側背景として絶対配置 */
+  /* 女性は右端に押し出し、テキストに被らない位置で完全不透明表示 */
   .hero-layout::before {
     content: "";
     position: absolute;
-    right: -15%;
+    right: -40%;
     top: 50%;
     transform: translateY(-50%);
     width: 75%;
     height: 100%;
     background: url('/hero-woman.png') no-repeat center right / contain;
-    opacity: 0.65;
+    opacity: 1;
     z-index: 0;
     pointer-events: none;
   }
-  /* テキストを見やすくするための薄い白フェード（女性の上に重ねる） */
+  /* テキストの読みやすさ確保: 白からのフェード（女性の頭〜上半身の前を半透明白に） */
   .hero-layout::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0) 70%);
+    background: linear-gradient(90deg, var(--hero-bg, #eff6ff) 0%, var(--hero-bg, #eff6ff) 35%, rgba(239,246,254,0.95) 50%, rgba(239,246,254,0.6) 70%, rgba(239,246,254,0) 100%);
     z-index: 1;
     pointer-events: none;
   }
-  .hero-left { z-index: 2 !important; }
+  .hero-left { z-index: 2 !important; position: relative; }
   .why-split { grid-template-columns: 1fr; gap: 32px; }
   .why-left { position: static; }
   .why-mobile-img { display: none; }
@@ -745,9 +745,9 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
   .hero-sub { font-size: 13.5px; }
   .hero-feats { flex-direction: column; gap: 8px; }
   .hero-layout::before {
-    opacity: 0.55;
-    right: -30%;
-    width: 105%;
+    opacity: 1;
+    right: -55%;
+    width: 110%;
   }
   .scs-hero-seal { flex-direction: row; gap: 10px; padding: 10px 12px; margin-bottom: 14px; }
   .scs-seal-ring { width: 52px; height: 52px; }
