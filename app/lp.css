@@ -295,6 +295,69 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
   .cert-tier-grid { grid-template-columns: 1fr; gap: 16px; max-width: 480px; margin: 0 auto !important; }
 }
 
+/* ─── Crisis Section (4.5 知ってますか？) ─────────────────────── */
+.crisis-block { background: linear-gradient(180deg, #fef2f2 0%, #fff5f5 60%, #fff 100%); padding: 60px 0; position: relative; }
+.crisis-header { position: relative; min-height: 320px; margin-bottom: 56px; border-radius: 24px; overflow: hidden; background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 60%, #fed7e2 100%); }
+.crisis-bg-city { position: absolute; left: 0; top: 0; bottom: 0; width: 30%; height: 100%; object-fit: cover; object-position: right center; opacity: 0.5; }
+.crisis-bg-woman { position: absolute; right: 0; top: 0; bottom: 0; width: 28%; height: 100%; object-fit: contain; object-position: left center; }
+.crisis-header-inner { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; padding: 56px 32px; text-align: center; }
+.crisis-badge { display: inline-flex; align-items: center; gap: 6px; background: #fee2e2; color: #991b1b; padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 800; border: 1px solid #fca5a5; margin-bottom: 20px; }
+.crisis-title { font-size: 32px; font-weight: 900; color: #1c1917; line-height: 1.4; letter-spacing: -0.01em; margin: 0 0 18px; }
+.crisis-red { color: #dc2626; }
+.crisis-lead { font-size: 15px; color: #475569; line-height: 1.9; max-width: 600px; margin: 0 auto; }
+.crisis-lead strong { color: #dc2626; }
+
+.crisis-grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 980px; margin: 0 auto; }
+.crisis-card { display: grid; grid-template-columns: 1fr auto; gap: 16px; background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1px solid #fde6e8; align-items: center; }
+.crisis-card-left { min-width: 0; position: relative; }
+.crisis-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #fee2e2; color: #dc2626; border-radius: 50%; font-weight: 900; font-size: 13px; margin-bottom: 10px; }
+.crisis-icon { font-size: 32px; margin-bottom: 8px; line-height: 1; }
+.crisis-card-title { font-size: 20px; font-weight: 900; color: #dc2626; margin: 0 0 10px; letter-spacing: -0.01em; }
+.crisis-card-desc { font-size: 14px; color: #1f2937; line-height: 1.9; margin: 0; }
+.crisis-card-desc strong { color: #dc2626; font-weight: 800; }
+.crisis-card-img { width: 200px; height: 160px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.crisis-card-img img { width: 100%; height: 100%; object-fit: contain; }
+
+.crisis-conclusion { margin-top: 48px; background: #0f172a; border-radius: 24px; padding: 32px 40px; display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center; color: #fff; max-width: 980px; margin-left: auto; margin-right: auto; }
+.crisis-conclusion-img { width: 240px; flex-shrink: 0; }
+.crisis-conclusion-img img { width: 100%; height: auto; border-radius: 12px; }
+.crisis-conclusion-text { text-align: left; min-width: 0; }
+.crisis-conclusion-prefix { font-size: 13px; color: #94a3b8; margin: 0 0 8px; }
+.crisis-conclusion-quote { font-size: 22px; font-weight: 800; line-height: 1.6; margin: 0 0 8px; }
+.crisis-conclusion-tail { font-size: 16px; line-height: 1.8; margin: 0; }
+.crisis-highlight { color: #fbbf24; font-weight: 800; }
+
+/* タブレット (≤900px) */
+@media (max-width: 900px) {
+  .crisis-header { min-height: 260px; }
+  .crisis-bg-city, .crisis-bg-woman { width: 22%; opacity: 0.35; }
+  .crisis-header-inner { padding: 40px 24px; }
+  .crisis-title { font-size: 26px; }
+  .crisis-card { grid-template-columns: 1fr; gap: 16px; }
+  .crisis-card-img { width: 100%; max-width: 280px; height: 160px; justify-self: end; }
+  .crisis-conclusion { grid-template-columns: 1fr; gap: 20px; padding: 28px; text-align: center; }
+  .crisis-conclusion-img { width: 100%; max-width: 320px; margin: 0 auto; }
+  .crisis-conclusion-text { text-align: center; }
+  .crisis-conclusion-quote { font-size: 18px; }
+  .crisis-conclusion-tail { font-size: 14px; }
+}
+
+/* スマホ (≤640px) */
+@media (max-width: 640px) {
+  .crisis-block { padding: 40px 0; }
+  .crisis-header { min-height: auto; margin-bottom: 32px; border-radius: 16px; }
+  .crisis-bg-city { width: 30%; opacity: 0.3; }
+  .crisis-bg-woman { width: 35%; opacity: 0.7; }
+  .crisis-header-inner { padding: 32px 16px; max-width: none; }
+  .crisis-title { font-size: 22px; line-height: 1.5; }
+  .crisis-lead { font-size: 13px; }
+  .crisis-card { padding: 20px; border-radius: 14px; }
+  .crisis-card-title { font-size: 18px; }
+  .crisis-card-desc { font-size: 13px; }
+  .crisis-card-img { height: 140px; max-width: 240px; }
+  .crisis-conclusion { padding: 24px 20px; border-radius: 18px; }
+}
+
 /* 危機・ジレンマ・武器グリッド (3列→1列) */
 @media (max-width: 900px) {
   .crisis-grid, .dilemma-grid, .weapon-grid {

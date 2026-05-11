@@ -359,46 +359,80 @@ export default function LandingPage() {
       </section>
 
       {/* ─── 4.5 危機セクション (NEW) ─── */}
-      <section className="block" id="crisis" style={{ background: "linear-gradient(180deg, #fef2f2 0%, #fff5f5 100%)", borderTop: "4px solid #dc2626" }}>
+      <section className="block crisis-block" id="crisis">
         <div className="container">
-          <div className="section-head" style={{ textAlign: "center", marginBottom: 40 }}>
-            <span className="eyebrow" style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5" }}>🚨 2027年問題</span>
-            <h2 className="section-title" style={{ color: "#7f1d1d" }}>知ってますか？<br />来年、<span style={{ color: "#dc2626" }}>インボイス制度並みの大混乱</span>が来ることを</h2>
-            <p className="section-sub" style={{ maxWidth: 720, margin: "16px auto 0" }}>
-              経済産業省「<strong style={{ color: "#dc2626" }}>サプライチェーンセキュリティ評価制度（SCS）</strong>」が2027年に本格運用開始。
-              これに対応できない企業は、知らないうちに取引から外されていきます。
-            </p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 1100, margin: "0 auto" }} className="crisis-grid">
-            <div style={{ background: "#fff", border: "2px solid #fecaca", borderRadius: 14, padding: 24, position: "relative" }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>💔</div>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#991b1b", marginBottom: 8 }}>取引先から切られる</h3>
-              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                大手企業はサプライチェーン全体のセキュリティ評価を求められます。<strong style={{ color: "#0f172a" }}>★3未対応の取引先は順次切り替え</strong>の対象に。
-              </p>
-            </div>
-            <div style={{ background: "#fff", border: "2px solid #fecaca", borderRadius: 14, padding: 24, position: "relative" }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>🚫</div>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#991b1b", marginBottom: 8 }}>新規契約を断られる</h3>
-              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                新規取引で「セキュリティ対策の証明書を提示してください」が標準に。<strong style={{ color: "#0f172a" }}>提示できないと商談の入口で落ちる</strong>ケース増加。
-              </p>
-            </div>
-            <div style={{ background: "#fff", border: "2px solid #fecaca", borderRadius: 14, padding: 24, position: "relative" }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>📉</div>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#991b1b", marginBottom: 8 }}>入札で減点される</h3>
-              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                ほぼ同条件の入札で<strong style={{ color: "#0f172a" }}>「セキュリティ対策の星評価が高い企業」が選ばれる</strong>のが現実。★1〜2では勝てない。
+          {/* ヘッダー：背景に都市＋女性画像、中央にタイトル */}
+          <div className="crisis-header">
+            <img src="/crisis-city.png" alt="" className="crisis-bg-city" aria-hidden="true" />
+            <img src="/crisis-woman.png" alt="" className="crisis-bg-woman" aria-hidden="true" />
+            <div className="crisis-header-inner">
+              <span className="crisis-badge">🔔 2027年問題</span>
+              <h2 className="crisis-title">
+                知ってますか？<br />
+                来年、<span className="crisis-red">インボイス制度並みの大混乱</span>が来ることを
+              </h2>
+              <p className="crisis-lead">
+                経済産業省「<strong>サプライチェーンセキュリティ評価制度（SCS）</strong>」が2027年に本格運用開始。<br/>
+                これに対応できない企業は、知らないうちに取引から外されていきます。
               </p>
             </div>
           </div>
 
-          <div style={{ marginTop: 32, padding: 24, background: "#0f172a", borderRadius: 16, color: "#fff", maxWidth: 880, margin: "32px auto 0", textAlign: "center" }}>
-            <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 6 }}>つまりは...</p>
-            <p style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.7 }}>
-              「我が社はセキュリティ対策をちゃんとやっていますよ」<br/>という<span style={{ color: "#fbbf24" }}>証明</span>を、誰もが用意しなければいけなくなる。
-            </p>
+          {/* 3枚のリスクカード */}
+          <div className="crisis-grid">
+            <div className="crisis-card">
+              <div className="crisis-card-left">
+                <div className="crisis-num">01</div>
+                <div className="crisis-icon">💔</div>
+                <h3 className="crisis-card-title">取引先から切られる</h3>
+                <p className="crisis-card-desc">
+                  大手企業はサプライチェーン全体のセキュリティ評価を求められます。<strong>★3未対応の取引先は順次切り替え</strong>の対象に。
+                </p>
+              </div>
+              <div className="crisis-card-img">
+                <img src="/crisis-card-01.png" alt="" aria-hidden="true" />
+              </div>
+            </div>
+
+            <div className="crisis-card">
+              <div className="crisis-card-left">
+                <div className="crisis-num">02</div>
+                <div className="crisis-icon">🚫</div>
+                <h3 className="crisis-card-title">新規契約を断られる</h3>
+                <p className="crisis-card-desc">
+                  新規取引で「セキュリティ対策の証明書」を提示してくださいが標準に。<strong>提示できないと商談の入口で落ちる</strong>ケース増加。
+                </p>
+              </div>
+              <div className="crisis-card-img">
+                <img src="/crisis-card-02.png" alt="" aria-hidden="true" />
+              </div>
+            </div>
+
+            <div className="crisis-card">
+              <div className="crisis-card-left">
+                <div className="crisis-num">03</div>
+                <div className="crisis-icon">📉</div>
+                <h3 className="crisis-card-title">入札で減点される</h3>
+                <p className="crisis-card-desc">
+                  ほぼ同条件の入札で<strong>セキュリティ対策の星評価が高い企業</strong>が選ばれるのが現実。<strong>★1〜2では勝てない。</strong>
+                </p>
+              </div>
+              <div className="crisis-card-img">
+                <img src="/crisis-card-03.png" alt="" aria-hidden="true" />
+              </div>
+            </div>
+          </div>
+
+          {/* つまりは...の暗色まとめ */}
+          <div className="crisis-conclusion">
+            <div className="crisis-conclusion-img">
+              <img src="/crisis-stressed.png" alt="" aria-hidden="true" />
+            </div>
+            <div className="crisis-conclusion-text">
+              <p className="crisis-conclusion-prefix">つまりは...</p>
+              <p className="crisis-conclusion-quote">「我が社はセキュリティ対策をちゃんとやっていますよ」</p>
+              <p className="crisis-conclusion-tail">という<span className="crisis-highlight">証明</span>を、誰もが用意しなければいけなくなる。</p>
+            </div>
           </div>
         </div>
       </section>
