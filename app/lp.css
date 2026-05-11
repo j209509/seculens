@@ -89,7 +89,7 @@
 .pill-green { background: var(--green-50); color: #047857; border-color: #a7f3d0; }
 
 /* SCS Hero Seal */
-.scs-hero-seal { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(37,99,235,.06) 0%, rgba(37,99,235,.02) 100%); border: 1.5px solid rgba(37,99,235,.2); border-radius: 12px; padding: 10px 14px; }
+.scs-hero-seal { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; background: linear-gradient(135deg, #f0f6ff 0%, #e6f0fe 100%); border: 1.5px solid rgba(37,99,235,.2); border-radius: 12px; padding: 10px 14px; position: relative; z-index: 2; box-shadow: 0 2px 8px rgba(15,23,42,0.04); }
 .scs-seal-badge { flex-shrink: 0; }
 .scs-seal-ring { width: 52px; height: 52px; border-radius: 50%; background: conic-gradient(from 0deg, #1d4ed8 0%, #2563eb 30%, #1e40af 60%, #1d4ed8 100%); padding: 3px; box-shadow: 0 4px 12px rgba(37,99,235,.30), inset 0 1px 0 rgba(255,255,255,.2); position: relative; }
 .scs-seal-ring::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(255,255,255,.4); z-index: 1; }
@@ -110,8 +110,8 @@
 .hero-right { display: flex; align-items: center; justify-content: flex-end; position: relative; }
 .hero-woman {
   position: absolute;
-  /* テキストカラム寄り（ダッシュボードに被らない位置）*/
-  left: -280px;
+  /* ダッシュボードの少し左から手前に位置（テキストエリアに大きく被らない）*/
+  left: -180px;
   top: 50%;
   transform: translateY(-50%);
   height: 540px;
