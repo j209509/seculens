@@ -111,7 +111,7 @@
 .hero-woman {
   position: absolute;
   /* テキストカラム寄り（ダッシュボードに被らない位置）*/
-  left: -340px;
+  left: -280px;
   top: 50%;
   transform: translateY(-50%);
   height: 540px;
@@ -120,7 +120,10 @@
   pointer-events: none;
   filter: drop-shadow(0 16px 40px rgba(15,23,42,.15));
 }
-.hero-right .dash-mock { position: relative; z-index: 1; }
+.hero-right .dash-mock { position: relative; z-index: 2; }
+/* テキスト・フォームは最前面 */
+.hero-left { position: relative; z-index: 3; }
+.hero { position: relative; overflow: hidden; }
 .dash-mock { background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgba(15,23,42,.16), 0 4px 16px rgba(15,23,42,.06); border: 1px solid var(--gray-200); overflow: hidden; width: 100%; max-width: 500px; animation: mock-enter .6s ease both; }
 @keyframes mock-enter { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
