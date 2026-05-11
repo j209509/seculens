@@ -110,11 +110,11 @@
 .hero-right { display: flex; align-items: center; justify-content: flex-end; position: relative; }
 .hero-woman {
   position: absolute;
-  /* ダッシュボードの後ろ・左寄り（テキストカラム側）に配置 */
-  left: -120px;
+  /* テキストカラム寄り（ダッシュボードに被らない位置）*/
+  left: -340px;
   top: 50%;
   transform: translateY(-50%);
-  height: 520px;
+  height: 540px;
   width: auto;
   z-index: 0;
   pointer-events: none;
@@ -672,7 +672,15 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
 /* ── ナロータブレット (≤800px) ── */
 @media (max-width: 800px) {
   .hero-layout { grid-template-columns: 1fr; gap: 24px; padding-top: 28px; padding-bottom: 32px; }
-  .hero-right { display: none; }
+  /* スマホでは「ダッシュボードは隠して女性のみ」表示 */
+  .hero-right { display: flex; justify-content: center; align-items: center; min-height: 360px; }
+  .hero-right .dash-mock { display: none; }
+  .hero-woman {
+    position: static !important;
+    transform: none !important;
+    height: 340px !important;
+    width: auto !important;
+  }
   .why-split { grid-template-columns: 1fr; gap: 32px; }
   .why-left { position: static; }
   .why-mobile-img { display: none; }
@@ -718,7 +726,8 @@ h2.section-title { font-size: 36px; font-weight: 900; letter-spacing: -.01em; li
   .hero-left h1 { font-size: 26px; line-height: 1.4; word-break: keep-all; }
   .hero-sub { font-size: 13.5px; }
   .hero-feats { flex-direction: column; gap: 8px; }
-  .hero-right { display: none; }
+  .hero-right { min-height: 280px; }
+  .hero-woman { height: 280px !important; }
   .scs-hero-seal { flex-direction: row; gap: 10px; padding: 10px 12px; margin-bottom: 14px; }
   .scs-seal-ring { width: 52px; height: 52px; }
   .scs-seal-name { font-size: 13px; }
