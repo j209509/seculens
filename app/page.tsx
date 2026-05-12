@@ -5,7 +5,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useSpring, useInView } from "framer-motion";
 import {
-  Shield, Lock, AlertTriangle, CheckCircle, ArrowRight,
+  Lock, AlertTriangle, CheckCircle, ArrowRight,
   Sparkles, Globe, Search, Cpu, Award, FileCheck, TrendingUp, Users, Star,
   ChevronDown, Rocket, Gift, Trophy, FileText, Bot,
   ShoppingCart, Factory, Heart, Building2, Cloud, Layers,
