@@ -258,24 +258,59 @@ export default function LandingPage() {
       </nav>
 
       {/* 3. Hero */}
-      <section className="v2-hero" id="scan">
+      <section className="v2-hero v2-hero-dark" id="scan">
         <div className="v2-hero-grid" />
-        <motion.div className="v2-hero-orb o1" animate={{ x: [0, 30, 0], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity }} />
-        <motion.div className="v2-hero-orb o2" animate={{ x: [0, -25, 0], y: [0, -15, 0] }} transition={{ duration: 14, repeat: Infinity }} />
-        <motion.div className="v2-hero-orb o3" animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 10, repeat: Infinity }} />
+        <div className="v2-hero-scanlines" />
+        <motion.div className="v2-hero-orb o1" animate={{ x: [0, 40, 0], y: [0, 30, 0] }} transition={{ duration: 12, repeat: Infinity }} />
+        <motion.div className="v2-hero-orb o2" animate={{ x: [0, -35, 0], y: [0, -20, 0] }} transition={{ duration: 14, repeat: Infinity }} />
+        <motion.div className="v2-hero-orb o3" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 10, repeat: Infinity }} />
+
+        {/* Animated radar rings */}
+        <div className="v2-hero-radar">
+          <span /><span /><span />
+        </div>
+
+        {/* Floating data particles */}
+        {Array.from({ length: 18 }).map((_, i) => (
+          <motion.span
+            key={i}
+            className="v2-hero-particle"
+            style={{ left: `${(i * 53) % 100}%`, top: `${(i * 37) % 100}%` }}
+            animate={{ y: [0, -30, 0], opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 3 + (i % 4), repeat: Infinity, delay: i * 0.2 }}
+          />
+        ))}
+
+        {/* Live status ticker top */}
+        <motion.div
+          className="v2-hero-ticker"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <span className="dot" />
+          <span className="label">LIVE</span>
+          <span className="text">日本国内で<strong>3,481</strong>サイトが診断中</span>
+        </motion.div>
 
         <div className="v2-container v2-hero-inner">
           <motion.div initial="hidden" animate="show" variants={staggerParent}>
-            <motion.div variants={reveal} className="v2-hero-pill">
-              <Shield size={14} /> AI × OWASP Top10 完全準拠
+            <motion.div variants={reveal} className="v2-hero-pill v2-hero-pill-dark">
+              <Sparkles size={14} /> AI × OWASP Top10 完全準拠 × 経産省SCS★3対応
             </motion.div>
-            <motion.h1 variants={reveal} className="v2-hero-title">
-              見つける、守れる、<br />
-              <span className="grad">Webのリスクを可視化。</span>
+            <motion.h1 variants={reveal} className="v2-hero-title v2-hero-title-dark">
+              <span className="line1">あなたのサイトの</span>
+              <span className="grad-line">
+                <span className="grad-big">脆弱性</span>
+                <span className="grad-suffix">を</span>
+              </span>
+              <span className="line3">
+                <span className="hl">3分</span>で暴き出す。
+              </span>
             </motion.h1>
-            <motion.p variants={reveal} className="v2-hero-sub">
-              URLを入れるだけ。サブページ・サブドメインも全自動で診断。<br />
-              AIが脆弱性を解析し、最短3分で結果が出ます。
+            <motion.p variants={reveal} className="v2-hero-sub v2-hero-sub-dark">
+              URLを入れるだけ。<strong>174項目</strong>を全自動でスキャン。<br />
+              AIが脆弱性を解析し、<strong>取引先に出せる証明書</strong>まで自動発行。
             </motion.p>
 
             <motion.form variants={reveal} className="v2-hero-form" onSubmit={handleScan}>
@@ -359,29 +394,110 @@ export default function LandingPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
+            {/* Glow halo behind woman */}
+            <motion.div
+              className="v2-hero-halo"
+              animate={{ scale: [1, 1.08, 1], opacity: [0.6, 0.9, 0.6] }}
+              transition={{ duration: 4, repeat: Infinity }}
+            />
             <img src="/hero-woman.png" alt="" className="main" />
+
+            {/* Animated rings around woman */}
+            <div className="v2-hero-ring r1" />
+            <div className="v2-hero-ring r2" />
+
             <motion.div
               className="v2-seal s1"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 }}
+              initial={{ opacity: 0, y: -20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
             >
-              <Trophy size={20} color="#2563eb" />
+              <motion.div animate={{ rotate: [0, 8, -8, 0] }} transition={{ duration: 4, repeat: Infinity }}>
+                <Trophy size={22} color="#2563eb" />
+              </motion.div>
               <div>
                 <div className="num">★3</div>
-                <div style={{ fontSize: 10, color: "#64748b" }}>SCS対応</div>
+                <div style={{ fontSize: 10, color: "#64748b", fontWeight: 700 }}>SCS対応</div>
               </div>
+              <span className="shine" />
             </motion.div>
             <motion.div
               className="v2-seal s2 gold"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8 }}
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
             >
-              <Award size={20} color="#d97706" />
+              <motion.div animate={{ rotate: [0, -8, 8, 0] }} transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}>
+                <Award size={22} color="#d97706" />
+              </motion.div>
               <div>
                 <div className="num">★2</div>
-                <div style={{ fontSize: 10, color: "#64748b" }}>IPA認定</div>
+                <div style={{ fontSize: 10, color: "#64748b", fontWeight: 700 }}>IPA認定</div>
+              </div>
+              <span className="shine" />
+            </motion.div>
+
+            {/* Live threat card */}
+            <motion.div
+              className="v2-hero-floatcard fc-threat"
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0, y: [0, -8, 0] }}
+              transition={{ opacity: { delay: 1.0 }, x: { delay: 1.0 }, y: { duration: 3, repeat: Infinity } }}
+            >
+              <div className="fc-icon red"><AlertTriangle size={16} /></div>
+              <div>
+                <div className="fc-title">XSS検出</div>
+                <div className="fc-sub">/login?ref=...</div>
+              </div>
+              <span className="fc-pill crit">HIGH</span>
+            </motion.div>
+
+            {/* Live AI card */}
+            <motion.div
+              className="v2-hero-floatcard fc-ai"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0, y: [0, 10, 0] }}
+              transition={{ opacity: { delay: 1.2 }, x: { delay: 1.2 }, y: { duration: 3.5, repeat: Infinity, delay: 0.3 } }}
+            >
+              <div className="fc-icon blue"><Bot size={16} /></div>
+              <div>
+                <div className="fc-title">AI解析中</div>
+                <div className="fc-sub">174項目 / 高速処理</div>
+              </div>
+              <motion.div className="fc-dot" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }} />
+            </motion.div>
+
+            {/* Score gauge card */}
+            <motion.div
+              className="v2-hero-floatcard fc-score"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1, y: [0, -6, 0] }}
+              transition={{ opacity: { delay: 1.4 }, scale: { delay: 1.4 }, y: { duration: 4, repeat: Infinity, delay: 0.6 } }}
+            >
+              <div className="fc-score-ring">
+                <svg viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e293b" strokeWidth="3" />
+                  <motion.circle
+                    cx="18" cy="18" r="15.9" fill="none"
+                    stroke="url(#scoreGrad)" strokeWidth="3" strokeLinecap="round"
+                    strokeDasharray="100"
+                    initial={{ strokeDashoffset: 100 }}
+                    animate={{ strokeDashoffset: 18 }}
+                    transition={{ delay: 1.6, duration: 1.6, ease: "easeOut" }}
+                    transform="rotate(-90 18 18)"
+                  />
+                  <defs>
+                    <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#22c55e" />
+                      <stop offset="100%" stopColor="#06b6d4" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="fc-score-num">82</div>
+              </div>
+              <div>
+                <div className="fc-title">セキュリティスコア</div>
+                <div className="fc-sub" style={{ color: "#22c55e" }}>↑ 改善余地あり</div>
               </div>
             </motion.div>
           </motion.div>
