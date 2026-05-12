@@ -81,15 +81,15 @@ export function Sidebar() {
 
   return (
     <aside className="flex flex-col w-64 min-h-screen bg-slate-900 text-slate-100">
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-700">
+      <Link href="/" className="flex items-center gap-3 px-6 py-5 border-b border-slate-700 hover:bg-slate-800/60 transition-colors cursor-pointer" title="トップページへ">
         <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-600">
           <Shield className="w-5 h-5 text-white" />
         </div>
         <div>
-          <div className="text-sm font-bold leading-tight">Sequlia</div>
+          <div className="text-sm font-bold leading-tight text-white">Sequlia</div>
           <div className="text-xs text-slate-400">セキュリア</div>
         </div>
-      </div>
+      </Link>
 
       {/* user info card */}
       {me && (
