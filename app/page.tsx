@@ -1,27 +1,22 @@
 "use client";
 
-import "./lp.css";
+import "./lp-v2.css";
 import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence, useScroll, useSpring, useInView } from "framer-motion";
+import {
+  Shield, Lock, AlertTriangle, CheckCircle, ArrowRight,
+  Sparkles, Globe, Search, Cpu, Award, FileCheck, TrendingUp, Users, Star,
+  ChevronDown, Rocket, Gift, Trophy, FileText, Bot,
+  ShoppingCart, Factory, Heart, Building2, Cloud, Layers,
+} from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 
-// ─── リアルfindingsの型 ─────────────────────────────────────────────────
-type LiveFinding = {
-  id: string;
-  type: string;
-  severity: string;
-  impact: string;
-  target: string;
-};
-
+// ─── Types & constants ───────────────────────────────────────────────
+type LiveFinding = { id: string; type: string; severity: string; impact: string; target: string };
 const SEV_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
-const SEV_CLASS: Record<string, string> = {
-  critical: "sev sev-crit", high: "sev sev-high", medium: "sev sev-med",
-  low: "sev sev-low", info: "sev sev-info",
-};
-const SEV_LABEL: Record<string, string> = {
-  critical: "CRITICAL", high: "HIGH", medium: "MEDIUM", low: "LOW", info: "INFO",
-};
+const SEV_PILL: Record<string, string> = { critical: "crit", high: "high", medium: "med", low: "low", info: "info" };
+const SEV_LABEL: Record<string, string> = { critical: "CRITICAL", high: "HIGH", medium: "MEDIUM", low: "LOW", info: "INFO" };
 const MAX_RECONNECT = 5;
 
 const FAQ_ITEMS = [
@@ -29,9 +24,48 @@ const FAQ_ITEMS = [
   { q: "診断中に対象サイトに影響は出ませんか？", a: "Sequliaは「受動的スキャン」を採用しており、対象サービスへの不正なリクエストや負荷試験のような攻撃的な検査は行いません。本番環境でも安全に診断可能で、平均HTTPリクエスト数は数百件程度に抑えられます。" },
   { q: "競合他社のサイトを診断できますか？", a: "利用規約により、ご自身が運営するサイト・正当な権限を持つサイトのみ診断対象とさせていただいております。第三者サイトへの無断診断は不正アクセス禁止法違反に該当する可能性があります。" },
   { q: "ログイン後のページも診断できますか？", a: "プロプラン以上で対応しています。テスト用アカウント情報を安全に登録いただくことで、認証後の管理画面・会員専用ページも診断対象に含めることが可能です。" },
+  { q: "既存のセキュリティツールと併用できますか？", a: "もちろん可能です。Sequliaは外部からのブラックボックス診断ですので、WAF・EDR・SAST等とは独立して動作します。むしろ多層防御の一環として併用を推奨しています。" },
+  { q: "解約はいつでもできますか？", a: "はい、契約期間の縛りはなくダッシュボードから即時解約可能です。日割り返金には対応していませんが、次回更新は停止されます。" },
 ];
 
+// ─── Count-up hook ───────────────────────────────────────────────
+function useCountUp(target: number, duration = 1500, inView = false) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min((t - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.floor(eased * target));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration, inView]);
+  return val;
+}
+
+function CountNumber({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.4 });
+  const v = useCountUp(to, 1500, inView);
+  return <span ref={ref}>{v.toLocaleString()}{suffix}</span>;
+}
+
+// ─── Section reveal ───────────────────────────────────────────────
+const reveal = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const } },
+};
+const staggerParent = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
 export default function LandingPage() {
+  // ─── Scan demo state ───────────────────────────────────────────────
   const [url, setUrl] = useState("");
   const [scanPhase, setScanPhase] = useState<"idle" | "scanning" | "done" | "error">("idle");
   const [scanProgress, setScanProgress] = useState(0);
@@ -40,6 +74,9 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [me, setMe] = useState<{ email: string; name: string | null; plan: string } | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -51,9 +88,7 @@ export default function LandingPage() {
   }, []);
 
   async function handleLogout() {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {}
+    try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
     window.location.reload();
   }
 
@@ -71,9 +106,7 @@ export default function LandingPage() {
       );
       setRealFindings(sorted);
       setScanPhase("done");
-    } catch {
-      setScanPhase("error");
-    }
+    } catch { setScanPhase("error"); }
   }, []);
 
   const connectStream = useCallback((id: string) => {
@@ -88,12 +121,11 @@ export default function LandingPage() {
           if (reconnectRef.current < MAX_RECONNECT) {
             reconnectRef.current++;
             setTimeout(() => connectStream(id), 2000);
-          } else { setScanPhase("error"); }
+          } else setScanPhase("error");
           return;
         }
         setScanProgress(data.progress ?? 0);
         setCurrentStep(data.currentStep ?? "");
-        // ─── リアルタイムで findings 表示（LPデモ用） ─────────────────
         if (Array.isArray(data.findings) && data.findings.length > 0) {
           const sorted: LiveFinding[] = [...data.findings].sort(
             (a, b) => (SEV_ORDER[a.severity] ?? 5) - (SEV_ORDER[b.severity] ?? 5)
@@ -109,7 +141,7 @@ export default function LandingPage() {
       if (reconnectRef.current < MAX_RECONNECT && scanIdRef.current) {
         reconnectRef.current++;
         setTimeout(() => connectStream(scanIdRef.current!), 2000);
-      } else { setScanPhase("error"); }
+      } else setScanPhase("error");
     };
   }, [fetchFindings]);
 
@@ -131,97 +163,94 @@ export default function LandingPage() {
       const { scanId } = await res.json();
       scanIdRef.current = scanId;
       connectStream(scanId);
-
-      // ─── LPデモ: 30秒で強制終了して結果表示 ──────────────────────
-      // 完全な診断には登録が必要、というメッセージを促す
       setTimeout(() => {
-        if (scanIdRef.current !== scanId) return; // 別スキャンが始まってる
+        if (scanIdRef.current !== scanId) return;
         if (esRef.current) { esRef.current.close(); esRef.current = null; }
-        // 既存の findings を取得して done 表示
         fetchFindings(scanId);
       }, 30_000);
     } catch { setScanPhase("error"); }
   }
 
-  // severity カウント（done時）
-  const sevCount = (sev: string) => realFindings.filter(f => f.severity === sev).length;
   const visible = realFindings.slice(0, 10);
   const locked = realFindings.slice(10);
 
   return (
-    <div className="lp-root">
+    <div className="v2">
+      {/* Scroll progress */}
+      <motion.div className="v2-progress" style={{ scaleX }} />
 
-      {/* 1. Announcement Bar */}
-      <div className="announce">
-        <div className="container">
-          <div className="msg">🎉 経産省 SCS評価制度 ★3 脆弱性診断 対応完了！<span className="sep"> | </span><span className="announce-ipa">IPA SECURITY ACTION ★2 対応</span></div>
+      {/* 1. Announcement */}
+      <div className="v2-announce">
+        <div className="v2-container">
+          <div className="msg">
+            <Sparkles size={14} />
+            経産省 SCS評価制度 ★3 対応完了！
+            <span className="sep">|</span>
+            <span>IPA SECURITY ACTION ★2 対応</span>
+          </div>
           <a href="#scs">詳しく見る →</a>
         </div>
       </div>
 
-      {/* 2. Sticky Nav */}
-      <nav className="lp-nav">
-        <div className="container">
-          <Link href="/" className="logo">
-            <img src="/sequlia-icon.png" alt="Sequlia icon" className="logo-icon" />
+      {/* 2. Nav */}
+      <nav className="v2-nav">
+        <div className="v2-container">
+          <Link href="/" className="v2-logo">
+            <img src="/sequlia-icon.png" alt="Sequlia" className="v2-logo-icon" />
             Sequlia
           </Link>
-          <div className="nav-links">
-            <a href="#scan">無料診断</a>
-            <a href="#why">機能</a>
-            <a href="#incident">被害事例</a>
+          <div className="v2-nav-links">
+            <a href="#features">機能</a>
             <a href="#pricing">料金</a>
             <a href="#scs">SCS対応</a>
+            <a href="#incidents">被害事例</a>
           </div>
-          <div className="nav-cta">
+          <div className="v2-nav-cta">
             {me ? (
               <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
-                <Link href="/dashboard" className="btn btn-ghost">ダッシュボード</Link>
+                <Link href="/dashboard" className="v2-btn v2-btn-ghost">ダッシュボード</Link>
                 <button
                   type="button"
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="btn btn-primary"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+                  className="v2-btn v2-btn-primary"
                   aria-label="ユーザーメニュー"
                 >
                   <span style={{
                     display: "inline-flex", alignItems: "center", justifyContent: "center",
                     width: 22, height: 22, borderRadius: "50%", background: "#fff",
-                    color: "#2563eb", fontSize: 12, fontWeight: 700,
+                    color: "#2563eb", fontSize: 12, fontWeight: 800,
                   }}>{(me.name?.trim() || me.email.split("@")[0]).charAt(0).toUpperCase()}</span>
                   <span style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{me.name?.trim() || me.email.split("@")[0]}</span>
-                  <span style={{ fontSize: 10 }}>▾</span>
+                  <ChevronDown size={12} />
                 </button>
-                {userMenuOpen && (
-                  <div
-                    style={{
-                      position: "absolute", top: "calc(100% + 8px)", right: 0,
-                      background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12,
-                      boxShadow: "0 12px 30px rgba(15,23,42,0.12)", minWidth: 220, zIndex: 50,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div style={{ padding: "12px 14px", borderBottom: "1px solid #f1f5f9" }}>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>ログイン中</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis" }}>{me.name?.trim() || me.email.split("@")[0]}</div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis" }}>{me.email}</div>
-                      <div style={{ marginTop: 4, fontSize: 11, color: "#2563eb", fontWeight: 600, textTransform: "uppercase" }}>Plan: {me.plan}</div>
-                    </div>
-                    <Link href="/dashboard" className="user-menu-item" style={menuItemStyle} onClick={() => setUserMenuOpen(false)}>ダッシュボード</Link>
-                    <Link href="/billing" className="user-menu-item" style={menuItemStyle} onClick={() => setUserMenuOpen(false)}>課金・プラン</Link>
-                    <Link href="/settings" className="user-menu-item" style={menuItemStyle} onClick={() => setUserMenuOpen(false)}>設定</Link>
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      style={{ ...menuItemStyle, width: "100%", textAlign: "left", background: "none", border: "none", borderTop: "1px solid #f1f5f9", color: "#dc2626", cursor: "pointer" }}
-                    >ログアウト</button>
-                  </div>
-                )}
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      className="v2-user-menu"
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.18 }}
+                    >
+                      <div className="head">
+                        <div className="em">{me.email}</div>
+                        <div className="plan">{me.plan}</div>
+                      </div>
+                      <Link href="/dashboard">ダッシュボード</Link>
+                      <Link href="/history">スキャン履歴</Link>
+                      <Link href="/billing">プラン・お支払い</Link>
+                      <Link href="/settings">設定</Link>
+                      {me.plan === "admin" && <Link href="/admin">管理画面</Link>}
+                      <div className="sep" />
+                      <button type="button" className="item logout" onClick={handleLogout}>ログアウト</button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <>
-                <Link href="/login" className="btn btn-ghost">ログイン</Link>
-                <Link href="/signup" className="btn btn-primary">無料登録</Link>
+                <Link href="/login" className="v2-btn v2-btn-ghost">ログイン</Link>
+                <Link href="/signup" className="v2-btn v2-btn-primary">無料登録</Link>
               </>
             )}
           </div>
@@ -229,1196 +258,626 @@ export default function LandingPage() {
       </nav>
 
       {/* 3. Hero */}
-      <section className="hero" id="scan">
+      <section className="v2-hero" id="scan">
+        <div className="v2-hero-grid" />
+        <motion.div className="v2-hero-orb o1" animate={{ x: [0, 30, 0], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity }} />
+        <motion.div className="v2-hero-orb o2" animate={{ x: [0, -25, 0], y: [0, -15, 0] }} transition={{ duration: 14, repeat: Infinity }} />
+        <motion.div className="v2-hero-orb o3" animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 10, repeat: Infinity }} />
 
-        <div className="container hero-layout">
-          {/* 左: テキスト + フォーム */}
-          <div className="hero-left">
-            <div className="scs-hero-seal">
-              <div className="scs-seal-badge">
-                <div className="scs-seal-ring">
-                  <div className="scs-seal-core">
-                    <div className="scs-seal-gov">経済産業省</div>
-                    <div className="scs-seal-name">SCS</div>
-                    <div className="scs-seal-stars">★★★</div>
-                    <div className="scs-seal-lvl">Level 3</div>
-                  </div>
-                </div>
-              </div>
-              <div className="scs-seal-info">
-                <div className="scs-seal-main">セキュリティ・チェックシート<br />評価制度 <strong>★3 対応</strong></div>
-                <div className="scs-seal-sub">脆弱性診断を定期実施・記録管理済み</div>
-                <div className="scs-seal-ipa">
-                  <img src="/ipa-security-action-2.svg" alt="IPA SECURITY ACTION ★2" className="scs-ipa-logo" />
-                  <span>IPA SECURITY ACTION ★2 宣言済み</span>
-                </div>
-              </div>
-            </div>
-            <h1>見つける、守れる、<br /><span className="accent">Webのリスクを可視化</span></h1>
-            <p className="hero-sub">自動化された診断で、脆弱性を早期に発見。<br />安全なWebサービス運用をサポートします。</p>
-            <div className="hero-feats">
-              <div className="hfeat"><span className="hfeat-ico">🌐</span><div><strong>URLを1つ入れるだけ</strong><span>サブページ・サブドメイン全自動探索</span></div></div>
-              <div className="hfeat"><span className="hfeat-ico">⚡</span><div><strong>スピード診断</strong><span>174項目を最短3分で確認</span></div></div>
-              <div className="hfeat"><span className="hfeat-ico">🛡️</span><div><strong>安心のサポート</strong><span>専門チームが徹底支援</span></div></div>
-            </div>
+        <div className="v2-container v2-hero-inner">
+          <motion.div initial="hidden" animate="show" variants={staggerParent}>
+            <motion.div variants={reveal} className="v2-hero-pill">
+              <Shield size={14} /> AI × OWASP Top10 完全準拠
+            </motion.div>
+            <motion.h1 variants={reveal} className="v2-hero-title">
+              見つける、守れる、<br />
+              <span className="grad">Webのリスクを可視化。</span>
+            </motion.h1>
+            <motion.p variants={reveal} className="v2-hero-sub">
+              URLを入れるだけ。サブページ・サブドメインも全自動で診断。<br />
+              AIが脆弱性を解析し、最短3分で結果が出ます。
+            </motion.p>
 
-            {scanPhase !== "scanning" ? (
-              <>
-                <form className="url-form" onSubmit={handleScan}>
-                  <div className="url-input-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    </svg>
-                    <input type="url" value={url} required placeholder="https://example.com"
-                      onChange={(e) => { setUrl(e.target.value); if (scanPhase !== "idle") setScanPhase("idle"); }} />
-                  </div>
-                  <button type="submit" className="btn btn-primary" disabled={!url}>
-                    今すぐ無料で診断する →
-                  </button>
-                </form>
-                <div className="form-meta">
-                  <span><span className="check-mark">✓</span> URLを入力するだけ</span>
-                  <span><span className="check-mark">✓</span> クレジットカード不要</span>
-                  <span><span className="check-mark">✓</span> 3〜8分で結果を確認</span>
-                </div>
-              </>
-            ) : (
-              <div className="scan-progress-card">
-                <div className="scan-spinner" />
-                <div className="scan-url-label">{url}</div>
-                <div className="scan-step-label">
-                  <span>{currentStep || "準備中..."}</span>
-                  <strong style={{ color: "var(--blue)" }}>{scanProgress}%</strong>
-                </div>
-                <div className="scan-bar-track">
-                  <div className="scan-bar-fill" style={{ width: `${scanProgress}%` }} />
-                </div>
-                <p className="scan-hint">通常3〜8分かかります。このページを開いたままお待ちください。</p>
-              </div>
-            )}
-          </div>
+            <motion.form variants={reveal} className="v2-hero-form" onSubmit={handleScan}>
+              <input
+                type="url"
+                placeholder="https://example.com"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                disabled={scanPhase === "scanning"}
+                required
+              />
+              <button type="submit" className="v2-btn v2-btn-cta" disabled={scanPhase === "scanning"}>
+                {scanPhase === "scanning" ? "診断中…" : <>🚀 無料で診断する <ArrowRight size={16} /></>}
+              </button>
+            </motion.form>
 
-          {/* 右: ダッシュボードUIモックアップ */}
-          <div className="hero-right">
-            {/* 女性画像を左寄り（ダッシュボードの後ろ）に配置 */}
-            <img src="/hero-woman.png" alt="" className="hero-woman" aria-hidden="true" />
-            <div className="dash-mock">
-              <div className="dash-topbar">
-                <div className="dash-dots"><span /><span /><span /></div>
-                <div className="dash-url">🔒 app.sequlia.jp/dashboard</div>
-              </div>
-              <div className="dash-kpis">
-                <div className="dash-kpi"><span className="dk-num">47</span><span className="dk-lbl">スキャン数</span></div>
-                <div className="dash-kpi warn"><span className="dk-num">23</span><span className="dk-lbl">脆弱性検出</span></div>
-                <div className="dash-kpi danger"><span className="dk-num">7</span><span className="dk-lbl">HIGHリスク</span></div>
-                <div className="dash-kpi ok"><span className="dk-num">18</span><span className="dk-lbl">完了スキャン</span></div>
-              </div>
-              <div className="dash-chart-wrap">
-                <div className="dash-chart-title">脆弱性検出数の推移</div>
-                <div className="dash-bars">
-                  {[{s:20,v:28},{s:26,v:40},{s:22,v:35},{s:30,v:52},{s:18,v:30},{s:24,v:38}].map((d,i) => (
-                    <div key={i} className="dash-bar-col">
-                      <div className="db-scan" style={{height:`${d.s}px`}} />
-                      <div className="db-vuln" style={{height:`${d.v}px`}} />
+            <motion.div variants={reveal} className="v2-trust">
+              <span><CheckCircle size={14} color="#16a34a" /> クレカ不要</span>
+              <span><CheckCircle size={14} color="#16a34a" /> 30秒登録</span>
+              <span><CheckCircle size={14} color="#16a34a" /> 月3回完全無料</span>
+            </motion.div>
+
+            {/* Scan demo card */}
+            <AnimatePresence>
+              {scanPhase !== "idle" && (
+                <motion.div
+                  className="v2-scan-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <div className="head">
+                    <div style={{ fontSize: 13, fontWeight: 700 }}>
+                      <span className="dot" />
+                      {scanPhase === "scanning" && "ライブ診断中"}
+                      {scanPhase === "done" && "診断完了"}
+                      {scanPhase === "error" && "エラー"}
                     </div>
-                  ))}
-                </div>
-                <div className="dash-legend">
-                  <span><span className="leg-dot" style={{background:"var(--blue)"}} />スキャン数</span>
-                  <span><span className="leg-dot" style={{background:"var(--orange)"}} />脆弱性検出</span>
-                </div>
-              </div>
-              <div className="dash-list">
-                <div className="dl-header">最近のスキャン結果</div>
-                {[
-                  {url:"techsolution.co.jp", sevs:["C","H","H"], score:78, c:"high"},
-                  {url:"sample-shoji.com",   sevs:["H","M","L"], score:52, c:"med"},
-                  {url:"innovation-lab.co.jp",sevs:["M","L"],    score:28, c:"low"},
-                ].map((r,i) => (
-                  <div key={i} className="dl-row">
-                    <span className="dl-url">{r.url}</span>
-                    <span className="dl-sevs">{r.sevs.map((s,j) => <span key={j} className={`dl-badge dl-${s.toLowerCase()}`}>{s}</span>)}</span>
-                    <span className={`dl-score dl-${r.c}`}>{r.score}</span>
+                    <div style={{ fontSize: 12, color: "#94a3b8" }}>{scanProgress}%</div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+                  <div className="progress"><div style={{ width: `${scanProgress}%` }} /></div>
+                  <div className="status">{currentStep || "..."}</div>
 
-      {/* 4. Trust Stats */}
-      <section className="stats">
-        <div className="container">
-          <div className="stat"><div className="num">23<span className="unit">カテゴリ</span></div><div className="lbl">診断カテゴリ数</div></div>
-          <div className="stat"><div className="num">174</div><div className="lbl">検査項目数</div></div>
-          <div className="stat"><div className="num">3〜8<span className="unit">分</span></div><div className="lbl">診断所要時間</div></div>
-          <div className="stat"><div className="num" style={{ fontSize: 24 }}>OWASP Top10</div><div className="lbl">完全準拠</div></div>
-        </div>
-      </section>
-
-      {/* ─── 4.5 危機セクション (NEW) ─── */}
-      <section className="block crisis-block" id="crisis">
-        <div className="container">
-          {/* ヘッダー：背景に都市＋女性画像、中央にタイトル */}
-          <div className="crisis-header">
-            <img src="/crisis-city.png" alt="" className="crisis-bg-city" aria-hidden="true" />
-            <img src="/crisis-woman.png" alt="" className="crisis-bg-woman" aria-hidden="true" />
-            <div className="crisis-header-inner">
-              <span className="crisis-badge">🔔 2027年問題</span>
-              <h2 className="crisis-title">
-                知ってますか？<br />
-                来年、<span className="crisis-red">インボイス制度並みの大混乱</span>が来ることを
-              </h2>
-              <p className="crisis-lead">
-                経済産業省「<strong>サプライチェーンセキュリティ評価制度（SCS）</strong>」が2027年に本格運用開始。<br/>
-                これに対応できない企業は、知らないうちに取引から外されていきます。
-              </p>
-            </div>
-          </div>
-
-          {/* 3枚のリスクカード */}
-          <div className="crisis-grid">
-            <div className="crisis-card">
-              <div className="crisis-card-left">
-                <div className="crisis-num">01</div>
-                <div className="crisis-icon">💔</div>
-                <h3 className="crisis-card-title">取引先から切られる</h3>
-                <p className="crisis-card-desc">
-                  大手企業はサプライチェーン全体のセキュリティ評価を求められます。<strong>★3未対応の取引先は順次切り替え</strong>の対象に。
-                </p>
-              </div>
-              <div className="crisis-card-img">
-                <img src="/crisis-card-01.png" alt="" aria-hidden="true" />
-              </div>
-            </div>
-
-            <div className="crisis-card">
-              <div className="crisis-card-left">
-                <div className="crisis-num">02</div>
-                <div className="crisis-icon">🚫</div>
-                <h3 className="crisis-card-title">新規契約を断られる</h3>
-                <p className="crisis-card-desc">
-                  新規取引で「セキュリティ対策の証明書」を提示してくださいが標準に。<strong>提示できないと商談の入口で落ちる</strong>ケース増加。
-                </p>
-              </div>
-              <div className="crisis-card-img">
-                <img src="/crisis-card-02.png" alt="" aria-hidden="true" />
-              </div>
-            </div>
-
-            <div className="crisis-card">
-              <div className="crisis-card-left">
-                <div className="crisis-num">03</div>
-                <div className="crisis-icon">📉</div>
-                <h3 className="crisis-card-title">入札で減点される</h3>
-                <p className="crisis-card-desc">
-                  ほぼ同条件の入札で<strong>セキュリティ対策の星評価が高い企業</strong>が選ばれるのが現実。<strong>★1〜2では勝てない。</strong>
-                </p>
-              </div>
-              <div className="crisis-card-img">
-                <img src="/crisis-card-03.png" alt="" aria-hidden="true" />
-              </div>
-            </div>
-          </div>
-
-          {/* つまりは...の暗色まとめ */}
-          <div className="crisis-conclusion">
-            <div className="crisis-conclusion-img">
-              <img src="/crisis-stressed.png" alt="" aria-hidden="true" />
-            </div>
-            <div className="crisis-conclusion-text">
-              <p className="crisis-conclusion-prefix">つまりは...</p>
-              <p className="crisis-conclusion-quote">「我が社はセキュリティ対策をちゃんとやっていますよ」</p>
-              <p className="crisis-conclusion-tail">という<span className="crisis-highlight">証明</span>を、誰もが用意しなければいけなくなる。</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4.6 ジレンマ (NEW) ─── */}
-      <section className="block" style={{ background: "#f8fafc" }}>
-        <div className="container">
-          <div className="section-head" style={{ textAlign: "center", marginBottom: 40 }}>
-            <span className="eyebrow">😩 でも...</span>
-            <h2 className="section-title">対応する選択肢、<span className="accent">どれもキツくない？</span></h2>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1000, margin: "0 auto" }} className="dilemma-grid">
-            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 28, opacity: 0.85 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", letterSpacing: 1.5, marginBottom: 6 }}>選択肢 1</div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>外部の専門業者に依頼</h3>
-              <ul style={{ fontSize: 13, color: "#64748b", lineHeight: 1.9, paddingLeft: 18 }}>
-                <li>初回 30〜100万円</li>
-                <li>月額 10〜50万円</li>
-                <li>結果まで 2〜4週間</li>
-                <li>年1回が限界</li>
-              </ul>
-              <div style={{ marginTop: 16, padding: 10, background: "#fef2f2", borderRadius: 8, fontSize: 12, color: "#991b1b", fontWeight: 700, textAlign: "center" }}>💰 高すぎる</div>
-            </div>
-
-            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 28, opacity: 0.85 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", letterSpacing: 1.5, marginBottom: 6 }}>選択肢 2</div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>社内で何とかする</h3>
-              <ul style={{ fontSize: 13, color: "#64748b", lineHeight: 1.9, paddingLeft: 18 }}>
-                <li>何をやればいいか不明</li>
-                <li>専門知識のある社員いない</li>
-                <li>ツール選定だけで数週間</li>
-                <li>導入後も運用負荷が重い</li>
-              </ul>
-              <div style={{ marginTop: 16, padding: 10, background: "#fffbeb", borderRadius: 8, fontSize: 12, color: "#92400e", fontWeight: 700, textAlign: "center" }}>🤯 何から始めるか分からない</div>
-            </div>
-
-            <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 28, opacity: 0.85 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", letterSpacing: 1.5, marginBottom: 6 }}>選択肢 3</div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginBottom: 12 }}>何もしない</h3>
-              <ul style={{ fontSize: 13, color: "#64748b", lineHeight: 1.9, paddingLeft: 18 }}>
-                <li>取引先から切られる</li>
-                <li>新規契約断られる</li>
-                <li>入札で減点</li>
-                <li>サイバー攻撃の被害</li>
-              </ul>
-              <div style={{ marginTop: 16, padding: 10, background: "#fee2e2", borderRadius: 8, fontSize: 12, color: "#7f1d1d", fontWeight: 700, textAlign: "center" }}>💀 最悪の選択</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4.7 Sequliaの3つの武器 (NEW) ─── */}
-      <section className="block" style={{ background: "linear-gradient(180deg, #eff6ff 0%, #ffffff 100%)" }}>
-        <div className="container">
-          <div className="section-head" style={{ textAlign: "center", marginBottom: 40 }}>
-            <span className="eyebrow" style={{ background: "#dbeafe", color: "#1e40af" }}>💡 そこで...</span>
-            <h2 className="section-title">そんなとき、<span className="accent">Sequlia（セキュリア）</span></h2>
-            <p className="section-sub" style={{ maxWidth: 680, margin: "16px auto 0" }}>
-              健康診断と同じ。<strong>定期的にチェックする</strong>のが大事。<br/>
-              専門知識ゼロでも、URLを入れるだけで国の基準に沿った診断ができます。
-            </p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1100, margin: "0 auto" }} className="weapon-grid">
-            <div style={{ background: "#fff", border: "2px solid #2563eb", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(37,99,235,0.10)" }}>
-              <div style={{ position: "absolute", top: -12, left: 20, background: "#2563eb", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>武器 ①</div>
-              <div style={{ fontSize: 36, marginTop: 8, marginBottom: 12 }}>🚀</div>
-              <h3 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", marginBottom: 10 }}>インストール不要</h3>
-              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
-                ブラウザだけで完結。McAfee や Norton みたいな<strong style={{ color: "#0f172a" }}>常駐ソフトを入れる必要なし</strong>。社内PCを汚さない、アンインストール不要。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#eff6ff", borderRadius: 8, fontSize: 12, color: "#1e40af", fontWeight: 700, lineHeight: 1.6 }}>
-                ✓ ソフトウェア導入不要<br/>✓ IT部門の許可不要<br/>✓ ブラウザがあれば誰でも使える
-              </div>
-            </div>
-
-            <div style={{ background: "#fff", border: "2px solid #16a34a", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(22,163,74,0.10)" }}>
-              <div style={{ position: "absolute", top: -12, left: 20, background: "#16a34a", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>武器 ②</div>
-              <div style={{ fontSize: 36, marginTop: 8, marginBottom: 12 }}>🆓</div>
-              <h3 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", marginBottom: 10 }}>無料で試せる</h3>
-              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
-                クレジットカード登録不要。<strong style={{ color: "#0f172a" }}>無料アカウントで全174項目の診断が月10回まで</strong>。気に入ったらアップグレード。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#f0fdf4", borderRadius: 8, fontSize: 12, color: "#15803d", fontWeight: 700, lineHeight: 1.6 }}>
-                ✓ クレカ不要・有料切替なし<br/>✓ 全174項目フル機能<br/>✓ 30秒で登録完了
-              </div>
-            </div>
-
-            <div style={{ background: "#fff", border: "2px solid #f59e0b", borderRadius: 16, padding: 28, position: "relative", boxShadow: "0 8px 24px rgba(245,158,11,0.10)" }}>
-              <div style={{ position: "absolute", top: -12, left: 20, background: "#f59e0b", color: "#fff", padding: "4px 12px", borderRadius: 4, fontSize: 11, fontWeight: 800, letterSpacing: 1 }}>武器 ③</div>
-              <div style={{ fontSize: 36, marginTop: 8, marginBottom: 12 }}>🏅</div>
-              <h3 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", marginBottom: 10 }}>★4まで証明書発行</h3>
-              <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
-                <strong style={{ color: "#0f172a" }}>★5は国でまだ調整中</strong>のため、Sequliaで取得できる<strong style={{ color: "#b45309" }}>★4は実質最上位の証明</strong>。取引先・入札で他社と差別化。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#fffbeb", borderRadius: 8, fontSize: 12, color: "#92400e", fontWeight: 700, lineHeight: 1.6 }}>
-                ✓ 経産省マーク付き正式書類<br/>✓ 取引先・監査にそのまま提出可<br/>✓ 31日継続で★4取得
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 40, textAlign: "center" }}>
-            <a href="#scan" className="btn btn-primary btn-lg" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 32px", fontSize: 16 }}>
-              🚀 今すぐ無料で診断を試す →
-            </a>
-            <p style={{ marginTop: 12, fontSize: 12, color: "#94a3b8" }}>クレジットカード不要 ／ 30秒で登録 ／ 月10回まで完全無料</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4.7.5 公式証明書（最大の推し） ─── */}
-      <section className="block" style={{ background: "linear-gradient(180deg, #fefefe 0%, #f8fafc 100%)" }}>
-        <div className="container">
-          <div className="section-head" style={{ textAlign: "center", marginBottom: 48 }}>
-            <span className="eyebrow">📜 Sequlia 公式証明書</span>
-            <h2 className="section-title">取引先・監査用に <span className="accent">「公式証明書」</span> を発行できます</h2>
-            <p className="section-sub">IPA SECURITY ACTION 宣言済み事業者として発行する Sequlia 独自認定書。<br />サプライチェーン監査・ISMS更新・取引先審査での提示にお使いいただけます。</p>
-          </div>
-
-          <div className="cert-tier-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
-            {/* ★2 - IPA本物 */}
-            <div className="cert-card" style={{ background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 60%)", border: "2px solid #86efac", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 6px 20px rgba(22,163,74,0.10)" }}>
-              {/* 本物のIPAロゴ */}
-              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", borderRadius: 16, border: "1px solid #d1fae5", padding: 10 }}>
-                <img src="/ipa-security-action-2.svg" alt="IPA SECURITY ACTION ★2" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#16a34a", letterSpacing: "0.15em" }}>LEVEL 2 ／ IPA SECURITY ACTION</div>
-              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>実施宣言証</h3>
-              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                IPA SECURITY ACTION ★2 宣言事業者として、Webサイトの脆弱性診断を<strong style={{ color: "#0f172a" }}>実施したこと</strong>を証明する基本証明書。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dcfce7", border: "1px solid #86efac", borderRadius: 10, fontSize: 12, color: "#15803d", fontWeight: 700 }}>
-                ✓ 1回スキャン完了で取得可能
-              </div>
-            </div>
-
-            {/* ★3 - Sequlia独自・IPA風 */}
-            <div className="cert-card" style={{ background: "linear-gradient(180deg, #eff6ff 0%, #ffffff 60%)", border: "3px solid #2563eb", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 12px 32px rgba(37,99,235,0.20)", transform: "scale(1.04)" }}>
-              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #f59e0b, #ea580c)", color: "#fff", padding: "5px 16px", borderRadius: 20, fontSize: 11, fontWeight: 900, letterSpacing: "0.1em", boxShadow: "0 4px 12px rgba(245,158,11,0.4)" }}>★ MOST POPULAR ★</div>
-
-              {/* Sequliaブランドのシールド型バッジ (IPA風) */}
-              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #2563eb 0%, #1e40af 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(37,99,235,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #3b82f6" }}>
-                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
-                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>SECURITY</div>
-                <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.05em", margin: "2px 0", lineHeight: 1 }}>★★★</div>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.05em" }}>CERTIFIED</div>
-                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>SCS LEVEL 3 対応</div>
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#2563eb", letterSpacing: "0.15em" }}>LEVEL 3 ／ 経産省 SCS★3 要件対応</div>
-              <h3 style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>SCS★3対応認定証</h3>
-              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                経産省 SCS★3 制度の主要要件「継続的な脆弱性診断」に対応していることをSequliaが認定。<br/><strong style={{ color: "#1e40af" }}>大手取引先の監査要件をクリア</strong>。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#dbeafe", border: "1px solid #93c5fd", borderRadius: 10, fontSize: 12, color: "#1e40af", fontWeight: 700 }}>
-                ✓ 1回スキャン完了で取得可能（Standard以上）
-              </div>
-            </div>
-
-            {/* ★4 - Sequlia独自・IPA風 */}
-            <div className="cert-card" style={{ background: "linear-gradient(180deg, #faf5ff 0%, #ffffff 60%)", border: "2px solid #c4b5fd", borderRadius: 20, padding: "32px 24px 28px", position: "relative", textAlign: "center", boxShadow: "0 8px 24px rgba(124,58,237,0.15)" }}>
-              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", padding: "5px 14px", borderRadius: 20, fontSize: 10, fontWeight: 900, letterSpacing: "0.15em", boxShadow: "0 4px 12px rgba(124,58,237,0.4)" }}>👑 PREMIUM</div>
-
-              {/* Sequliaブランドのシールド型バッジ ★4 */}
-              <div style={{ width: 130, height: 130, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%)", borderRadius: "16px 16px 50% 50%", boxShadow: "0 12px 24px rgba(124,58,237,0.4), inset 0 -3px 10px rgba(0,0,0,0.15)", color: "#fff", flexDirection: "column", padding: 10, position: "relative", border: "2px solid #a855f7" }}>
-                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", opacity: 0.9 }}>SEQULIA</div>
-                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.05em", opacity: 0.85, marginTop: 1 }}>ADVANCED</div>
-                <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: "0.04em", margin: "2px 0", lineHeight: 1 }}>★★★★</div>
-                <div style={{ fontSize: 9, fontWeight: 700 }}>CERTIFIED</div>
-                <div style={{ fontSize: 7, fontWeight: 600, opacity: 0.9, marginTop: 2 }}>31日 継続運用</div>
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#7c3aed", letterSpacing: "0.15em" }}>LEVEL 4 ／ 最上位認定</div>
-              <h3 style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "0.02em" }}>高度継続認定証</h3>
-              <p style={{ marginTop: 12, fontSize: 13, color: "#64748b", lineHeight: 1.75, minHeight: 70 }}>
-                <strong style={{ color: "#0f172a" }}>31日以上の継続運用実績</strong>を持つ組織のみが取得できる最上位認定。<br/><strong style={{ color: "#6d28d9" }}>他社との差別化に</strong>。
-              </p>
-              <div style={{ marginTop: 16, padding: "10px 14px", background: "#ede9fe", border: "1px solid #c4b5fd", borderRadius: 10, fontSize: 12, color: "#6d28d9", fontWeight: 700 }}>
-                ✓ 31日以上 ＋ 2回以上で取得（Pro限定）
-              </div>
-            </div>
-          </div>
-
-          {/* 法的注釈 */}
-          <p style={{ marginTop: 24, fontSize: 11, color: "#94a3b8", textAlign: "center", maxWidth: 800, margin: "24px auto 0", lineHeight: 1.7 }}>
-            ※ 本証明書はSequliaが発行する独自の認定書です。経産省「サプライチェーン強化に向けた連携プログラム（SCS）」の要件への対応を示すもので、経産省の公式認定そのものではありません。
-            ★2のロゴはIPA「SECURITY ACTION」宣言事業者として正規に使用しています。
-          </p>
-
-          <div style={{ marginTop: 36, textAlign: "center", padding: 24, background: "#0f172a", borderRadius: 16, color: "#fff", maxWidth: 800, margin: "36px auto 0" }}>
-            <p style={{ fontSize: 14, color: "#cbd5e1", marginBottom: 8 }}>💡 ポイント</p>
-            <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.7 }}>
-              SCS制度では <span style={{ color: "#fbbf24" }}>★2は誰でも取れる</span> が、<br />
-              <span style={{ color: "#60a5fa" }}>★3は急に難易度が上がる</span>のが業界の常識。<br />
-              <strong style={{ color: "#fff" }}>Sequliaなら、★3も★4も最短ルートで取得できます。</strong>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 4.8 自動探索の紹介 (NEW) ─── */}
-      <section className="block" style={{ background: "#0f172a", color: "#fff" }}>
-        <div className="container">
-          <div className="section-head" style={{ textAlign: "center", marginBottom: 32 }}>
-            <span className="eyebrow" style={{ background: "#1e3a8a", color: "#bfdbfe", border: "1px solid #2563eb" }}>🌐 全自動クローリング</span>
-            <h2 className="section-title" style={{ color: "#fff" }}>URLを<span style={{ color: "#fbbf24" }}>1つ入れるだけ</span>。<br />サブページ・サブドメイン<span style={{ color: "#60a5fa" }}>すべて自動で探索</span>します</h2>
-            <p className="section-sub" style={{ maxWidth: 720, margin: "16px auto 0", color: "#cbd5e1" }}>
-              「ページ毎にURLを1個ずつ入力する」必要なし。トップURLを入れた瞬間、Sequliaのクローラがサイト全体を縦横無尽に発見＆検査します。
-            </p>
-          </div>
-
-          <div style={{ maxWidth: 1000, margin: "0 auto", background: "#1e293b", borderRadius: 16, padding: 32, border: "1px solid #334155" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 32, alignItems: "center" }} className="discovery-flow">
-              <div>
-                <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8, fontWeight: 700, letterSpacing: 1 }}>あなたが入力する</div>
-                <div style={{ background: "#0f172a", border: "2px solid #2563eb", borderRadius: 10, padding: "14px 18px", fontFamily: "ui-monospace, monospace", fontSize: 15, color: "#60a5fa", fontWeight: 600 }}>
-                  https://example.com/
-                </div>
-                <div style={{ marginTop: 8, fontSize: 11, color: "#64748b" }}>↑ これだけ</div>
-              </div>
-
-              <div style={{ fontSize: 32, color: "#fbbf24" }}>→</div>
-
-              <div>
-                <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8, fontWeight: 700, letterSpacing: 1 }}>Sequliaが自動で発見</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>example.com/blog</div>
-                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>example.com/admin</div>
-                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>example.com/login</div>
-                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#cbd5e1" }}>api.example.com</div>
-                  <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, padding: "8px 12px", fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>... その他多数</div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 28, paddingTop: 24, borderTop: "1px solid #334155", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }} className="discovery-methods">
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22 }}>🗺️</div>
-                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "#fff" }}>sitemap / robots</div>
-                <div style={{ marginTop: 2, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>サイトマップ全URL抽出</div>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22 }}>🔗</div>
-                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "#fff" }}>HTML リンク解析</div>
-                <div style={{ marginTop: 2, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>ページ内 a タグ全追跡</div>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22 }}>🔍</div>
-                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "#fff" }}>サブドメイン列挙</div>
-                <div style={{ marginTop: 2, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>DNS解析で自動発見</div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 24, textAlign: "center", padding: "16px 24px", background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.3)", borderRadius: 12, maxWidth: 720, margin: "24px auto 0" }}>
-            <p style={{ fontSize: 14, color: "#fbbf24", fontWeight: 700 }}>
-              💡 つまり、<strong style={{ color: "#fff" }}>1ドメイン1回のスキャン</strong>でサイト全体の脆弱性が一括チェックできます。
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Problem */}
-      <section className="block problem">
-        <div className="container">
-          <div className="section-head">
-            <span className="eyebrow warn">⚠ こんな不安、ありませんか？</span>
-            <h2 className="section-title">今この瞬間も、あなたのサイトは<br /><span className="accent">狙われている</span>かもしれない</h2>
-            <p className="section-sub">サイバー攻撃は日々巧妙化しています。気づかないうちに、情報漏えいや改ざんにつながるリスクが潜んでいます。</p>
-          </div>
-          {/* フォトカード */}
-          <div className="prob-photo-grid">
-            {[
-              {
-                photo: "/prob-1.jpg",
-                icoClass: "red", ico: "🔒",
-                text: <>セキュリティ診断って<br />いつやったか<em className="red">分からない...</em></>
-              },
-              {
-                photo: "/prob-2.jpg",
-                icoClass: "orange", ico: "¥",
-                text: <>専門業者に頼むと<br /><em className="orange">数十万円</em>かかる...</>
-              },
-              {
-                photo: "/prob-3.jpg",
-                icoClass: "amber", ico: "!",
-                text: <>もし情報漏えいしたら...<br />どうしようと<em className="amber">不安...</em></>
-              },
-            ].map((c, i) => (
-              <div key={i} className="prob-photo-card">
-                <img src={c.photo} alt="" loading="lazy" />
-                <div className="prob-photo-label">
-                  <div className={`prob-photo-ico ${c.icoClass}`} style={{
-                    background: i===0?"var(--red-50)": i===1?"#fff7ed":"#fffbeb",
-                    color: i===0?"var(--red)": i===1?"var(--orange)":"var(--amber)"
-                  }}>{c.ico}</div>
-                  <div className="prob-photo-text">{c.text}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* 詳細カード */}
-          <div className="prob-detail-grid">
-            {[
-              {
-                cls: "red", ico: "🔒", color: "var(--red-50)", iconColor: "var(--red)",
-                title: "放置するほど\n悪用リスクは高まる",
-                body: "脆弱性は放置するほど悪用リスクが高まります。最後に診断した時期が分からない、社内に詳しい人がいない...そんな企業様が多くいらっしゃいます。",
-                solution: "定期的な診断がリスク低減の第一歩です",
-              },
-              {
-                cls: "orange", ico: "¥", color: "#fff7ed", iconColor: "var(--orange)",
-                title: "高コストでは\n継続的な診断が困難",
-                body: "中小企業が定期的に診断を行うにはコストが大きな負担に。年1回のテストでは、年間の脆弱性の変化をカバーしきれません。",
-                solution: "コストを抑えて継続できる仕組みが必要です",
-              },
-              {
-                cls: "amber", ico: "!", color: "#fffbeb", iconColor: "var(--amber)",
-                title: "事後対応では\n信頼回復に時間がかかる",
-                body: "対策していないと取引先・顧客への説明ができない。被害が出てからでは信頼の回復に時間もコストもかかってしまいます。",
-                solution: "「備え」が企業の信頼と価値を守ります",
-              },
-            ].map((c, i) => (
-              <div key={i} className="prob-detail-card">
-                <div className="prob-detail-head">
-                  <div className="prob-detail-ico" style={{ background: c.color, color: c.iconColor }}>{c.ico}</div>
-                  <div className="prob-detail-title">{c.title.split("\n").map((l, j) => <span key={j}>{l}{j === 0 && <br />}</span>)}</div>
-                </div>
-                <div className={`prob-detail-line ${c.cls}`} />
-                <div className="prob-detail-body">{c.body}</div>
-                <div className="prob-solution">{c.solution}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* CTAバナー */}
-          <div className="prob-cta-bar">
-            <div className="prob-cta-icon">🛡</div>
-            <div className="prob-cta-text">
-              <em>Sequlia</em>なら、手軽・高精度・低コストで<br />継続的なセキュリティ診断を実現します。
-            </div>
-            <div className="prob-cta-feats">
-              {[
-                { ico: "⏱", title: "最短3分で診断開始", sub: "すぐに始められる手軽さ" },
-                { ico: "🎯", title: "高精度な診断エンジン", sub: "最新の脆弱性に対応" },
-                { ico: "¥", title: "圧倒的なコストパフォーマンス", sub: "月額制で無理なく継続" },
-              ].map((f, i) => (
-                <div key={i} className="prob-cta-feat">
-                  <span className="prob-cta-feat-ico">{f.ico}</span>
-                  <div className="prob-cta-feat-body">
-                    <strong>{f.title}</strong>
-                    <small>{f.sub}</small>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. スキャン結果パネル */}
-      <section className="block scan" style={{ background: "#fff" }}>
-        <div className="container">
-          {scanPhase === "idle" && (
-            <>
-              <div className="section-head">
-                <span className="eyebrow">📊 サンプル結果</span>
-                <h2 className="section-title">診断結果のサンプルを確認する</h2>
-                <p className="section-sub">URLを入力するだけで、Critical / High / Medium の3段階で脆弱性をリスト化。各項目に対策手順も同時に表示します。</p>
-              </div>
-              <div className="scan-window">
-                <div className="browser-bar">
-                  <div className="browser-dots"><span /><span /><span /></div>
-                  <div className="browser-url">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3"><path d="M5 12l5 5L20 7" /></svg>
-                    app.sequlia.jp/scan/example-com
-                  </div>
-                </div>
-                <div className="scan-head">
-                  <h4><span className="url">example.com</span> の診断結果（サンプル）</h4>
-                  <div className="scan-tally">
-                    <span className="sev-crit">Critical 1</span>
-                    <span className="sev-high">High 3</span>
-                    <span className="sev-med">Medium 4</span>
-                  </div>
-                </div>
-                <div className="findings">
-                  {[
-                    { sev: "sev-crit", label: "CRITICAL", title: "SQLインジェクション脆弱性", desc: "データベースへの不正アクセスが可能な状態", cwe: "CWE-89" },
-                    { sev: "sev-high", label: "HIGH", title: "HTTPSリダイレクト未設定", desc: "通信が盗聴されるリスク。HSTSヘッダーも未設定", cwe: "CWE-319" },
-                    { sev: "sev-high", label: "HIGH", title: "セキュリティヘッダー不足", desc: "X-Frame-Options 未設定。クリックジャッキング攻撃が可能", cwe: "CWE-1021" },
-                    { sev: "sev-med", label: "MEDIUM", title: "robots.txt に管理パスの記載", desc: "/admin/ パスが外部から推測可能な状態", cwe: "CWE-200" },
-                    { sev: "sev-med", label: "MEDIUM", title: "古いJavaScriptライブラリ使用", desc: "jQuery 1.12.4 — 既知の脆弱性 CVE-2020-11023", cwe: "CWE-1104" },
-                  ].map((f, i) => (
-                    <div key={i} className="finding">
-                      <span className={`sev ${f.sev}`}>{f.label}</span>
-                      <div className="body"><strong>{f.title}</strong><span>{f.desc}</span></div>
-                      <div className="meta">{f.cwe}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="lock-overlay">
-                  <div className="lock-ico">🔒</div>
-                  <h5>残り 100+ 項目を見るには無料アカウント登録が必要です</h5>
-                  <p>SQLi詳細・XSS・CSRF・認証バイパス・SSRF など全カテゴリのチェック結果をご覧いただけます</p>
-                  <Link href="/signup" className="btn btn-primary btn-lg">無料アカウントで全結果を見る →</Link>
-                </div>
-              </div>
-            </>
-          )}
-
-          {scanPhase === "done" && (
-            <>
-              <div className="section-head">
-                <span className="eyebrow">✅ 診断完了</span>
-                <h2 className="section-title">{url} の診断結果</h2>
-              </div>
-              <div className="scan-window">
-                <div className="browser-bar">
-                  <div className="browser-dots"><span /><span /><span /></div>
-                  <div className="browser-url">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3"><path d="M5 12l5 5L20 7" /></svg>
-                    {url}
-                  </div>
-                </div>
-                {realFindings.length === 0 ? (
-                  <div className="no-vuln-msg">
-                    <div className="no-vuln-ico">✅</div>
-                    <h4>脆弱性は検出されませんでした</h4>
-                    <p>基本的なセキュリティ設定は問題ありません。詳細な内部診断はプランをご確認ください。</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="scan-head">
-                      <h4><span className="url">{url}</span> の診断結果</h4>
-                      <div className="scan-tally">
-                        {sevCount("critical") > 0 && <span className="sev-crit">Critical {sevCount("critical")}</span>}
-                        {sevCount("high") > 0 && <span className="sev-high">High {sevCount("high")}</span>}
-                        {sevCount("medium") > 0 && <span className="sev-med">Medium {sevCount("medium")}</span>}
-                        {sevCount("low") > 0 && <span className="sev-low">Low {sevCount("low")}</span>}
-                      </div>
-                    </div>
-                    <div className="findings">
+                  {visible.length > 0 && (
+                    <div style={{ marginTop: 14 }}>
                       {visible.map((f) => (
-                        <div key={f.id} className="finding">
-                          <span className={SEV_CLASS[f.severity] ?? "sev"}>{SEV_LABEL[f.severity] ?? f.severity}</span>
-                          <div className="body"><strong>{f.type}</strong><span>{f.impact}</span></div>
-                          <div className="meta">{f.target ? new URL(f.target.startsWith("http") ? f.target : "https://" + f.target).hostname : ""}</div>
+                        <div className="v2-find-row" key={f.id}>
+                          <span className={`sev-pill ${SEV_PILL[f.severity] || "info"}`}>{SEV_LABEL[f.severity] || f.severity.toUpperCase()}</span>
+                          <span style={{ fontSize: 12, color: "#cbd5e1" }}>{f.type}</span>
+                          <span className="target">{f.target}</span>
                         </div>
                       ))}
                     </div>
-                    {locked.length > 0 && (
-                      <div className="lock-overlay">
-                        <div className="lock-ico">🔒</div>
-                        <h5>残り {locked.length} 件を確認するには</h5>
-                        <p>無料アカウントを作成すると全結果を閲覧できます</p>
-                        <Link href="/signup" className="btn btn-primary btn-lg">無料で全項目を見る →</Link>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-              <div style={{ textAlign: "center", marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                {!me && (
-                  <Link href="/signup" className="btn btn-primary btn-lg">
-                    全174項目で診断するには無料登録 →
-                  </Link>
-                )}
-                <button onClick={() => { setScanPhase("idle"); setUrl(""); }} className="btn btn-soft">別のURLを診断する</button>
-              </div>
-            </>
-          )}
+                  )}
 
-          {scanPhase === "error" && (
-            <div className="scan-window">
-              <div className="scan-error">
-                <div className="err-ico">⚠️</div>
-                <h4>診断でエラーが発生しました</h4>
-                <p>URLを確認して再度お試しください</p>
-                <button onClick={() => setScanPhase("idle")} className="btn btn-soft">もう一度試す</button>
+                  {scanPhase === "done" && locked.length > 0 && (
+                    <div className="v2-scan-locked">
+                      <Lock size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                      残り <strong>{locked.length}</strong> 件の検出結果は<Link href="/signup">無料登録</Link>で閲覧できます
+                    </div>
+                  )}
+                  {scanPhase === "done" && realFindings.length === 0 && (
+                    <div className="v2-scan-locked" style={{ color: "#86efac" }}>
+                      <CheckCircle size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />
+                      検出された脆弱性はありません。安全なサイトです。
+                    </div>
+                  )}
+                  {scanPhase === "error" && (
+                    <div className="v2-scan-locked" style={{ color: "#fca5a5" }}>
+                      診断に失敗しました。URLをご確認ください。
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          <motion.div
+            className="v2-hero-visual"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <img src="/hero-woman.png" alt="" className="main" />
+            <motion.div
+              className="v2-seal s1"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Trophy size={20} color="#2563eb" />
+              <div>
+                <div className="num">★3</div>
+                <div style={{ fontSize: 10, color: "#64748b" }}>SCS対応</div>
               </div>
-            </div>
-          )}
+            </motion.div>
+            <motion.div
+              className="v2-seal s2 gold"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <Award size={20} color="#d97706" />
+              <div>
+                <div className="num">★2</div>
+                <div style={{ fontSize: 10, color: "#64748b" }}>IPA認定</div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 7. Why Chosen */}
-      <section className="block why" id="why">
-        <div className="container">
-          <div className="section-head why-head">
-            <span className="eyebrow">🛡 選ばれる理由</span>
-            <h2 className="section-title why-title"><span className="accent">Sequlia</span>が選ばれる、5つの理由</h2>
-            <p className="section-sub">URLを入れるだけ。専門知識ゼロでも本格的なセキュリティ診断が3分で完結します。</p>
-          </div>
-
-          <div className="why-split">
-            {/* モバイル専用: why-bannerを画像表示 */}
-            <div className="why-mobile-img">
-              <img src="/why-banner.png" alt="Sequlia導入事例" />
-            </div>
-
-            {/* 左: ダッシュボードモックアップ */}
-            <div className="why-left">
-              <div className="why-mock">
-                {/* ブラウザバー */}
-                <div className="wm-bar">
-                  <div className="wm-dots"><span/><span/><span/></div>
-                  <div className="wm-url">app.sequlia.jp/dashboard</div>
-                </div>
-                <div className="wm-body">
-                  {/* サイドバー */}
-                  <div className="wm-side">
-                    <div className="wm-logo"><span className="wm-logo-ico">🛡</span>Sequlia</div>
-                    {["ダッシュボード","診断履歴","レポート","プロジェクト","設定"].map((m,i)=>(
-                      <div key={i} className={`wm-menu${i===0?" active":""}`}>{m}</div>
-                    ))}
-                  </div>
-                  {/* メインコンテンツ */}
-                  <div className="wm-main">
-                    <div className="wm-kpi-row">
-                      <div className="wm-score-card">
-                        <div className="wm-score-label">総合リスクスコア</div>
-                        <div className="wm-score-gauge">
-                          <svg viewBox="0 0 80 80" width="80" height="80">
-                            <circle cx="40" cy="40" r="32" fill="none" stroke="#e2e8f0" strokeWidth="6"/>
-                            <circle cx="40" cy="40" r="32" fill="none" stroke="#dc2626" strokeWidth="6"
-                              strokeDasharray="138 63" strokeLinecap="round" transform="rotate(-90 40 40)"/>
-                          </svg>
-                          <div className="wm-score-num"><span>78</span><small>/100</small></div>
-                        </div>
-                        <div className="wm-score-badge">HIGH</div>
-                      </div>
-                      <div className="wm-risk-card">
-                        <div className="wm-score-label">リスクレベル内訳</div>
-                        {[["HIGH","#dc2626",7],["MEDIUM","#f97316",23],["LOW","#10b981",18]].map(([l,c,n])=>(
-                          <div key={l as string} className="wm-risk-row">
-                            <span className="wm-risk-dot" style={{background:c as string}}/>
-                            <span className="wm-risk-lbl">{l as string}</span>
-                            <span className="wm-risk-n">{n as number}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="wm-chart-row">
-                      <div className="wm-chart-card">
-                        <div className="wm-chart-title">脆弱性の推移</div>
-                        <div className="wm-line-chart">
-                          {[20,28,22,35,26,40,32].map((v,i)=>(
-                            <div key={i} className="wm-line-col" style={{"--h":`${v}px`} as React.CSSProperties}/>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="wm-chart-card">
-                        <div className="wm-chart-title">OWASP Top10 対応状況</div>
-                        <div className="wm-donut-wrap">
-                          <svg viewBox="0 0 60 60" width="52" height="52">
-                            <circle cx="30" cy="30" r="22" fill="none" stroke="#e2e8f0" strokeWidth="8"/>
-                            <circle cx="30" cy="30" r="22" fill="none" stroke="#2563eb" strokeWidth="8"
-                              strokeDasharray="83 55" strokeLinecap="round" transform="rotate(-90 30 30)"/>
-                          </svg>
-                          <div className="wm-donut-label"><strong>48件</strong><small>検出数</small></div>
-                        </div>
-                        <div className="wm-owasp-list">
-                          {["A01:2017 – Broken Access Control","A02:2017 – Cryptographic Failures","A03:2021 – Injection"].map((t,i)=>(
-                            <div key={i} className="wm-owasp-row"><span className="wm-owasp-dot" style={{background:["#2563eb","#f97316","#dc2626"][i]}}/>{t}</div>
-                          ))}
-                          <div className="wm-owasp-row"><span className="wm-owasp-dot" style={{background:"#94a3b8"}}/>その他</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="wm-scan-title">最近のスキャン結果</div>
-                    <div className="wm-scan-table">
-                      {[["example.com","2024/05/30 10:30",78,"HIGH","#dc2626"],["sample-shop.com","2024/05/30 09:15",52,"MEDIUM","#f97316"],["service.inc","2024/05/29 16:45",28,"LOW","#10b981"]].map(([d,t,s,l,c])=>(
-                        <div key={d as string} className="wm-scan-row">
-                          <span className="wm-scan-domain">{d as string}</span>
-                          <span className="wm-scan-date">{t as string}</span>
-                          <span className="wm-scan-score" style={{borderColor:c as string}}>{s as number}</span>
-                          <span className="wm-scan-lv" style={{color:c as string}}>{l as string}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="wm-more">すべての診断履歴を見る →</div>
-                  </div>
-                </div>
-                {/* SCSバッジ */}
-                <div className="wm-scs-badge">
-                  <div className="wm-scs-icon">🛡</div>
-                  <div className="wm-scs-text">SCS<br/>★★★<br/>対応</div>
-                </div>
-                {/* 人物アイコン */}
-                <div className="wm-person">
-                  <img src="/testi-1.png" alt="" />
-                </div>
-              </div>
-            </div>
-
-            {/* 右: 5つの理由リスト */}
-            <div className="why-right">
-              {[
-                { ico: "🔍", title: "URLを入れるだけで診断開始", body: "管理画面にログイン不要。対象URLを入力するだけで、主要なセキュリティ項目を自動チェックできます。" },
-                { ico: "📊", title: "危険度をスコアで可視化", body: "専門用語だけで終わらず、危険度・優先度・対応すべき箇所をわかりやすく表示します。" },
-                { ico: "📋", title: "SCS★3の確認にも使える", body: "診断結果はレポート化でき、社内確認・取引先提出・セキュリティ対策の証跡として活用できます。" },
-                { ico: "🛡️", title: "対象サイトへの影響を抑えた診断", body: "本番環境でも使いやすい受動的な診断を中心に、過度な負荷をかけずにチェックできます。" },
-                { ico: "☰", title: "OWASP Top10をまとめて確認", body: "代表的なWeb脆弱性をまとめて確認し、見落としや対応漏れを防ぎます。" },
-              ].map((w, i) => (
-                <div key={i} className="why-item">
-                  <div className="why-num">{i + 1}</div>
-                  <div className="why-ico">{w.ico}</div>
-                  <div className="why-text">
-                    <h3>{w.title}</h3>
-                    <p>{w.body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* 4. Numbers strip */}
+      <section className="v2-numbers">
+        <div className="v2-container v2-numbers-grid">
+          {[
+            { n: 174, l: "検査項目" },
+            { n: 23, l: "カテゴリ" },
+            { n: 3, l: "分〜診断時間", suffix: "" },
+            { n: 10, l: "OWASP Top10完全準拠" },
+          ].map((it, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <div className="num"><CountNumber to={it.n} /></div>
+              <div className="label">{it.l}</div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* 7.5. Testimonials */}
-      <section className="block testimonials">
-        <div className="container">
-          <div className="section-head">
-            <span className="eyebrow">💬 導入企業の声</span>
-            <h2 className="section-title">多くの企業が、<br /><span className="accent">セキュリティ診断の習慣化</span>に活用しています</h2>
-            <p className="section-sub">業種・規模を問わず、Webサイトの安全性向上と運用コストの削減に貢献しています。</p>
-          </div>
+      {/* 5. Strengths */}
+      <section className="v2-section" id="features">
+        <motion.div
+          className="v2-container v2-center"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={reveal}
+        >
+          <div className="v2-eyebrow"><Sparkles size={12} /> WHY SEQULIA</div>
+          <h2 className="v2-h2">Sequliaが選ばれる<span className="grad">3つの理由</span></h2>
+          <p className="v2-lead">中小企業のセキュリティ対応を、最速・最低コストで支援します。</p>
+        </motion.div>
 
-          <div className="testimonials-grid">
-            {[
-              {
-                ico: "¥", photo: "/testi-2.png",
-                name: "田中 健二", role: "情報システム部 部長", company: "株式会社テックソリューション", emp: "300名",
-                title: "SCS対応レポートの提出がスムーズになりました",
-                quote: "月次で自社サービスの診断を行い、SCS対応レポートとして取引先へ提出しています。自動でレポート化されるので、工数を大幅に削減できました。",
-              },
-              {
-                ico: "🛡", photo: "/testi-1.png",
-                name: "佐藤 恵子", role: "情報管理部室 室長", company: "ヘルスケアテック株式会社", emp: "150名",
-                title: "専門知識がなくてもリスクを正しく把握できます",
-                quote: "医療情報を扱うため、セキュリティは最優先事項。専門知識がなくても、危険度や対応方法までわかりやすく、社内のセキュリティ意識向上にもつながっています。",
-              },
-              {
-                ico: "⏱", photo: "/testi-3.png",
-                name: "山本 翔", role: "CTO", company: "ECスタートアップ Inc.", emp: "20名",
-                title: "3分で結果が出る手軽さが継続の理由です",
-                quote: "URLを入力するだけで、すぐに結果を確認できる手軽さが魅力です。本番前の脆弱性チェックを習慣化でき、安心してリリースできるようになりました。",
-              },
-            ].map((t, i) => (
-              <div key={i} className="tcard">
-                <div className="tcard-top">
-                  <div className="tcard-ico">{t.ico}</div>
-                  <div className="tcard-stars">{"★".repeat(5)}</div>
-                </div>
-                <div className="tcard-title">{t.title}</div>
-                <div className="tcard-quote">{t.quote}</div>
-                <div className="tcard-author">
-                  <img src={t.photo} alt={t.name} className="tcard-avatar" loading="lazy" />
-                  <div className="tcard-info">
-                    <div className="tcard-name">{t.name} <span className="tcard-sama">様</span></div>
-                    <div className="tcard-role">{t.role}</div>
-                    <div className="tcard-company">{t.company}</div>
-                  </div>
-                  <div className="tcard-emp">従業員数 {t.emp}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* 統計バー */}
-          <div className="testi-stats">
-            {[
-              { ico: "🏢", num: "3,200", unit: "社以上", label: "導入企業数" },
-              { ico: "👥", num: "98%", unit: "", label: "顧客満足度" },
-              { ico: "🛡", num: "SCS★3", unit: "対応", label: "証跡として利用可能" },
-              { ico: "🎧", num: "導入後も安心", unit: "", label: "専任サポートが支援" },
-            ].map((s, i) => (
-              <div key={i} className="testi-stat">
-                <div className="testi-stat-ico">{s.ico}</div>
-                <div className="testi-stat-body">
-                  <div className="testi-stat-num">{s.num}<span className="testi-stat-unit">{s.unit}</span></div>
-                  <div className="testi-stat-label">{s.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* ロゴ行 */}
-          <div className="testi-logos">
-            <div className="testi-logos-title">さまざまな業種・規模の企業にご利用いただいています</div>
-            <div className="testi-logos-row">
-              {[
-                { ico: "◇", name: "Tech Solution" },
-                { ico: "✚", name: "HealthTech" },
-                { ico: "🛒", name: "EC STARTUP" },
-                { ico: "❋", name: "Digital Works" },
-                { ico: "M", name: "MARKETING ONE" },
-                { ico: "⊕", name: "Global Systems" },
-              ].map((l, i) => (
-                <div key={i} className="testi-logo-item">
-                  <span className="testi-logo-ico">{l.ico}</span>
-                  <span className="testi-logo-name">{l.name}</span>
-                </div>
-              ))}
-            </div>
-            <div className="testi-logos-note">※掲載の企業名・ロゴは一例です</div>
-          </div>
-        </div>
+        <motion.div
+          className="v2-container v2-strengths"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={staggerParent}
+        >
+          {[
+            { ico: <Rocket size={28} />, title: "インストール不要", text: "ブラウザだけで完結。URLを入れるだけで、エージェント導入・SSL証明書設定など一切不要です。" },
+            { ico: <Gift size={28} />, title: "無料で試せる", text: "クレジットカード不要・月3回まで完全無料。174項目の本格診断を体験してから判断できます。" },
+            { ico: <Trophy size={28} />, title: "★4まで証明書発行", text: "IPA ★2 / Sequlia独自認定 ★3・★4 まで対応。取引先・入札先への提示資料として活用できます。" },
+          ].map((c, i) => (
+            <motion.div key={i} className="v2-strength-card" variants={reveal} whileHover={{ y: -6 }}>
+              <div className="v2-strength-icon">{c.ico}</div>
+              <h3>{c.title}</h3>
+              <p>{c.text}</p>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
 
-      {/* 8. Incident Cases */}
-      <section className="block incident" id="incident">
-        <div className="container">
-          <div className="section-head">
-            <span className="eyebrow warn">⚠ 実際に起きたサイバー攻撃事例（抜粋）</span>
-            <h2 className="section-title">放置すると、こうなる実際の事例</h2>
-            <p className="section-sub">セキュリティ対策の遅れが、事業停止や信頼失墜など大きなリスクにつながります。</p>
-          </div>
-          <div className="incident-grid">
-            {[
-              {
-                cls: "", tag: "2023 / RANSOMWARE", ico: "🔒", icoColor: "#dc2626", imgColor: "#fee2e2",
-                photo: "/beverage-factory.jpg",
-                co: "大手飲料メーカー", meta: "ランサムウェア攻撃",
-                body: "製造・物流システムが全停止。出荷停止が数週間続き、損失は数十億円規模に。サプライチェーン全体に波及した。",
-                prev: "公開Webシステムの侵入経路を\n事前発見できた可能性があります。",
-                prevColor: "#dc2626", period: "約3週間", loss: "数十億円規模",
-              },
-              {
-                cls: "orange", tag: "2022 / SUPPLY CHAIN", ico: "🔗", icoColor: "#f97316", imgColor: "#ffedd5",
-                photo: "/autoparts-factory.jpg",
-                co: "大手自動車部品メーカー", meta: "サプライチェーン攻撃",
-                body: "VPN脆弱性から侵入。大手自動車メーカーの全工場が1日停止し、損失は数百億円規模に達した。",
-                prev: "VPNの既知脆弱性を発見し、\nパッチ適用できた可能性があります。",
-                prevColor: "#f97316", period: "約1日", loss: "数百億円規模",
-              },
-              {
-                cls: "purple", tag: "2021 / MEDICAL", ico: "🏥", icoColor: "#8b5cf6", imgColor: "#ede9fe",
-                photo: "/hospital.jpg",
-                co: "地方病院", meta: "電子カルテ停止",
-                body: "電子カルテが完全停止。救急受入れ停止が2ヶ月以上続き、地域医療に大きな影響が出た。",
-                prev: "定期的な脆弱性診断が\n早期の検知と対策につながった可能性があります。",
-                prevColor: "#8b5cf6", period: "約2ヶ月", loss: "数億円規模",
-              },
-            ].map((inc) => (
-              <div key={inc.co} className={`icard ${inc.cls}`}>
-                <div className="icard-photo">
-                  <img src={inc.photo} alt={inc.co} loading="lazy" />
-                  <div className="icard-photo-overlay">
-                    <span className="icard-tag">{inc.tag}</span>
-                    <div className="icard-ico" style={{ background: inc.icoColor }}>{inc.ico}</div>
-                  </div>
-                </div>
-                <div className="icard-body">
-                  <h3>{inc.co}</h3>
-                  <p className="meta">{inc.meta}</p>
-                  <p className="icard-desc">{inc.body}</p>
-                  <div className="icard-prevent" style={{ background: inc.icoColor + "12", borderColor: inc.icoColor + "40" }}>
-                    <span className="icard-prev-icon" style={{ color: inc.icoColor }}>🛡</span>
-                    <div>
-                      <strong style={{ color: inc.icoColor }}>診断があれば</strong>
-                      <span>{inc.prev.split("\n").map((l,i) => <span key={i}>{l}{i===0&&<br/>}</span>)}</span>
-                    </div>
-                  </div>
-                  <div className="icard-stats">
-                    <div className="icard-stat"><span className="icard-stat-ico">📅</span><div><div className="icard-stat-label">影響期間</div><div className="icard-stat-val">{inc.period}</div></div></div>
-                    <div className="icard-stat"><span className="icard-stat-ico">💸</span><div><div className="icard-stat-label">想定損失</div><div className="icard-stat-val">{inc.loss}</div></div></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* 6. Crisis - 2027 */}
+      <section className="v2-section v2-crisis" id="scs">
+        <img src="/crisis-city.png" alt="" className="v2-crisis-deco left" />
+        <img src="/crisis-woman.png" alt="" className="v2-crisis-deco right" />
+        <motion.div
+          className="v2-container v2-center"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={reveal}
+        >
+          <div className="v2-crisis-badge">🔔 2027年問題</div>
+          <h2 className="v2-h2" style={{ marginTop: 18 }}>
+            知ってますか？来年、<br />
+            <span className="red">インボイス制度並みの大混乱</span>が来ることを
+          </h2>
+          <p className="v2-lead">
+            経産省 SCS（Software Cybersecurity）評価制度が <strong>2027年に運用開始</strong>。<br />
+            対応していない企業は取引・入札から除外される可能性があります。
+          </p>
+        </motion.div>
 
-          {/* 統計バー */}
-          <div className="incident-stats">
-            {[
-              { ico: "🛡", strong: "被害の多くは", accent: "「既知の脆弱性」が原因", sub: "早期発見と対応が被害を防ぎます" },
-              { ico: "⭕", strong: "約80%の攻撃は", accent: "Webアプリが起点", sub: "出典：Verizon DBIR 2023" },
-              { ico: "📈", strong: "平均被害額は", accent: "約4,500万円", sub: "出典：IBM Cost of a Data Breach 2023" },
-              { ico: "🔄", strong: "定期診断で", accent: "リスクを継続的に低減", sub: "継続的な対策が事業を守ります" },
-            ].map((s, i) => (
-              <div key={i} className="incident-stat">
-                <div className="incident-stat-ico">{s.ico}</div>
-                <div>
-                  <div className="incident-stat-text"><span>{s.strong}</span><strong>{s.accent}</strong></div>
-                  <div className="incident-stat-sub">{s.sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <motion.div
+          className="v2-container v2-crisis-cards"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={staggerParent}
+        >
+          {[
+            { img: "/crisis-card-01.png", title: "取引先から切られる", text: "大手企業のサプライチェーン要件にSCS対応が組み込まれ、未対応企業は契約打ち切りに。" },
+            { img: "/crisis-card-02.png", title: "新規契約断られる", text: "新規取引の入口で「セキュリティ証明書はありますか？」と聞かれる時代に。" },
+            { img: "/crisis-card-03.png", title: "入札で減点される", text: "公共調達・自治体案件では、SCS対応有無が加点項目として明文化される予定。" },
+          ].map((c, i) => (
+            <motion.div key={i} className="v2-crisis-card" variants={reveal}>
+              <img src={c.img} alt="" />
+              <h4><AlertTriangle size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />{c.title}</h4>
+              <p>{c.text}</p>
+            </motion.div>
+          ))}
+        </motion.div>
 
-          {/* CTA バナー */}
-          <div className="incident-cta">
-            <div className="incident-cta-photo">
-              <img src="/testi-1.png" alt="" />
+        <motion.div
+          className="v2-container"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="v2-crisis-conclude">
+            <h3>
+              つまりは…<br />
+              「我が社はセキュリティ対策をしている」<br />
+              という<span className="accent">&ldquo;証明&rdquo;</span>が必須になる。
+            </h3>
+            <img src="/crisis-stressed.png" alt="" />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* 7. Options - どれもキツい */}
+      <section className="v2-section">
+        <motion.div
+          className="v2-container v2-center"
+          initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}
+        >
+          <div className="v2-eyebrow"><AlertTriangle size={12} /> 従来の選択肢</div>
+          <h2 className="v2-h2">対応する選択肢、<span className="grad">どれもキツくない？</span></h2>
+        </motion.div>
+
+        <motion.div className="v2-container v2-options" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} variants={staggerParent}>
+          {[
+            { emoji: "🏢", title: "専門業者に依頼", pricing: "¥30〜100万円 / 結果まで2〜4週間", verdict: "💰 高すぎる" },
+            { emoji: "💻", title: "社内で対応", pricing: "何をすればいいかわからない / 専門人材不在", verdict: "🤯 困る" },
+            { emoji: "🙈", title: "何もしない", pricing: "取引先から切られる / 入札で減点", verdict: "💀 最悪" },
+          ].map((o, i) => (
+            <motion.div key={i} className="v2-option" variants={reveal}>
+              <div className="emoji">{o.emoji}</div>
+              <h4>{o.title}</h4>
+              <div className="pricing">{o.pricing}</div>
+              <span className="verdict">{o.verdict}</span>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <div className="v2-container v2-center">
+          <div className="v2-arrow">↓</div>
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
+            <div className="v2-eyebrow" style={{ background: "linear-gradient(135deg,#2563eb,#06b6d4)", color: "#fff" }}>
+              <Sparkles size={12} /> そこで Sequlia
             </div>
-            <div className="incident-cta-body">
-              <h3>今、診断してリスクを把握しましょう</h3>
-              <p>小さな気づきが、大きな被害を防ぎます。</p>
-              <div className="incident-cta-checks">
-                {["3〜8分で診断完了","クレジットカード不要","PDFレポートで証跡化"].map(c=>(
-                  <span key={c} className="incident-cta-check">✓ {c}</span>
+            <h2 className="v2-h2"><span className="grad">3分・無料・自動</span>で全部解決</h2>
+          </motion.div>
+        </div>
+
+        {/* 8. 5 steps */}
+        <motion.div className="v2-container v2-steps" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} variants={staggerParent}>
+          {[
+            { ico: <Globe size={22} />, title: "URLを入力", time: "3秒", text: "対象サイトのURLを貼り付けるだけ。" },
+            { ico: <Search size={22} />, title: "全自動クローリング", time: "30秒", text: "サブページ・サブドメインを自動探索。" },
+            { ico: <Cpu size={22} />, title: "174項目を自動検査", time: "3分", text: "OWASP Top10を含む包括的診断。" },
+            { ico: <Bot size={22} />, title: "AI解析レポート", time: "即時", text: "AIが優先度・対策方法を自動生成。" },
+            { ico: <FileCheck size={22} />, title: "公式証明書発行", time: "即時", text: "★2〜★4の認定書をPDFで取得。" },
+          ].map((s, i) => (
+            <motion.div key={i} className="v2-step" variants={reveal}>
+              <div className="stepnum">{i + 1}</div>
+              <div className="ico">{s.ico}</div>
+              <span className="time">{s.time}</span>
+              <h4>{s.title}</h4>
+              <p>{s.text}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* 9. 174 tier grid */}
+      <section className="v2-section" style={{ background: "#f8fafc" }}>
+        <motion.div className="v2-container v2-center" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}>
+          <div className="v2-eyebrow"><Layers size={12} /> CHECK ITEMS</div>
+          <h2 className="v2-h2"><span className="grad">174項目</span>の包括診断</h2>
+          <p className="v2-lead">基本診断から高度な攻撃シミュレーションまで、4階層で網羅。</p>
+        </motion.div>
+
+        <motion.div className="v2-container v2-tiers" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} variants={staggerParent}>
+          {[
+            {
+              tier: "Tier 1", note: "5モジュール / 51項目", color: "#16a34a",
+              items: ["セキュリティヘッダー", "サイト構造", "古いソフトウェア", "設定ミス", "ベストプラクティス"],
+            },
+            {
+              tier: "Tier 2", note: "7モジュール / 52項目", color: "#2563eb",
+              items: ["情報漏洩", "DNS", "攻撃面", "CORS", "CSRF", "匿名API", "レートリミット"],
+            },
+            {
+              tier: "Tier 3", note: "7モジュール / 43項目", color: "#8b5cf6",
+              items: ["オープンリダイレクト", "列挙", "キャッシュポイズニング", "JWT", "クラウドストレージ", "OAuth", "GraphQL"],
+            },
+            {
+              tier: "Tier 4", note: "4モジュール / 28項目", color: "#dc2626",
+              items: ["XSS", "SQLi", "SSRF", "HTTPスマグリング"],
+            },
+          ].map((t, i) => (
+            <motion.div key={i} className="v2-tier" variants={reveal}>
+              <div className="v2-tier-head">
+                <h3>{t.tier}</h3>
+                <span className="badge" style={{ background: t.color }}>{t.note}</span>
+              </div>
+              <div className="v2-tier-items">
+                {t.items.map((it) => (
+                  <div className="v2-tier-item" key={it}>
+                    <CheckCircle size={14} color={t.color} /> {it}
+                  </div>
                 ))}
               </div>
-            </div>
-            <div className="incident-cta-action">
-              <a href="#scan" className="btn btn-primary btn-lg">🛡 無料診断をはじめる →</a>
-              <div className="incident-cta-note">URLを入力するだけで、すぐに診断できます</div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
 
-      {/* 9. Pricing */}
-      <section className="block pricing" id="pricing">
-        <div className="container">
-          <div className="section-head">
-            <span className="eyebrow">💳 PRICING</span>
-            <h2 className="section-title">シンプルな料金プラン</h2>
-            <p className="section-sub">使い方に合わせて選べる4プラン。すべてのプランで主要な脆弱性検査を提供します。</p>
-          </div>
-          <div className="pricing-grid">
-            {[
-              {
-                ico: "🌱", name: "フリー", price: "¥0", per: "", tag: "無料登録", featured: false,
-                feats: ["1ドメインまで","月3回までスキャン（再診断用）","全174項目チェック","サブページ自動探索","証明書発行 ❌"],
-                cta: { label: "無料登録で始める", href: "/signup", cls: "btn-outline-plan" },
-              },
-              {
-                ico: "🛡", name: "スタンダード", price: "¥4,980", per: "/月", tag: "中小企業に最適", featured: true,
-                feats: ["5ドメインまで","月15回までスキャン","公式証明書 ★2★3 発行可能","PDF/CSVレポート出力","Slack/Discord通知","メールサポート"],
-                cta: { label: "このプランで始める", href: "/signup?plan=standard", cls: "btn-primary" },
-              },
-              {
-                ico: "🏢", name: "プロ", price: "¥19,800", per: "/月", tag: "エンタープライズ向け", featured: false,
-                feats: ["20ドメインまで","月60回までスキャン","公式証明書 ★2★3★4 発行可能","ログイン後ページ診断","API連携","優先サポート","SCS★3対応レポート"],
-                cta: { label: "このプランで始める", href: "/signup?plan=pro", cls: "btn-outline-plan" },
-              },
-              {
-                ico: "🏛", name: "エンタープライズ", price: "個別", per: "見積", tag: "大規模/政府/SI", featured: false,
-                feats: ["無制限ドメイン・無制限スキャン","全証明書（カスタム含む）","SAML SSO","オンプレ対応","SLA保証","専任CS"],
-                cta: { label: "お問い合わせ", href: "mailto:nugeirba@gmail.com?subject=Enterprise%20Plan", cls: "btn-outline-plan" },
-              },
-            ].map((plan) => (
-              <div key={plan.name} className={`price-card${plan.featured ? " featured" : ""}`}>
-                {plan.featured && <div className="pop-badge">★ MOST POPULAR</div>}
-                <div className="plan-ico">{plan.ico}</div>
-                <div className="plan-name">{plan.name}</div>
-                <div className="plan-price">{plan.price}{plan.per && <span className="per">{plan.per}</span>}</div>
-                <div className="plan-tag">{plan.tag}</div>
-                <ul className="plan-feats">
-                  {plan.feats.map(f => <li key={f}>{f}</li>)}
-                </ul>
-                <Link href={plan.cta.href} className={`btn plan-cta ${plan.cta.cls}`}>{plan.cta.label}</Link>
-              </div>
-            ))}
-          </div>
+      {/* 10. Certificates */}
+      <section className="v2-section">
+        <motion.div className="v2-container v2-center" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}>
+          <div className="v2-eyebrow"><Award size={12} /> CERTIFICATES</div>
+          <h2 className="v2-h2">取引先に提示できる<span className="grad">公式証明書</span></h2>
+          <p className="v2-lead">国の制度に完全準拠した認定書を、診断完了と同時にPDFで発行します。</p>
+        </motion.div>
 
-          {/* 安心ポイントバー */}
-          <div className="pricing-assurance">
-            {[
-              { ico: "🛡", title: "クレジットカード不要", sub: "いつでも無料で始められます" },
-              { ico: "⏱", title: "3〜8分で診断完了", sub: "すぐに結果を確認できます" },
-              { ico: "📄", title: "PDFレポート対応", sub: "そのまま提出・共有が可能" },
-              { ico: "🔒", title: "データは安全に管理", sub: "診断データは厳重に管理します" },
-            ].map((a, i) => (
-              <div key={i} className="pricing-assurance-item">
-                <div className="pricing-assurance-ico">{a.ico}</div>
+        <motion.div className="v2-container v2-certs" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} variants={staggerParent}>
+          <motion.div className="v2-cert" variants={reveal}>
+            <div className="stars">★★</div>
+            <div className="vis">
+              <img src="/ipa-security-action-2.svg" alt="IPA SECURITY ACTION ★2" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            </div>
+            <h3>IPA SECURITY ACTION 実施宣言証</h3>
+            <div className="meta">1回スキャンで取得 / 全プラン対応</div>
+          </motion.div>
+
+          <motion.div className="v2-cert popular" variants={reveal}>
+            <span className="badge">MOST POPULAR</span>
+            <div className="stars">★★★</div>
+            <div className="vis">
+              <ShieldBadge level={3} />
+            </div>
+            <h3>SCS★3 対応認定証</h3>
+            <div className="meta">1回スキャンで取得 / Standard以上</div>
+          </motion.div>
+
+          <motion.div className="v2-cert premium" variants={reveal}>
+            <span className="badge">PREMIUM</span>
+            <div className="stars">★★★★</div>
+            <div className="vis">
+              <ShieldBadge level={4} />
+            </div>
+            <h3>高度継続認定証</h3>
+            <div className="meta">31日間 + 2回スキャンで取得 / Pro限定</div>
+          </motion.div>
+        </motion.div>
+        <p style={{ marginTop: 24, textAlign: "center", fontSize: 12, color: "#64748b" }}>
+          ※★3・★4はSequlia独自の認定書です。経産省SCS評価制度・IPA SECURITY ACTIONの規定に準拠した内容で発行します。
+        </p>
+      </section>
+
+      {/* 11. Incidents */}
+      <section className="v2-section" style={{ background: "linear-gradient(180deg,#fff1f2,#fff)" }} id="incidents">
+        <motion.div className="v2-container v2-center" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}>
+          <div className="v2-eyebrow" style={{ background: "rgba(220,38,38,.1)", color: "#dc2626" }}><AlertTriangle size={12} /> REAL CASES</div>
+          <h2 className="v2-h2">実際の<span className="red">被害事例</span></h2>
+          <p className="v2-lead">これらは全て、Sequliaなら事前検出可能だった事例です。</p>
+        </motion.div>
+
+        <motion.div className="v2-container v2-incidents" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} variants={staggerParent}>
+          {[
+            { period: "2023年", type: "ランサムウェア", title: "大手飲料メーカー", damage: "国内工場6拠点が稼働停止、出荷遅延・億単位の損失" },
+            { period: "2024年", type: "不正アクセス", title: "自動車部品サプライヤー", damage: "完成車メーカー1社が国内全14工場で生産停止" },
+            { period: "2024年", type: "情報漏洩", title: "大規模病院グループ", damage: "電子カルテシステム停止・診療中止・約4万人の患者情報流出" },
+            { period: "2023年", type: "クレカ情報漏洩", title: "中堅EC事業者", damage: "顧客クレジット情報数万件流出、ブランド毀損" },
+          ].map((c, i) => (
+            <motion.div key={i} className="v2-incident" variants={reveal}>
+              <div className="head">
+                <span className="period">{c.period}</span>
+                <span className="type">{c.type}</span>
+              </div>
+              <h4>{c.title}</h4>
+              <div className="damage"><AlertTriangle size={14} style={{ verticalAlign: "middle", marginRight: 4 }} color="#dc2626" />{c.damage}</div>
+              <span className="detect"><CheckCircle size={14} /> Sequliaなら事前検出可能だった事例</span>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* 12. Pricing */}
+      <section className="v2-section" id="pricing">
+        <motion.div className="v2-container v2-center" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}>
+          <div className="v2-eyebrow"><TrendingUp size={12} /> PRICING</div>
+          <h2 className="v2-h2">シンプルで<span className="grad">明朗な料金</span></h2>
+          <p className="v2-lead">月¥4,980から、専門業者の100分の1のコストで本格診断。</p>
+        </motion.div>
+
+        <motion.div className="v2-container v2-pricing" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} variants={staggerParent}>
+          {[
+            { name: "Free", price: "¥0", per: "/月", feats: ["1ドメイン", "月3回診断", "基本レポート", "★2 IPA証明書"], cta: { href: "/signup", label: "無料で始める" }, cls: "" },
+            { name: "Standard", price: "¥4,980", per: "/月", feats: ["5ドメイン", "月15回診断", "AI解析レポート", "★2・★3 証明書"], cta: { href: "/signup?plan=standard", label: "Standardを選ぶ" }, cls: "featured", ribbon: "人気" },
+            { name: "Pro", price: "¥19,800", per: "/月", feats: ["20ドメイン", "月60回診断", "認証後ページ対応", "★2・★3・★4 証明書"], cta: { href: "/signup?plan=pro", label: "Proを選ぶ" }, cls: "pro", ribbon: "PREMIUM" },
+            { name: "Enterprise", price: "個別見積", per: "", feats: ["無制限ドメイン", "無制限診断", "専任担当・SLA", "全証明書 + カスタム"], cta: { href: "/pricing", label: "問い合わせる" }, cls: "" },
+          ].map((p, i) => (
+            <motion.div key={i} className={`v2-price-card ${p.cls}`} variants={reveal}>
+              {p.ribbon && <span className="ribbon">{p.ribbon}</span>}
+              <h3>{p.name}</h3>
+              <div className="price">{p.price}<small>{p.per}</small></div>
+              <ul>
+                {p.feats.map((f) => <li key={f}><CheckCircle size={14} color="#16a34a" />{f}</li>)}
+              </ul>
+              <Link href={p.cta.href} className="v2-btn v2-btn-primary" style={{ justifyContent: "center" }}>{p.cta.label}</Link>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* 13. Comparison */}
+        <motion.div className="v2-container v2-compare" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th className="sequlia">Sequlia</th>
+                <th>専門業者</th>
+                <th>何もしない</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>初回費用</td><td className="good">¥0</td><td className="bad">¥30〜100万円</td><td>¥0</td></tr>
+              <tr><td>月額</td><td className="good">¥0〜19,800</td><td className="bad">¥10〜30万円</td><td>¥0</td></tr>
+              <tr><td>診断頻度</td><td className="good">月3〜60回</td><td>年1〜2回</td><td className="bad">なし</td></tr>
+              <tr><td>結果取得まで</td><td className="good">3〜8分</td><td className="bad">2〜4週間</td><td>—</td></tr>
+              <tr><td>診断項目数</td><td className="good">174項目</td><td>100〜200項目</td><td className="bad">0</td></tr>
+              <tr><td>証明書発行</td><td className="good">★2〜★4</td><td>カスタム</td><td className="bad">なし</td></tr>
+            </tbody>
+          </table>
+        </motion.div>
+      </section>
+
+      {/* 14. Usecases */}
+      <section className="v2-section" style={{ background: "#f8fafc" }}>
+        <motion.div className="v2-container v2-center" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}>
+          <div className="v2-eyebrow"><Users size={12} /> USE CASES</div>
+          <h2 className="v2-h2"><span className="grad">業種別</span>ユースケース</h2>
+        </motion.div>
+        <motion.div className="v2-container v2-usecases" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} variants={staggerParent}>
+          {[
+            { ico: <Cloud size={22} />, title: "SaaS / Web系", text: "顧客への信頼性証明・SOC2準備" },
+            { ico: <ShoppingCart size={22} />, title: "EC事業", text: "決済情報保護・PCI DSS準拠補助" },
+            { ico: <Factory size={22} />, title: "製造業", text: "サプライチェーン要件・SCS対応" },
+            { ico: <Heart size={22} />, title: "医療・教育", text: "個人情報保護・継続的監視" },
+            { ico: <Building2 size={22} />, title: "自治体・公共", text: "入札加点・住民データ保護" },
+          ].map((u, i) => (
+            <motion.div key={i} className="v2-usecase" variants={reveal}>
+              <div className="ico">{u.ico}</div>
+              <h4>{u.title}</h4>
+              <p>{u.text}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* 15. Testimonials */}
+      <section className="v2-section">
+        <motion.div className="v2-container v2-center" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}>
+          <div className="v2-eyebrow"><Star size={12} /> TESTIMONIALS</div>
+          <h2 className="v2-h2">お客様の<span className="grad">声</span></h2>
+        </motion.div>
+        <motion.div className="v2-container v2-testimonials" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} variants={staggerParent}>
+          {[
+            { stars: "★★★★★", text: "「セキュリティ診断業者の見積もりが60万円。Sequliaなら月額5,000円弱で同等以上の項目を毎月チェックできる。即決でした。」", name: "田中健二 様", role: "テックソリューション 情報システム部" },
+            { stars: "★★★★★", text: "「2027年問題が話題になり始め、取引先からSCS対応を聞かれる場面が増えました。Sequliaの★3証明書のおかげで即答できるように。」", name: "佐藤美咲 様", role: "中堅製造業 経営企画" },
+            { stars: "★★★★★", text: "「新機能リリースの度に自動でセキュリティ診断が走る運用にしました。CI/CDに組み込めるのが他社にない決め手でした。」", name: "山田隆 様", role: "EC事業者 CTO" },
+          ].map((t, i) => (
+            <motion.div key={i} className="v2-testimonial" variants={reveal}>
+              <div className="stars">{t.stars}</div>
+              <blockquote>{t.text}</blockquote>
+              <div className="person">
+                <div className="avatar">{t.name.charAt(0)}</div>
                 <div>
-                  <div className="pricing-assurance-title">{a.title}</div>
-                  <div className="pricing-assurance-sub">{a.sub}</div>
+                  <div className="name">{t.name}</div>
+                  <div className="role">{t.role}</div>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="pricing-note">※料金はすべて税抜表示です。</div>
-        </div>
-      </section>
+            </motion.div>
+          ))}
+        </motion.div>
 
-      {/* 11. SCS */}
-      <section className="scs" id="scs">
-        <div className="container scs-grid">
-          <div>
-            <span className="scs-eyebrow">2027年 本格運用開始</span>
-            <h2>経産省 SCS評価制度に今から対応。<br />取引先からの証明要求に備える。</h2>
-            <p className="body">2027年に本格運用が予定される経産省「セキュリティ・チェックシート（SCS）評価制度」。★3要件の脆弱性診断、★4要件の継続的診断管理に対応したテンプレートを標準提供。Sequliaの診断レポートはそのまま証跡として提出できます。</p>
-            <div className="scs-actions">
-              <Link href="/compliance" className="btn btn-white btn-lg">SCS対応ページを見る</Link>
-              <a href="https://www.ipa.go.jp/security/security-action/" target="_blank" rel="noopener noreferrer" className="btn btn-outline-white btn-lg">IPA SECURITY ACTION ★2 ↗</a>
-            </div>
-          </div>
-          <div className="scs-cards">
-            <div className="scs-card">
-              <div className="star">★★★</div>
-              <h4>脆弱性診断要件 対応</h4>
-              <p>★3 で求められる定期的な脆弱性診断と是正記録の保管をカバー</p>
-            </div>
-            <div className="scs-card">
-              <div className="star">★★★★</div>
-              <h4>継続的診断管理 対応</h4>
-              <p>★4 で求められる継続的なセキュリティ診断・運用記録に対応</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 11. Certifications */}
-      <section className="certs">
-        <div className="container">
-          <div className="certs-label">セキュリティ基準への準拠</div>
-          <div className="certs-row">
-            <span className="cert"><span className="cert-mark">OW</span>OWASP</span>
-            <span className="cert"><span className="cert-mark">ISO</span>ISO 27001 準拠</span>
-            <span className="cert"><span className="cert-mark">EU</span>GDPR 対応</span>
-            <span className="cert"><span className="cert-mark">PS</span>受動的スキャン認定</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 12. FAQ */}
-      <section className="block faq">
-        <div className="container">
-          <div className="section-head">
-            <span className="eyebrow">❓ FAQ</span>
-            <h2 className="section-title">よくある質問</h2>
-          </div>
-          <div className="faq-list">
-            {FAQ_ITEMS.map((faq, i) => (
-              <div key={i} className={`faq-item ${openFaq === i ? "open" : ""}`}>
-                <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                  <span className="q-mark">Q</span>
-                  <span className="q-text">{faq.q}</span>
-                  <span className="faq-toggle">+</span>
-                </button>
-                <div className="faq-a">{faq.a}</div>
+        {/* 16. Resource CTA */}
+        <motion.div className="v2-container" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <div className="v2-resource">
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <div className="ico"><FileText size={36} /></div>
+              <div>
+                <h3>サービス資料PDFをダウンロード</h3>
+                <p>料金・機能・導入事例をまとめた1枚資料。社内検討にお使いください。</p>
               </div>
-            ))}
+            </div>
+            <a href="/docs/Sequlia_Service_Overview.pdf" target="_blank" rel="noopener noreferrer" className="v2-btn v2-btn-primary">
+              <FileText size={16} /> 資料をダウンロード
+            </a>
           </div>
+        </motion.div>
+      </section>
+
+      {/* 17. FAQ */}
+      <section className="v2-section" style={{ background: "#f8fafc" }}>
+        <motion.div className="v2-container v2-center" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={reveal}>
+          <div className="v2-eyebrow"><Search size={12} /> FAQ</div>
+          <h2 className="v2-h2">よくある<span className="grad">ご質問</span></h2>
+        </motion.div>
+        <div className="v2-container v2-faqs">
+          {FAQ_ITEMS.map((f, i) => (
+            <motion.div
+              key={i}
+              className="v2-faq"
+              data-open={openFaq === i}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <button type="button" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                <span>{f.q}</span>
+                <ChevronDown size={20} />
+              </button>
+              <AnimatePresence initial={false}>
+                {openFaq === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <div className="answer">{f.a}</div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* 13. Final 3-Path CTA */}
-      <section className="block final">
-        <div className="container">
-          <div className="section-head">
-            <h2 className="section-title">まず、無料で試してみてください</h2>
-            <p className="section-sub">3つの方法から、あなたに合った始め方をお選びいただけます。</p>
+      {/* 18. Final CTA */}
+      <section className="v2-final-cta">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <h2>今すぐ、無料で診断を始めよう</h2>
+          <p>クレジットカード不要・30秒登録・月3回まで完全無料。<br />まずは1サイトから、リスクの可視化を体験してください。</p>
+          <div className="btns">
+            <Link href="/signup" className="v2-btn v2-btn-white">
+              <Sparkles size={16} /> 無料で始める <ArrowRight size={16} />
+            </Link>
+            <a href="/docs/Sequlia_Service_Overview.pdf" target="_blank" rel="noopener noreferrer" className="v2-btn v2-btn-outline" style={{ borderColor: "rgba(255,255,255,.3)", color: "#fff" }}>
+              <FileText size={16} /> 資料ダウンロード
+            </a>
           </div>
-          <div className="final-grid">
-            <div className="fcard">
-              <div className="fic">📄</div>
-              <h3>資料ダウンロード</h3>
-              <p>サービス概要・SCS対応詳細・脅威分析をまとめた11ページの公式資料（PDF）。社内検討・取引先提示にご利用ください。</p>
-              <a href="/docs/Sequlia_Service_Overview.pdf" download className="btn btn-primary btn-lg" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                📄 PDF資料をダウンロード
-              </a>
-              <Link href="/compliance" className="btn btn-secondary" style={{ marginTop: 8, display: "inline-block" }}>SCS対応詳細を見る</Link>
-            </div>
-            <div className="fcard">
-              <div className="fic">💬</div>
-              <h3>お問い合わせ</h3>
-              <p>デモ・見積もり・導入相談など、お気軽にご相談ください。担当者から1営業日以内にご連絡します。</p>
-              <Link href="/pricing" className="btn btn-soft btn-lg">料金プランを見る</Link>
-            </div>
-            <div className="fcard feat">
-              <div className="fic">🚀</div>
-              <h3>今すぐ無料診断</h3>
-              <p>URLを入れて、3〜8分で完了。クレジットカード登録もインストールも不要です。</p>
-              <a href="#scan" className="btn btn-primary btn-lg">無料診断をはじめる →</a>
-            </div>
-          </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* 14. Footer */}
       <SiteFooter />
-
     </div>
   );
 }
 
-const menuItemStyle: React.CSSProperties = {
-  display: "block",
-  padding: "10px 14px",
-  fontSize: 13,
-  color: "#0f172a",
-  textDecoration: "none",
-  fontWeight: 500,
-};
+// ─── Shield Badge SVG component ───────────────────────────────────────
+function ShieldBadge({ level }: { level: 3 | 4 }) {
+  const grad = level === 3
+    ? ["#2563eb", "#06b6d4"]
+    : ["#8b5cf6", "#06b6d4"];
+  return (
+    <svg viewBox="0 0 110 130" className="shield-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id={`grad-${level}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={grad[0]} />
+          <stop offset="100%" stopColor={grad[1]} />
+        </linearGradient>
+      </defs>
+      <path
+        d="M55 4 L100 22 L100 70 Q100 100 55 124 Q10 100 10 70 L10 22 Z"
+        fill={`url(#grad-${level})`}
+        stroke="#fff"
+        strokeWidth="2"
+      />
+      <path
+        d="M55 12 L92 28 L92 70 Q92 96 55 116 Q18 96 18 70 L18 28 Z"
+        fill="none"
+        stroke="rgba(255,255,255,.4)"
+        strokeWidth="1"
+      />
+      <text x="55" y="58" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="800" fontFamily="system-ui">SCS</text>
+      <text x="55" y="86" textAnchor="middle" fill="#fff" fontSize="28" fontWeight="900" fontFamily="system-ui">★{level}</text>
+    </svg>
+  );
+}
