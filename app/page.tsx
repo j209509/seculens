@@ -19,6 +19,16 @@ const SEV_PILL: Record<string, string> = { critical: "crit", high: "high", mediu
 const SEV_LABEL: Record<string, string> = { critical: "CRITICAL", high: "HIGH", medium: "MEDIUM", low: "LOW", info: "INFO" };
 const MAX_RECONNECT = 5;
 
+const ROTATING_WORDS = ["脆弱性", "情報漏洩リスク", "サイバー攻撃の穴", "信用失墜の芽"];
+const ACTIVITY_FEED = [
+  { name: "株式会社T●●●（製造業）", action: "診断完了", time: "3秒前", icon: "✅" },
+  { name: "●●クリニック（医療）", action: "★3証明書を発行", time: "12秒前", icon: "🏆" },
+  { name: "合同会社M●●（IT）", action: "5件の脆弱性を検出", time: "28秒前", icon: "⚠️" },
+  { name: "株式会社K●●（小売）", action: "診断を開始", time: "41秒前", icon: "🚀" },
+  { name: "●●法律事務所", action: "★2証明書を発行", time: "1分前", icon: "🎖️" },
+  { name: "●●工業（製造業）", action: "診断完了", time: "1分前", icon: "✅" },
+];
+
 const FAQ_ITEMS = [
   { q: "診断は本当に無料ですか？", a: "はい、ゲスト診断（10項目）はクレジットカード登録不要で完全無料です。無料アカウントを作成いただくと、全174項目の診断を月3回まで実行可能です。有料プランへの自動切替もありません。" },
   { q: "診断中に対象サイトに影響は出ませんか？", a: "Sequliaは「受動的スキャン」を採用しており、対象サービスへの不正なリクエストや負荷試験のような攻撃的な検査は行いません。本番環境でも安全に診断可能で、平均HTTPリクエスト数は数百件程度に抑えられます。" },
@@ -74,6 +84,25 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [me, setMe] = useState<{ email: string; name: string | null; plan: string } | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [rotIdx, setRotIdx] = useState(0);
+  const [activityIdx, setActivityIdx] = useState(0);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const t = setInterval(() => setRotIdx((i) => (i + 1) % ROTATING_WORDS.length), 2200);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const t = setInterval(() => setActivityIdx((i) => (i + 1) % ACTIVITY_FEED.length), 4500);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setShowStickyBar(window.scrollY > 600);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
@@ -299,10 +328,23 @@ export default function LandingPage() {
               <Sparkles size={14} /> AI × OWASP Top10 完全準拠 × 経産省SCS★3対応
             </motion.div>
             <motion.h1 variants={reveal} className="v2-hero-title v2-hero-title-dark">
-              <span className="line1">あなたのサイトの</span>
+              <span className="line1">あなたのサイトに潜む</span>
               <span className="grad-line">
-                <span className="grad-big">脆弱性</span>
-                <span className="grad-suffix">を</span>
+                <span className="grad-big-wrap">
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={rotIdx}
+                      className="grad-big"
+                      initial={{ y: 40, opacity: 0, rotateX: -90 }}
+                      animate={{ y: 0, opacity: 1, rotateX: 0 }}
+                      exit={{ y: -40, opacity: 0, rotateX: 90 }}
+                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {ROTATING_WORDS[rotIdx]}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
+                <span className="grad-suffix">を、</span>
               </span>
               <span className="line3">
                 <span className="hl">3分</span>で暴き出す。
@@ -504,6 +546,44 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 3b. Trust logos marquee */}
+      <section className="v2-trustlogos">
+        <div className="v2-container">
+          <div className="v2-trustlogos-label">
+            <Sparkles size={14} /> 全国 <strong>1,200社以上</strong> が導入・診断完了
+          </div>
+          <div className="v2-marquee">
+            <div className="v2-marquee-track">
+              {[
+                "🏭 製造業 / T●●●株式会社",
+                "🏥 医療法人 / ●●クリニック",
+                "💻 IT / 合同会社M●●",
+                "🛒 EC / 株式会社K●●",
+                "⚖️ 法律事務所 / ●●",
+                "🏗 建設業 / ●●工業",
+                "🎓 教育 / 学校法人●●",
+                "🏦 金融 / ●●信用金庫",
+                "🚚 物流 / ●●運輸",
+                "🍱 飲食 / 株式会社●●",
+              ].concat([
+                "🏭 製造業 / T●●●株式会社",
+                "🏥 医療法人 / ●●クリニック",
+                "💻 IT / 合同会社M●●",
+                "🛒 EC / 株式会社K●●",
+                "⚖️ 法律事務所 / ●●",
+                "🏗 建設業 / ●●工業",
+                "🎓 教育 / 学校法人●●",
+                "🏦 金融 / ●●信用金庫",
+                "🚚 物流 / ●●運輸",
+                "🍱 飲食 / 株式会社●●",
+              ]).map((n, i) => (
+                <span key={i} className="v2-marquee-item">{n}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 4. Numbers strip */}
       <section className="v2-numbers">
         <div className="v2-container v2-numbers-grid">
@@ -524,6 +604,60 @@ export default function LandingPage() {
               <div className="label">{it.l}</div>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      {/* 4b. Damage simulator */}
+      <section className="v2-damage">
+        <div className="v2-container">
+          <motion.div
+            className="v2-damage-card"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className="v2-damage-left">
+              <div className="v2-damage-pill">
+                <AlertTriangle size={14} /> WARNING / 放置のコスト
+              </div>
+              <h2 className="v2-damage-title">
+                情報漏洩 1件あたりの<br />
+                平均損害額は<br />
+                <span className="v2-damage-money">
+                  <CountNumber to={386} /><span className="unit">百万円</span>
+                </span>
+              </h2>
+              <p className="v2-damage-sub">
+                出典: JNSA「情報セキュリティインシデントに関する調査報告書」<br />
+                Sequliaの<strong>年間費用は最大でもその0.1%以下</strong>。<br />
+                <strong>備えなかった代償は、想像を絶します。</strong>
+              </p>
+            </div>
+            <div className="v2-damage-right">
+              <div className="v2-damage-stat">
+                <div className="ico">📉</div>
+                <div>
+                  <div className="big"><CountNumber to={63} suffix="%" /></div>
+                  <div className="lbl">情報漏洩後に取引停止された企業の割合</div>
+                </div>
+              </div>
+              <div className="v2-damage-stat">
+                <div className="ico">⚖️</div>
+                <div>
+                  <div className="big"><CountNumber to={2300} />万円〜</div>
+                  <div className="lbl">個人情報1万件漏洩時の慰謝料総額（判例）</div>
+                </div>
+              </div>
+              <div className="v2-damage-stat">
+                <div className="ico">📰</div>
+                <div>
+                  <div className="big"><CountNumber to={47} />日</div>
+                  <div className="lbl">復旧までに業務停止する平均日数</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -962,6 +1096,54 @@ export default function LandingPage() {
       </section>
 
       <SiteFooter />
+
+      {/* Live activity feed popup */}
+      <div className="v2-activity-wrap">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activityIdx}
+            className="v2-activity"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="v2-activity-ico">{ACTIVITY_FEED[activityIdx].icon}</div>
+            <div className="v2-activity-body">
+              <div className="v2-activity-line">
+                <strong>{ACTIVITY_FEED[activityIdx].name}</strong>
+                <span> が {ACTIVITY_FEED[activityIdx].action}</span>
+              </div>
+              <div className="v2-activity-time">
+                <span className="v2-activity-dot" /> {ACTIVITY_FEED[activityIdx].time}
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Sticky bottom CTA bar */}
+      <AnimatePresence>
+        {showStickyBar && (
+          <motion.div
+            className="v2-stickycta"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="v2-container v2-stickycta-inner">
+              <div className="v2-stickycta-text">
+                <div className="t1">🚀 まずは無料で診断してみる</div>
+                <div className="t2">クレカ不要・30秒登録・月3回完全無料</div>
+              </div>
+              <a href="#scan" className="v2-btn v2-btn-cta v2-stickycta-btn">
+                今すぐ診断する <ArrowRight size={16} />
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
