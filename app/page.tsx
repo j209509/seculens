@@ -476,12 +476,12 @@ export default function LandingPage() {
           variants={staggerParent}
         >
           {[
-            { img: "/crisis-card-01.png", title: "取引先から切られる", text: "大手企業のサプライチェーン要件にSCS対応が組み込まれ、未対応企業は契約打ち切りに。" },
-            { img: "/crisis-card-02.png", title: "新規契約断られる", text: "新規取引の入口で「セキュリティ証明書はありますか？」と聞かれる時代に。" },
-            { img: "/crisis-card-03.png", title: "入札で減点される", text: "公共調達・自治体案件では、SCS対応有無が加点項目として明文化される予定。" },
+            { icon: "💔", title: "取引先から切られる", text: "大手企業のサプライチェーン要件にSCS対応が組み込まれ、未対応企業は契約打ち切りに。" },
+            { icon: "🚫", title: "新規契約断られる", text: "新規取引の入口で「セキュリティ証明書はありますか？」と聞かれる時代に。" },
+            { icon: "📉", title: "入札で減点される", text: "公共調達・自治体案件では、SCS対応有無が加点項目として明文化される予定。" },
           ].map((c, i) => (
             <motion.div key={i} className="v2-crisis-card" variants={reveal}>
-              <img src={c.img} alt="" />
+              <div className="v2-crisis-card-icon">{c.icon}</div>
               <h4><AlertTriangle size={16} style={{ verticalAlign: "middle", marginRight: 6 }} />{c.title}</h4>
               <p>{c.text}</p>
             </motion.div>
@@ -500,7 +500,6 @@ export default function LandingPage() {
               「我が社はセキュリティ対策をしている」<br />
               という<span className="accent">&ldquo;証明&rdquo;</span>が必須になる。
             </h3>
-            <img src="/crisis-stressed.png" alt="" />
           </div>
         </motion.div>
       </section>
